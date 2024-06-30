@@ -1,9 +1,21 @@
-Objective:
 Theory:
     1° GitHub collaborative work 
     2° API operation
     3° String manipulation algorithms
+
+
+To Do:
+    https://www.remnote.com/a/Plagiarism-Detection-Project/6681ad3e678ed019b00e2d5b
+
+Libraries:
+    1° NLTK : Pour la préparation des données (tokenization, stemming, stop word removal).
+    2° re (expressions régulières) : Pour la normalisation du txt.
+    3° collections : Pour les tables de hachage et les str. de données.
+    4° Scikit-learn : Pour les mesures de similarité (cosine similarity).
+    5° numpy : Pour les calculs vectoriels.
+
 Sources:
+
     String manipulation algorithm:
         https://www.kaggle.com/datasets/timoboz/data-science-cheat-sheets
         Pages:  -KMP algorithm (p25)
@@ -11,11 +23,15 @@ Sources:
                 -Substring searching (p40)
                 -Longest common subsequence (p47)
                 -Longest increasing subsequence (p48)
+
     Plagiarism detection system project n°5:
         https://codegnan.com/blogs/data-structure-and-algorithm-project-ideas/
+
     plagiarism Theory:
         https://gsi.berkeley.edu/gsi-guide-contents/academic-misconduct-intro/plagiarism/detect-plagiarism/
+
     Texts Sources:
         https://www.kaggle.com/datasets/azharabdulaziz/plagiarismtest100files
+
     Plagiarism MIT Detection:
         https://www.kaggle.com/code/mpwolke/plagiarism-mit-detection
