@@ -3,9 +3,12 @@ Theory:
     2° API operation
     3° String manipulation algorithms
 
+Search:
+    1° KMP has a best and worst performance of O(n), better then BM and RK
+    2° 
 
 To Do:
-    https://www.remnote.com/a/Plagiarism-Detection-Project/6681ad3e678ed019b00e2d5b
+    https://github.com/users/Luckyyyin/projects/3
 
 Libraries:
     1° NLTK : Pour la préparation des données (tokenization, stemming, stop word removal).
