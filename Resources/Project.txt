@@ -5,7 +5,7 @@ Theory:
 
 
 To Do:
-    https://www.remnote.com/a/Plagiarism-Detection-Project/6681ad3e678ed019b00e2d5b
+    https://github.com/users/Luckyyyin/projects/3
 
 Libraries:
     1° NLTK : Pour la préparation des données (tokenization, stemming, stop word removal).

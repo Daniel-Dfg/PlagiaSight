@@ -1,2 +1,7 @@
 # PlagiarismDetectionProject
-PlagiarismDetectionProject
+
+### Introduction:
+
+### ScreenShots:
+
+### Sources:
