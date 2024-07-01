@@ -3,6 +3,9 @@ Theory:
     2° API operation
     3° String manipulation algorithms
 
+Search:
+    1° KMP has a best and worst performance of O(n), better then BM and RK
+    2° 
 
 To Do:
     https://github.com/users/Luckyyyin/projects/3
