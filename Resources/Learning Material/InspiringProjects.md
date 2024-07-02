@@ -18,7 +18,7 @@ These projects have been ordered to follow a hierarchical order in terms of "com
 4) [Text-Mining by **ShreshthSaxena**](https://github.com/ShreshthSaxena/Text-Mining)
     - An actual assignment for school/uni, it seems; could give us ideas to structure our code and project files rigorously
     - Usage of unseen concepts for us; similarity matrix, Jaccard index, hierarchical clustering, LSA (we'll probably not use all of these, since the "Text-Mining" projects allows an analysis on multiple docs at a time)
-    - Heavy usage of extern librairies
+    - Heavy usage of aformentioned extern librairies
 
 5) [Writing-Styles-Classification-Using-Stylometric-Analysis by **Hassaan-Elahi**](https://github.com/Hassaan-Elahi/Writing-Styles-Classification-Using-Stylometric-Analysis)
     - Not really a plagiarism checker, but a great source of ideas to analyze a text reinforced by a fleshed-out documentation
