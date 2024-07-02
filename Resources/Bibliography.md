@@ -1,5 +1,5 @@
 ## __BIBLIOGRAPHY__
-*Origin of the learning material used for this project (continuously updated)*
+*Origin of the learning material used for this project (inspiring projects kept apart in* [InspiringProjects.md](https://github.com/Luckyyyin/PlagiarismDetectionProject/blob/main/Resources/Learning%20Material/InspiringProjects.md) , *continuously updated)*
 
 1) *15 Data Structure and Algorithm (DSA) Project Ideas* by **S.Uppugundla** at __Codegnan__ - [https://codegnan.com/blogs/data-structure-and-algorithm-project-ideas/](https://codegnan.com/blogs/data-structure-and-algorithm-project-ideas/)
 2) *Detecting and Addressing Plagiarism* by the **GSI Teaching & Resource Center** from __Berlekey Graduate Division__ - [https://gsi.berkeley.edu/gsi-guide-contents/academic-misconduct-intro/plagiarism/detect-plagiarism/](https://gsi.berkeley.edu/gsi-guide-contents/academic-misconduct-intro/plagiarism/detect-plagiarism/)
