@@ -1,5 +1,5 @@
 ## __Phase 1 : data extraction and algorithms "brute applications"__
-__Goals :__
+__Goals :__\n
         1) extract the text data from a `.txt` doc
             - tokenization (text cleaning + dividing the text in single units)
             - Stop Word removal
