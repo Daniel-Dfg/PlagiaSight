@@ -57,6 +57,7 @@ The remarks below are opinions at best, they were written to help us make this p
     - Not really a plagiarism checker, but a great source of ideas to analyze a text reinforced by a fleshed-out documentation
     - Extremely well documented, easy to use
     - The code itself is well commented
+      
    __NEUTRAL__
     - Probably "too advanced" at our current level to fully understand; could be used to foreshadow certain concepts that we would discover along the making of this project
     
