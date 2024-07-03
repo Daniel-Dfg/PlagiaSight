@@ -3,10 +3,10 @@
 __Goals :__
 
 1) extract the text data from a `.txt` doc
-            - tokenization (text cleaning + dividing the text in single units)
-            - Stop Word removal
-            - Lemmatization
-            - Getting the data in a certain structure (which one and why ?)
+- tokenization (text cleaning + dividing the text in single units)
+- Stop Word removal
+- Lemmatization
+- Getting the data in a certain structure (which one and why ?)
 2) Apply a few simple algorithms on the given data (which ones and why?), and display the "barebones" results (without further interpretations or suggestions)
             - This must be applied to words only to keep this phase simple (e.g no lookup for synonyms across the texts and no sentence tone, length or structure analysis)
             
