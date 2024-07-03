@@ -5,6 +5,7 @@ These projects have been ordered to follow a hierarchical order in terms of "com
 1) [Simple-Plagiarism-Chercker by **abhilampard**](https://github.com/abhilampard/Simple-Plagiarism-Checker/tree/master)
     - Very simple detection methods; TF and cosine similarity
     - Basic usage of the `re` module, useful to learn about text conversions to lowercase and punctuation removal for instance
+    - Quite old, however, and doesn't make the best usage of the data structures available in Python
     
 2) [PlagiarismRemover by **simranvolunesia**](https://github.com/simranvolunesia/PlagiarismRemover)
     - basic method of synonyms detection in a text
