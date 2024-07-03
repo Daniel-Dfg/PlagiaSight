@@ -21,7 +21,7 @@ __Goals :__
             - Compare this to the input data
 2) Refining the analysis; combining together the first few algorithms implemented in phase 1 to start drawing conclusions about the potential plagiarism.
         
-## __Phase 3 : analysis refinement and graphical interface
+## __Phase 3 : analysis refinement and graphical interface__
 
 __Goals :__
 
@@ -33,7 +33,7 @@ __Goals :__
         - Drawing more elaborate conclusions about the similarities between texts by *linking* further our implemented algorithms
         - Warn the user when they provide a "bad" input: for instance, if their doc consists of only one sentence, there's no way to really tell if there's "plagiarism" between the input and the source. It must be told to the user.
 
-## __Phase 4 : scraping the web further, and introduction to semiology (see Inspiring Project n°5)
+## __Phase 4 : scraping the web further, and introduction to semiology (see Inspiring Project n°5)__
 
 __Goals :__
 
