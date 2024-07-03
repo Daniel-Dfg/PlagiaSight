@@ -14,7 +14,7 @@ The remarks below are opinions at best, they were written to help us make this p
     - Quite old and doesn't make the best usage of the data structures available in Python
     - Contains some fundemental flaws; unclear input feedback (~meaningless percentage because of using such basic computation methods), and faulty computation method for the TF
     
-3) [PlagiarismRemover by **simranvolunesia**](https://github.com/simranvolunesia/PlagiarismRemover)
+2) [PlagiarismRemover by **simranvolunesia**](https://github.com/simranvolunesia/PlagiarismRemover)
 
     __PROS__
     - Not a plagiarism detector, but gives ideas to actually detect plagiarism
@@ -27,7 +27,7 @@ The remarks below are opinions at best, they were written to help us make this p
     - Presence of bad programming practices that make the code harder to read than it should be, even for such a small project (such as the two functions `plagiarism_remover` and `plagiarism_removal` with almost clashing names, despite the fact that they are actually complementary and do not do the same thing)
     - Decent documentation, but lack of explaination over what the code itself does at times
     
-5) [Plagiarism Checker by **mozzaart23**](https://github.com/Moozzaart23/PlagiarismChecker/tree/master)
+3) [Plagiarism Checker by **mozzaart23**](https://github.com/Moozzaart23/PlagiarismChecker/tree/master)
 
    __PROS__
     - Slightly more advanced detection methods; TF-IDF (to span the analysis across multiple documents) and KL Divergence
@@ -37,13 +37,27 @@ The remarks below are opinions at best, they were written to help us make this p
     __CONS__
     - The code is not always totally explicit and lacks comments
     
-7) [Text-Mining by **ShreshthSaxena**](https://github.com/ShreshthSaxena/Text-Mining)
+4) [Text-Mining by **ShreshthSaxena**](https://github.com/ShreshthSaxena/Text-Mining)
+    
+    __PROS__
     - An actual assignment for school/uni, it seems; could give us ideas to structure our code and project files rigorously
     - Usage of unseen concepts for us; similarity matrix, Jaccard index, hierarchical clustering, LSA (we'll probably not use all of these, since the "Text-Mining" projects allows an analysis on multiple docs at a time)
     - Heavy usage of aformentioned extern librairies
+    - Simple reports about each phase of the assignment to give an idea of the results to obtain using these methods
+    - Lots of sample data to work with; many iterations over a same subject (search engines here)
 
-8) [Writing-Styles-Classification-Using-Stylometric-Analysis by **Hassaan-Elahi**](https://github.com/Hassaan-Elahi/Writing-Styles-Classification-Using-Stylometric-Analysis)
+   __CONS__
+   - Little to no explaination on *why* to use this or that concept in this or that order
+   - Code often not explicit, little to no comments and unclear overarching structure among project files
+   
+
+5) [Writing-Styles-Classification-Using-Stylometric-Analysis by **Hassaan-Elahi**](https://github.com/Hassaan-Elahi/Writing-Styles-Classification-Using-Stylometric-Analysis)
+
+    __PROS__
     - Not really a plagiarism checker, but a great source of ideas to analyze a text reinforced by a fleshed-out documentation
+    - Extremely well documented, easy to use
+    - The code itself is well commented
+   __NEUTRAL__
     - Probably "too advanced" at our current level to fully understand; could be used to foreshadow certain concepts that we would discover along the making of this project
     
 
