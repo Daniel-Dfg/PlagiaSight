@@ -3,10 +3,11 @@
 """
 
 import re
-import nltk # For pos Tagging
-from nltk.tokenize import sent_tokenize, word_tokenize
+import nltk
+from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from nltk import FreqDist
 
 def filesDataExtraction():
     """
