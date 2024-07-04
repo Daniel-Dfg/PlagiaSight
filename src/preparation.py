@@ -3,7 +3,10 @@
 """
 
 import re
-import nltk
+import nltk # For pos Tagging
+from nltk.tokenize import sent_tokenize, word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer, WordNetLemmatizer
 
 def filesDataExtraction():
     """
