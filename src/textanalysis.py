@@ -1,5 +1,5 @@
 """
-    Coded by: Luckyyyin and Daniel-Dfg
+    Coded by:-Daniel-Dfg
 """
 from string import punctuation # helps to check if a string is made of punctuation only here
 from math import sqrt
