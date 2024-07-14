@@ -1,0 +1,140 @@
+#Code1:
+    from numpy import array, concatenate, isin
+    from nltk.tokenize import sent_tokenize, RegexpTokenizer
+    from nltk.corpus import stopwords
+    from nltk.stem import WordNetLemmatizer
+
+    class Prepare:
+        def __init__(self, file:str) -> None:
+            self.file = file
+            self.textNoEnline: str = self.getText()
+            self.sentencesArray: array = array(sent_tokenize(self.textNoEnline))
+            self.NoPunctuationsArray: array = self.getNoPunctuations()
+            self.NoStopWordsArray: array = self.getNoStopWords()
+            self.lemmaArry: array = self.lemma()
+            
+            
+        def getText(self) -> str:
+            with open(self.file, 'r', encoding="utf-8-sig") as f:
+                text = f.read()
+                text = array(text.split("\n"))
+                textNoEndline = " ".join(text)
+                return textNoEndline.lower()
+        
+        def getNoPunctuations(self) -> array:
+            rt = RegexpTokenizer(r'\w+')
+            textNoPunctuations = array(rt.tokenize(self.textNoEnline))
+            return textNoPunctuations
+        
+        def getNoStopWords(self) -> array:
+            sw = array(stopwords.words("english"))
+            mask = isin(self.NoPunctuationsArray, sw)
+            return self.NoPunctuationsArray[~mask]
+        
+        def lemma(self) -> array:
+            lemma = WordNetLemmatizer()
+            lemmawords = array([])
+            for word in self.NoPunctuationsArray:
+                noun = lemma.lemmatize(word, 'n')
+                verbe = lemma.lemmatize(noun, 'v')
+                adjective = lemma.lemmatize(verbe,'a')
+                adverb = lemma.lemmatize(adjective, 'r')
+                satellite = lemma.lemmatize(adverb, 's')
+                lemmawords = concatenate((lemmawords, array([satellite])))
+            return lemmawords
+#Code2:
+    from dataclasses import dataclass, field
+    from os import path
+    import nltk
+    from nltk.tokenize import wordpunct_tokenize, sent_tokenize
+    from nltk.corpus import stopwords, wordnet
+    from nltk.stem import WordNetLemmatizer
+    from nltk import FreqDist, pos_tag
+    nltk.download('wordnet')
+
+    @dataclass
+    class Tokenizer:
+        """
+        -> Extracts and Tokenizes data from source
+        --> Cleans the data to make it analyzable
+
+        - contains the tokenization methods and the tokens themselves (using @property)
+        """
+        file: str
+        _raw_data: str = field(init=False, repr=False)
+        _tokens_by_sentence: list[str] = field(init=False, default_factory=list, repr=False)
+        _tokens_by_wordpunct: list[str] = field(init=False, default_factory=list, repr=False)
+
+        def __post_init__(self):
+            self.extract_raw_from_file()
+            self.tokenize_text()
+            self.clean_data()
+
+        def extract_raw_from_file(self):
+            if not path.exists(self.file):
+                raise FileNotFoundError("Specified file doesn't exist")
+            with open(self.file, 'r') as f:
+                self._raw_data = f.read()
+
+        def tokenize_text(self):
+            self._tokens_by_sentence = sent_tokenize(self._raw_data)
+            self._tokens_by_wordpunct = wordpunct_tokenize(self._raw_data)
+
+        def clean_data(self):
+            stop_words = set(stopwords.words("english"))  # from nltk.corpus
+            lemmatizer = WordNetLemmatizer()
+
+            # removing capital letters
+            self._tokens_by_sentence = [token.lower() for token in self._tokens_by_sentence]
+            self._tokens_by_wordpunct = [token.lower() for token in self._tokens_by_wordpunct]
+
+            # removing stop words
+            self._tokens_by_wordpunct = [token for token in self._tokens_by_wordpunct if token not in stop_words]
+            self._tokens_by_sentence = [token for token in self._tokens_by_sentence if token not in stop_words]
+
+            # lemmatization
+            self._tokens_by_wordpunct = [lemmatizer.lemmatize(token) for token in self._tokens_by_wordpunct]
+            self._tokens_by_sentence = [lemmatizer.lemmatize(token) for token in self._tokens_by_sentence]
+
+        @property
+        def tokens_by_sentence(self):
+            if not self._tokens_by_sentence:
+                print("Warning: empty list of tokens by sentence. \nPlease make sure that there's data to work with.")
+            return self._tokens_by_sentence
+
+        @property
+        def tokens_by_wordpunct(self):
+            if not self._tokens_by_wordpunct:
+                print("Warning: empty list of tokens by word/punctuation. \nPlease make sure that there's data to work with.")
+            return self._tokens_by_wordpunct
+
+        @property
+        def raw_data(self):
+            if not self._raw_data:
+                print("Warning: raw data is empty")
+            return self._raw_data
+
+    @dataclass
+    class TextProcessingStatistics(Tokenizer):
+        """
+        MUST be used with ONE set of Tokens.
+        - Provides statistical insights over ONE source (word frequency, text richness, POS...)
+        """
+        word_freq_wordpunct: FreqDist = field(init=False)
+        text_richness: float = field(init=False)
+        part_of_speeches: list = field(init=False)
+        average_sentence_length : float = field(init=False)
+
+        def __post_init__(self):
+            super().__post_init__()
+            self.calculate_statistics()
+
+        def calculate_statistics(self):
+            self.word_freq_wordpunct = FreqDist(self.tokens_by_wordpunct)
+            self.text_richness = len(self.tokens_by_wordpunct) / len(set(self.tokens_by_wordpunct))
+            self.part_of_speeches = pos_tag(self.tokens_by_wordpunct)
+
+        def display_statistics(self):
+            print(f"Word Frequency (WordPunct): {self.word_freq_wordpunct}")
+            print(f"Text Richness: {self.text_richness}")
+            print(f"Part of Speeches: {self.part_of_speeches}")
