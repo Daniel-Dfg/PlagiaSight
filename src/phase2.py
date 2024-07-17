@@ -26,18 +26,18 @@ class URLs:
         
             >>> x = URLs("football", 3)
             >>> x.url_array
-            ["http//:www.football.com", "http//:www.footballworld.com", "http//:www.worldcup.com"]
+            >>> ["http//:www.football.com", "http//:www.footballworld.com", "http//:www.worldcup.com"]
     """
     
     wordsent: str
     number: int
-    _url_array: array = field(init=False)
+    _url_array: array = field(init=False, repr=False)
     
     def __post_init__(self):
         self.makeUrls()
         
     def makeUrls(self):
-        self.url_array(search(self.wordsent, num=self.number, stop=self.number))
+        self._url_array = array(list(search(self.wordsent, num=self.number, stop=self.number)))
     
     @property
     def url_array(self) -> array:
@@ -62,7 +62,7 @@ class HtmlText:
         
             >>> x = HtmlText("http//:worldcup.com")
             >>> x.text()
-            "The world cup 2024 was ..."
+            >>> "The world cup 2024 was ..."
     """
     
     url: str
