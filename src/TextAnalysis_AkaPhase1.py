@@ -3,7 +3,7 @@
 """
 from string import punctuation # helps to check if a string is made of punctuation only here
 from math import sqrt
-from numpy import array, append, argsort
+from numpy import array, append, argsort, zeros
 from nltk.tokenize import wordpunct_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
@@ -29,11 +29,14 @@ class Tokenizer:
     _tokens_by_wordpunct: array = field(init=False,  repr=False)
     _tokens_by_word: array = field(init=False, repr=False)
     _top_common_words_map: map = field(init=False, repr=False)
+    _top_common_words: array = field(init=False, repr=False)
+    _top_common_word_sentences: array = field(init=False, repr=False)
 
     def __post_init__(self):
         self.extract_raw_from_file()
         self.tokenize_text()
         self.clean_data()
+        self.make_top_common_words_map()
 
     def extract_raw_from_file(self):
         if not path.exists(self.file):
@@ -80,25 +83,56 @@ class Tokenizer:
         else:
             return wordnet.NOUN # By default
     
-    def top_common_words_map(self) -> array:
+    def make_top_common_words_map(self) -> array:
         self._top_common_words_map = Counter(self.tokens_by_word)
         
-    def top_common_word(self, number:int) -> array:
+    def make_top_common_words(self, number:int) -> array:
         """
             ## Parameter
                 
                 number : int
-                    number of words in the array      
+                    number of words in the array
+            
+            ## Example:
+                
+                >>> x = Tokenizer("file")
+                >>> x.top_common_word(3)
+                >>> ["life" "death" "live"]
         """
-        def top_common_words(self, tcwm: dict, n: int) -> list:
-            keys = array(list(tcwm.keys()))
-            values = array(list(tcwm.values()))
-            top_indices = argsort(values)[-n:][::-1]
-            tcw = keys[top_indices]
-            return tcw
+        keys = array(list(self._top_common_words_map.keys()))
+        values = array(list(self._top_common_words_map.values()))
+        top_indices = argsort(values)[-number:][::-1] # Create an indices array equal to the given number
+        self._top_common_words = keys[top_indices] # Give the top common word in an array
     
-    def top_common_word_sentences(self, number: int, word: array):
-        pass
+    def make_top_common_word_sentences(self, number: int, rank: array):
+        """
+            ## Parameter
+                
+                number : int
+                    number of sentences inside the array
+                rank : in
+                    top common word rank (0 - array.size)
+            
+            ## Example:
+                
+                >>> x = Tokenizer("file")
+                >>> x.make_top_common_word(3)
+                >>> x.top_common_word
+                >>> ["life" "death" "live"]
+                >>> x.make_top_common_word_sentences(2, 1)
+                >>> x.top_common_word_sentences
+                >>> ["death is everywhere" "death is peace to mankind"]
+        """
+        if self._top_common_words.size == 0:
+            return array([])
+        word = self._top_common_words[rank]
+        self._top_common_word_sentences = zeros(number,dtype='U50')
+        count = 0
+        for sent in self._tokens_by_sentence:
+            if word in sent and self._top_common_word_sentences.size >= number:
+                self._top_common_word_sentences[count] = sent
+                count += 1
+        
         
 
     @property
@@ -125,6 +159,16 @@ class Tokenizer:
         if not self._raw_data:
             print("Warning: raw data is empty")
         return self._raw_data
+    @property
+    def top_common_words(self):
+        if self._top_common_words.size == 0:
+            print("Warning: top common words is empty")
+        return self._top_common_words
+    @property
+    def top_common_word_sentences(self):
+        if self._top_common_word_sentences.size == 0:
+            print("Warning: top common words is empty")
+        return self._top_common_word_sentences
 
 
 @dataclass
@@ -240,7 +284,4 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
             source_trigrams = self.source_tokens_sets.base.trigrams
             self._identical_trigrams = self.find_similar_ngrams(input_trigrams, source_trigrams)
         return self._identical_trigrams
-
-
-x = Tokenizer("./text.txt")
-print(x.topCommonWord(1))
+    

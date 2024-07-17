@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup
 from googlesearch import search
 from requests import get
 from numpy import array
-from nltk import clean_html
 from dataclasses import field, dataclass
 
 @dataclass
@@ -75,12 +74,8 @@ class HtmlText:
     def makeText(self): #TODO solve Error with complexes sites structure
         html = get(self.url).text
         bs = BeautifulSoup(html, "html5lib")
-        self._html_text = bs.find_all().encode('utf-8-sig')
+        self._html_text = bs.get_text()
         
     @property
     def html_text(self):
-        return self._text
-
-x = HtmlText("https://www.w3schools.com/")
-print(x)
-
+        return self._html_text
