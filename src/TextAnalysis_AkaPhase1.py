@@ -3,7 +3,7 @@
 """
 from string import punctuation # helps to check if a string is made of punctuation only here
 from math import sqrt
-from numpy import array, append, argsort, zeros
+from numpy import array, append
 from nltk.tokenize import wordpunct_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
@@ -28,15 +28,12 @@ class Tokenizer:
     _tokens_by_sentence: array = field(init=False, repr=False)
     _tokens_by_wordpunct: array = field(init=False,  repr=False)
     _tokens_by_word: array = field(init=False, repr=False)
-    _top_common_words_map: map = field(init=False, repr=False)
-    _top_common_words: array = field(init=False, repr=False)
-    _top_common_word_sentences: array = field(init=False, repr=False)
+    #_top_common_word_sentences: array = field(init=False, repr=False)
 
     def __post_init__(self):
         self.extract_raw_from_file()
         self.tokenize_text()
         self.clean_data()
-        self.make_top_common_words_map()
 
     def extract_raw_from_file(self):
         if not path.exists(self.file):
@@ -83,58 +80,6 @@ class Tokenizer:
         else:
             return wordnet.NOUN # By default
     
-    def make_top_common_words_map(self) -> array:
-        self._top_common_words_map = Counter(self.tokens_by_word)
-        
-    def make_top_common_words(self, number:int) -> array:
-        """
-            ## Parameter
-                
-                number : int
-                    number of words in the array
-            
-            ## Example:
-                
-                >>> x = Tokenizer("file")
-                >>> x.top_common_word(3)
-                >>> ["life" "death" "live"]
-        """
-        keys = array(list(self._top_common_words_map.keys()))
-        values = array(list(self._top_common_words_map.values()))
-        top_indices = argsort(values)[-number:][::-1] # Create an indices array equal to the given number
-        self._top_common_words = keys[top_indices] # Give the top common word in an array
-    
-    def make_top_common_word_sentences(self, number: int, rank: array):
-        """
-            ## Parameter
-                
-                number : int
-                    number of sentences inside the array
-                rank : in
-                    top common word rank (0 - array.size)
-            
-            ## Example:
-                
-                >>> x = Tokenizer("file")
-                >>> x.make_top_common_word(3)
-                >>> x.top_common_word
-                >>> ["life" "death" "live"]
-                >>> x.make_top_common_word_sentences(2, 1)
-                >>> x.top_common_word_sentences
-                >>> ["death is everywhere" "death is peace to mankind"]
-        """
-        if self._top_common_words.size == 0:
-            return array([])
-        word = self._top_common_words[rank]
-        self._top_common_word_sentences = zeros(number,dtype='U50')
-        count = 0
-        for sent in self._tokens_by_sentence:
-            if word in sent and self._top_common_word_sentences.size >= number:
-                self._top_common_word_sentences[count] = sent
-                count += 1
-        
-        
-
     @property
     def tokens_by_sentence(self):
         if self._tokens_by_sentence.size == 0:
@@ -159,16 +104,6 @@ class Tokenizer:
         if not self._raw_data:
             print("Warning: raw data is empty")
         return self._raw_data
-    @property
-    def top_common_words(self):
-        if self._top_common_words.size == 0:
-            print("Warning: top common words is empty")
-        return self._top_common_words
-    @property
-    def top_common_word_sentences(self):
-        if self._top_common_word_sentences.size == 0:
-            print("Warning: top common words is empty")
-        return self._top_common_word_sentences
 
 
 @dataclass
@@ -187,16 +122,14 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
     def __post_init__(self):
         self.bigrams = Counter(ngrams(self.base.tokens_by_word, 2))
         self.trigrams = Counter(ngrams(self.base.tokens_by_word, 3))
-        self.calculate_statistics()
-
-    def calculate_statistics(self):
         self.word_freq = FreqDist(self.base.tokens_by_word)
-        self.text_richness = len(self.base.tokens_by_word) / \
-            len(set(self.base.tokens_by_word))
+        self.text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
+        self.average_sentence_length = sum(len(sent.split()) for sent in self.base.tokens_by_sentence) / len(self.base.tokens_by_sentence)
 
     def display_statistics(self):
         print(f"Word Frequency (WordPunct): {self.word_freq.most_common(5)}")
         print(f"Text Richness: {self.text_richness}")
+
 
 
 @dataclass
