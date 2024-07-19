@@ -28,6 +28,7 @@ class Tokenizer:
     _tokens_by_sentence: array = field(init=False, repr=False)
     _tokens_by_wordpunct: array = field(init=False,  repr=False)
     _tokens_by_word: array = field(init=False, repr=False)
+    _tokens_by_syntagm: array = field(init=False, repr=False)
     #_top_common_word_sentences: array = field(init=False, repr=False)
 
     def __post_init__(self):
@@ -47,13 +48,10 @@ class Tokenizer:
         self._tokens_by_word = array([])  # will be created after tokens by wordpunct curation
 
     def clean_data(self):
-        lemmatizer = WordNetLemmatizer()
 
-        # removing stop words and empty tokens
-        stop_words = set(stopwords.words('english'))
-        self._tokens_by_wordpunct = array([token for token in self.tokens_by_wordpunct if token not in stop_words and token != ''])
-
+        
         # lemmatization
+        lemmatizer = WordNetLemmatizer()
         self.part_of_speeches = pos_tag(self.tokens_by_wordpunct)
         for i, element in enumerate(self.part_of_speeches):
             # assuming len(self.p_o_s) == len(self.tokens_by_wp)
@@ -66,6 +64,23 @@ class Tokenizer:
                 self.part_of_speeches[i] = (self.part_of_speeches[i][0], "Punct")
                 # note that self.p_o_s will be used when analyzing the data, that explains why it must be corrected now
 
+        stop_words = set(stopwords.words('english'))
+        i = 0
+        new_tokens_by_wordpunct = array([]) #curated version (probably to be fixed #TODO)
+        while i < len(self.tokens_by_wordpunct):
+            current_syntagm = array([])
+            word = self.tokens_by_wordpunct[i]
+            if word in stop_words or self.is_only_punctuation(word) or not word:
+                if current_syntagm.size > 0:
+                    self._tokens_by_syntagm = append(self._tokens_by_syntagm, current_syntagm)
+                    current_syntagm = array([])
+                if self.is_only_punctuation(word):
+                    new_tokens_by_wordpunct = append(new_tokens_by_wordpunct, word) 
+            else:
+                current_syntagm = append(current_syntagm, word)  
+                new_tokens_by_wordpunct = append(new_tokens_by_wordpunct, word)
+        self._tokens_by_wordpunct = new_tokens_by_wordpunct # now curated    
+        
 
     def is_only_punctuation(self, token):
         return all(char in punctuation for char in token)
@@ -118,6 +133,7 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
     trigrams : Counter = field(init=False, repr=False)
     text_richness: float = field(init=False, repr=False)
     average_sentence_length: float = field(init=False, repr=False)
+    keywords_scores: dict = field(init=False, repr=False)
 
     def __post_init__(self):
         self.bigrams = Counter(ngrams(self.base.tokens_by_word, 2))
@@ -129,8 +145,24 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
     def display_statistics(self):
         print(f"Word Frequency (WordPunct): {self.word_freq.most_common(5)}")
         print(f"Text Richness: {self.text_richness}")
+        print(f"Average Sentence Length: {self.average_sentence_length}")
+        print(f"Bigrams: {self.bigrams.most_common(5)}")
+        print(f"Trigrams: {self.trigrams.most_common(5)}")
 
+    def get_syntagms_scores(self):
+        word_degrees = {}
+        for s in self.base._tokens_by_syntagm:
+            degree = len(s) - 1
+            for word in s:
+                if word not in word_degrees:
+                    word_degrees[word] = 0
+                else:
+                    word_degrees[word] += degree
 
+        words_scores = {word: word_degrees[word] / self.word_freq[word] for word in self.word_freq}
+        for s in self.base._tokens_by_syntagm:
+            phrase_score = sum(words_scores[word] for word in s)
+            self.keywords_scores[' '.join(s)] = phrase_score
 
 @dataclass
 class TextProcessingAlgorithms: # To be referred as TPA later on
