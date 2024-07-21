@@ -43,43 +43,45 @@ class Tokenizer:
             self._raw_data = f.read().lower()
 
     def tokenize_text(self):
-        self._tokens_by_sentence = array(self.raw_data.replace('\n', 'þ').replace('.', 'þ').split('þ'))
+        tokens_by_sentence_first_pass = array(self.raw_data.replace('\n', 'þ').replace('.', 'þ').split('þ'))
+        self._tokens_by_sentence = array([sent.strip() for sent in tokens_by_sentence_first_pass if sent.strip()])
         self._tokens_by_wordpunct = array(wordpunct_tokenize(self.raw_data))
         self._tokens_by_word = array([])  # will be created after tokens by wordpunct curation
+        self._tokens_by_syntagm = array([]) # will be created later (must clear that #TODO)
 
     def clean_data(self):
-
-        
-        # lemmatization
         lemmatizer = WordNetLemmatizer()
         self.part_of_speeches = pos_tag(self.tokens_by_wordpunct)
         for i, element in enumerate(self.part_of_speeches):
-            # assuming len(self.p_o_s) == len(self.tokens_by_wp)
             token, tag = element[0], element[1]
             if not self.is_only_punctuation(token):
                 self._tokens_by_wordpunct[i] = lemmatizer.lemmatize(token, self.get_wordnet_pos(tag))
-                self._tokens_by_word = append(self._tokens_by_word, self._tokens_by_wordpunct[i]) 
             else:
-                # corrects eventual mistakes (like tagging a '.' as a noun for example)
                 self.part_of_speeches[i] = (self.part_of_speeches[i][0], "Punct")
-                # note that self.p_o_s will be used when analyzing the data, that explains why it must be corrected now
 
         stop_words = set(stopwords.words('english'))
         i = 0
-        new_tokens_by_wordpunct = array([]) #curated version (probably to be fixed #TODO)
+        new_tokens_by_wordpunct = array([])
+        current_syntagm = array([])
+
         while i < len(self.tokens_by_wordpunct):
-            current_syntagm = array([])
             word = self.tokens_by_wordpunct[i]
-            if word in stop_words or self.is_only_punctuation(word) or not word:
+            if word in stop_words or self.is_only_punctuation(word) or word == '':
                 if current_syntagm.size > 0:
                     self._tokens_by_syntagm = append(self._tokens_by_syntagm, current_syntagm)
                     current_syntagm = array([])
                 if self.is_only_punctuation(word):
                     new_tokens_by_wordpunct = append(new_tokens_by_wordpunct, word) 
             else:
-                current_syntagm = append(current_syntagm, word)  
+                current_syntagm= append(current_syntagm, word)
                 new_tokens_by_wordpunct = append(new_tokens_by_wordpunct, word)
-        self._tokens_by_wordpunct = new_tokens_by_wordpunct # now curated    
+                self._tokens_by_word = append(self._tokens_by_word, word)
+            i += 1
+        
+        if current_syntagm.size > 0:
+            self._tokens_by_syntagm.append(current_syntagm)
+
+        self._tokens_by_wordpunct = new_tokens_by_wordpunct 
         
 
     def is_only_punctuation(self, token):
@@ -96,6 +98,11 @@ class Tokenizer:
             return wordnet.NOUN # By default
     
     @property
+    def tokens_by_syntagm(self):
+        if self._tokens_by_syntagm.size == 0:
+            print("Warning: empty list of tokens by syntagm. \nPlease make sure that there's data to work with.")
+        return self._tokens_by_syntagm
+    @property
     def tokens_by_sentence(self):
         if self._tokens_by_sentence.size == 0:
             print("Warning: empty list of tokens by sentence. \nPlease make sure that there's data to work with.")
@@ -110,8 +117,7 @@ class Tokenizer:
     @property
     def tokens_by_word(self):
         if self._tokens_by_word.size == 0:
-            print(
-                "Warning: empty list of tokens by word. \nPlease make sure that there's data to work with.")
+            print("Warning: empty list of tokens by word. \nPlease make sure that there's data to work with.")
         return self._tokens_by_word
 
     @property
@@ -119,6 +125,7 @@ class Tokenizer:
         if not self._raw_data:
             print("Warning: raw data is empty")
         return self._raw_data
+
 
 
 @dataclass
@@ -250,3 +257,19 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
             self._identical_trigrams = self.find_similar_ngrams(input_trigrams, source_trigrams)
         return self._identical_trigrams
     
+
+t = "../Resources/Sample Data/BasicTexts/poem1.txt"
+tok = Tokenizer(file=t)
+print('SENTENCE')
+print(tok.tokens_by_sentence)
+print('-----------')
+print('WORDPUNCT')
+print(tok.tokens_by_wordpunct)
+print('-----------')
+print('WORD')
+print(tok.tokens_by_word)
+print('-----------')
+print('SYNTAGM')
+for tt in tok.tokens_by_syntagm:
+    print(tt)
+#print(tok.raw_data)
