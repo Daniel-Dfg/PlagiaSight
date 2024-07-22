@@ -49,9 +49,19 @@ The remarks below are opinions at best, they were written to help us make this p
    __CONS__
    - Little to no explaination on *why* to use this or that concept in this or that order
    - Code often not explicit, little to no comments and unclear overarching structure among project files
-   
 
-5) [Writing-Styles-Classification-Using-Stylometric-Analysis by **Hassaan-Elahi**](https://github.com/Hassaan-Elahi/Writing-Styles-Classification-Using-Stylometric-Analysis)
+5) [copy-spotter by **Wazzabeee**](https://github.com/Wazzabeee/copy-spotter)
+   (this one might need a deeper reading for us to really extract all of its useful resources)
+   __PROS__
+   - Supports a variety of file types (pdf, txt, docx, and odt) : gives a good idea on how this feature could be inplemented in our project.
+   - Instructive usage of RegExes (notably in word extraction from different file types)
+   - Great documentation regarding the general idea behind the project and the expected UX.
+   - Really recent project (last updated in May, writing this on July 22nd, 2024), won't use outdated librairies and will possibly keep evolving in the following months
+  
+   __CONS__
+   - The amount of files in the project might give the reader difficulties to "reassemble" them all (in other words : figuring out how all of these files work together). Documentation won't help here, but the explainatory comment in the beginning of each file does the trick... Kinda.
+
+7) [Writing-Styles-Classification-Using-Stylometric-Analysis by **Hassaan-Elahi**](https://github.com/Hassaan-Elahi/Writing-Styles-Classification-Using-Stylometric-Analysis)
 
     __PROS__
     - Not really a plagiarism checker, but a great source of ideas to analyze a text reinforced by a fleshed-out documentation
