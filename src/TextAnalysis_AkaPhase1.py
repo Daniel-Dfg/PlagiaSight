@@ -276,26 +276,3 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
             self._identical_trigrams = self.find_similar_ngrams(input_trigrams, source_trigrams)
         return self._identical_trigrams
     
-
-t = "../Resources/Sample Data/BasicTexts/DataFromText-MiningProject/ass1-202.txt"
-t2 = "../Resources/Sample Data/BasicTexts/DataFromText-MiningProject/ass1-211.txt"
-tok = Tokenizer(file=t)
-tsar = TokensStatsAndRearrangements(base=tok)
-tok2 = Tokenizer(file=t2)
-tsar2 = TokensStatsAndRearrangements(base=tok2)
-
-tpa = TextProcessingAlgorithms(input_tokens_sets=tsar, source_tokens_sets=tsar2)
-
-"""print('SENTENCE')
-print(tok.tokens_by_sentence)
-print('-----------')
-print('WORDPUNCT')
-print(tok.tokens_by_wordpunct)
-print('-----------')
-print('WORD')
-print(tok.tokens_by_word)
-print('-----------')
-print('SYNTAGM')
-for tt in tok.tokens_by_syntagm:
-    print(tt)
-#print(tok.raw_data)"""
