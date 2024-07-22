@@ -1,6 +1,6 @@
 import unittest
 from TextAnalysis_AkaPhase1 import *
-from numpy import array
+from random import randint
 \
 testfiles_path_basic = "../Resources/Sample Data/BasicTexts/"
 testfiles_path_complex = "../Resources/Sample Data/ComplexTexts/"
@@ -8,7 +8,9 @@ testfiles_path_complex = "../Resources/Sample Data/ComplexTexts/"
 class TestPhase1(unittest.TestCase):
     def __init__(self, methodName: str = "runTest") -> None:
         self.poem_file = testfiles_path_basic + "poem1.txt"
-        self.random_assignment = testfiles_path_basic + "DataFromText-MiningProject/ass1-202.txt"
+        # will need further explaination #TODO (don't try to understand this just yet, reader)
+        random_assignment_suffix = ["202", "211", "321"]
+        self.random_assignment = testfiles_path_basic + "DataFromText-MiningProject/ass1-" f"{random_assignment_suffix[randint(0,len(random_assignment_suffix))]}" + ".txt"
         self.poem_tokens = Tokenizer(file=self.poem_file)
         self.random_assignment_tokens = Tokenizer(file=self.random_assignment)
         super().__init__(methodName)
@@ -34,39 +36,8 @@ class TestPhase1(unittest.TestCase):
         self.assertTrue(len(syntagm_tokens_poem) == len(expected_syntagms))
         self.assertTrue(all(w1 == w2 for w1, w2 in zip(syntagm_tokens_poem, expected_syntagms)))
 
-if __name__ == "__main__":
-    unittest.main()
-
-
-
-    
-    
-    """def test_word_count(self):
-        text = "This is a sample text."
-        analysis = TextAnalysis_AkaPhase1(text)
-        self.assertEqual(analysis.word_count(), 5)
-
-    def test_unique_words(self):
-        text = "This is a sample text. This is another sample text."
-        analysis = TextAnalysis_AkaPhase1(text)
-        self.assertEqual(analysis.unique_words(), 6)
-
-    def test_most_common_words(self):
-        text = "This is a sample text. This is another sample text."
-        analysis = TextAnalysis_AkaPhase1(text)
-        self.assertEqual(analysis.most_common_words(2), [("sample", 2), ("this", 2)])
-
-    def test_longest_word(self):
-        text = "This is a sample text."
-        analysis = TextAnalysis_AkaPhase1(text)
-        self.assertEqual(analysis.longest_word(), "sample")
-
-    def test_word_frequency(self):
-        text = "This is a sample text. This text contains repeated words."
-        expected_frequency = {'This': 2, 'is': 1, 'a': 1, 'sample': 1, 'text': 2, 'contains': 1, 'repeated': 1, 'words': 1}
-        actual_frequency = TextAnalysis_AkaPhase1.word_frequency(text)
-        self.assertEqual(actual_frequency, expected_frequency)"""
-
+    def test_random_assigment(self):
+        ... #TODO
 
 if __name__ == '__main__':
     unittest.main()
