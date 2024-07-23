@@ -37,8 +37,12 @@ class TestPhase1(unittest.TestCase):
             self.assertListEqual(list(syntagm), expected)
 
     def test_random_assigment(self):
+<<<<<<< Updated upstream
         #TODO
         pass
+=======
+        ... #TODO (but not really a priority right now)
+>>>>>>> Stashed changes
 
 if __name__ == '__main__':
     unittest.main()

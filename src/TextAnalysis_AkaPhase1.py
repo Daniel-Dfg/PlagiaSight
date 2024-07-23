@@ -1,4 +1,4 @@
-
+#TODO : support different file types (like .pdf, .md, etc.)
 from string import punctuation # helps to check if a string is made of punctuation only here
 from math import sqrt
 from numpy import array, append
@@ -275,4 +275,8 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
             source_trigrams = self.source_tokens_sets.trigrams
             self._identical_trigrams = self.find_similar_ngrams(input_trigrams, source_trigrams)
         return self._identical_trigrams
+<<<<<<< Updated upstream
     
+=======
+    
+>>>>>>> Stashed changes
