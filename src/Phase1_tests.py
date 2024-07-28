@@ -1,12 +1,12 @@
 import unittest
 from TextAnalysis_AkaPhase1 import *
 from random import randint
-
+#Back on Linux Mint Babe
 testfiles_path_basic = "../Resources/Sample Data/BasicTexts/"
 testfiles_path_complex = "../Resources/Sample Data/ComplexTexts/"
 
 class TestPhase1(unittest.TestCase):
-    
+
     def setUp(self):
         self.poem_file = testfiles_path_basic + "poem1.txt"
         random_assignment_suffix = ["202", "211", "321"]
