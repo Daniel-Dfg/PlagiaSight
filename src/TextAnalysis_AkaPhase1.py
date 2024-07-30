@@ -1,3 +1,4 @@
+#TODO : support different file types (like .pdf, .md, etc.)
 
 from string import punctuation # helps to check if a string is made of punctuation only here
 from math import sqrt
@@ -254,7 +255,6 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
     @property
     def jaccard_sim_pos(self):
         return self.jaccard_similarity(set(self.source_tokens_sets.pos_freq.keys()), set(self.input_tokens_sets.pos_freq.keys())) if self._jaccard_sim_pos == -1 else self._jaccard_sim_pos
-
 
     def jaccard_sim(self):
         """

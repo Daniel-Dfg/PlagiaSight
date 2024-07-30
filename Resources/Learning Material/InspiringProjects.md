@@ -4,6 +4,7 @@ These projects have been ordered to follow a hierarchical order in terms of "com
 
 The remarks below are opinions at best, they were written to help us make this project rather than to critique others'. 
 
+
 1) [Simple-Plagiarism-Chercker by **abhilampard**](https://github.com/abhilampard/Simple-Plagiarism-Checker/tree/master)
 
    __PROS__
@@ -13,6 +14,7 @@ The remarks below are opinions at best, they were written to help us make this p
    __CONS__
     - Quite old and doesn't make the best usage of the data structures available in Python
     - Contains some fundemental flaws; unclear input feedback (~meaningless percentage because of using such basic computation methods), and faulty computation method for the TF
+
     
 2) [PlagiarismRemover by **simranvolunesia**](https://github.com/simranvolunesia/PlagiarismRemover)
 
@@ -26,6 +28,7 @@ The remarks below are opinions at best, they were written to help us make this p
     __CONS__
     - Presence of bad programming practices that make the code harder to read than it should be, even for such a small project (such as the two functions `plagiarism_remover` and `plagiarism_removal` with almost clashing names, despite the fact that they are actually complementary and do not do the same thing)
     - Decent documentation, but lack of explaination over what the code itself does at times
+
     
 3) [Plagiarism Checker by **mozzaart23**](https://github.com/Moozzaart23/PlagiarismChecker/tree/master)
 
@@ -36,7 +39,8 @@ The remarks below are opinions at best, they were written to help us make this p
    
     __CONS__
     - The code is not always totally explicit and lacks comments
-    
+
+   
 4) [Text-Mining by **ShreshthSaxena**](https://github.com/ShreshthSaxena/Text-Mining)
     
     __PROS__
@@ -49,9 +53,23 @@ The remarks below are opinions at best, they were written to help us make this p
    __CONS__
    - Little to no explaination on *why* to use this or that concept in this or that order
    - Code often not explicit, little to no comments and unclear overarching structure among project files
-   
 
-5) [Writing-Styles-Classification-Using-Stylometric-Analysis by **Hassaan-Elahi**](https://github.com/Hassaan-Elahi/Writing-Styles-Classification-Using-Stylometric-Analysis)
+
+5) [copy-spotter by **Wazzabeee**](https://github.com/Wazzabeee/copy-spotter)
+
+   (this one might need a deeper reading for us to really extract all of its useful resources)
+   
+   __PROS__
+   - Supports a variety of file types (pdf, txt, docx, and odt) : gives a good idea on how this feature could be inplemented in our project.
+   - Instructive usage of RegExes (notably in word extraction from different file types)
+   - Great documentation regarding the general idea behind the project and the expected UX.
+   - Really recent project (last updated in May, writing this on July 22nd, 2024), won't use outdated librairies and will possibly keep evolving in the following months
+  
+   __CONS__
+   - The amount of files in the project might give the reader difficulties to "reassemble" them all (in other words : figuring out how all of these files work together). Documentation won't help here, but the explainatory comment in the beginning of each file does the trick... Kinda.
+
+
+6) [Writing-Styles-Classification-Using-Stylometric-Analysis by **Hassaan-Elahi**](https://github.com/Hassaan-Elahi/Writing-Styles-Classification-Using-Stylometric-Analysis)
 
     __PROS__
     - Not really a plagiarism checker, but a great source of ideas to analyze a text reinforced by a fleshed-out documentation
