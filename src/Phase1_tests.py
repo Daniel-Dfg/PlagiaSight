@@ -1,7 +1,7 @@
 import unittest
 from TextAnalysis_AkaPhase1 import *
 from random import randint
-\
+
 testfiles_path_basic = "../Resources/Sample Data/BasicTexts/"
 testfiles_path_complex = "../Resources/Sample Data/ComplexTexts/"
 
@@ -14,7 +14,7 @@ class TestPhase1(unittest.TestCase):
         self.poem_tokens = Tokenizer(file=self.poem_file)
         self.random_assignment_tokens = Tokenizer(file=self.random_assignment)
         super().__init__(methodName)
-    
+
     def test_word_tokenization(self):
         expected_tokens = array(['march', 'abyss', 'look', 'acknowledge', 'existence', 'live', 'life', 'full'])
         word_tokens_poem = self.poem_tokens.tokens_by_word
