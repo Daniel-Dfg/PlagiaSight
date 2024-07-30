@@ -1,7 +1,7 @@
 import unittest
 from TextAnalysis_AkaPhase1 import *
 from random import randint
-#Back on Linux Mint Babe
+
 testfiles_path_basic = "../Resources/Sample Data/BasicTexts/"
 testfiles_path_complex = "../Resources/Sample Data/ComplexTexts/"
 
@@ -13,6 +13,7 @@ class TestPhase1(unittest.TestCase):
         self.random_assignment = testfiles_path_basic + "DataFromText-MiningProject/ass1-" + f"{random_assignment_suffix[randint(0,len(random_assignment_suffix)-1)]}" + ".txt"
         self.poem_tokens = Tokenizer(file=self.poem_file)
         self.random_assignment_tokens = Tokenizer(file=self.random_assignment)
+
 
     def test_word_tokenization(self):
         expected_tokens = ['march', 'abyss', 'look', 'acknowledge', 'existence', 'live', 'life', 'full']
