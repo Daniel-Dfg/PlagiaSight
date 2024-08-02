@@ -2,7 +2,7 @@
 
 from string import punctuation # helps to check if a string is made of punctuation only here
 from math import sqrt
-from numpy import array, append, flexible
+from numpy import array, append, flexible, ndarray
 from nltk.tokenize import wordpunct_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
@@ -24,11 +24,11 @@ class Tokenizer:
     """
     file: str
     _raw_data: str = field(init=False, repr=False)
-    _tokens_by_sentence: array = field(init=False, repr=False)
-    _tokens_by_wordpunct: array = field(init=False,  repr=False)
-    _tokens_by_word: array = field(init=False, repr=False, default_factory=lambda: array([])) # will be created after tokens by wordpunct curation
-    _tokens_by_syntagm: array = field(init=False, repr=False, default_factory=lambda :array([])) # will be created later (must clear that #TODO)
-    _part_of_speeches: array = field(init=False, repr=False, default_factory=lambda:array([])) #only contains the pos tags themselves, not the words/punct signs
+    _tokens_by_sentence: ndarray = field(init=False, repr=False)
+    _tokens_by_wordpunct: ndarray = field(init=False,  repr=False)
+    _tokens_by_word: ndarray = field(init=False, repr=False, default_factory=lambda: array([])) # will be created after tokens by wordpunct curation
+    _tokens_by_syntagm: ndarray = field(init=False, repr=False, default_factory=lambda :array([])) # will be created later (must clear that #TODO)
+    _part_of_speeches: ndarray = field(init=False, repr=False, default_factory=lambda:array([])) #only contains the pos tags themselves, not the words/punct signs
     #_top_common_word_sentences: array = field(init=False, repr=False)
 
     def __post_init__(self):
@@ -209,9 +209,9 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
     _jaccard_sim_pos : float = field(init=False, default=-1)
 
     #bigrams structure : {(word1, word2) : (input_text_occurences, source_text_occurences)}
-    _identical_bigrams : dict[tuple[str, str]: tuple[int, int]] = field(init=False, repr=False, default_factory=dict)
+    _identical_bigrams : dict[tuple[str, str], tuple[int, int]] = field(init=False, repr=False, default_factory=dict)
     ##trigrams structure : {(word1, word2, word3) : (input_text_occurences, source_text_occurences)}
-    _identical_trigrams : dict[tuple[str, str, str]: tuple[int, int]] = field(init=False, repr=False, default_factory=dict)
+    _identical_trigrams : dict[tuple[str, str, str], tuple[int, int]] = field(init=False, repr=False, default_factory=dict)
 
     def __post_init__(self):
         """

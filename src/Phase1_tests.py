@@ -1,6 +1,6 @@
 import unittest
 from TextAnalysis_AkaPhase1 import *
-from random import randint
+from random import choice
 
 testfiles_path_basic = "../Resources/Sample Data/BasicTexts/"
 testfiles_path_complex = "../Resources/Sample Data/ComplexTexts/"
@@ -10,7 +10,7 @@ class TestPhase1(unittest.TestCase):
     def setUp(self):
         self.poem_file = testfiles_path_basic + "poem1.txt"
         random_assignment_suffix = ["202", "211", "321"]
-        self.random_assignment = testfiles_path_basic + "DataFromText-MiningProject/ass1-" + f"{random_assignment_suffix[randint(0,len(random_assignment_suffix)-1)]}" + ".txt"
+        self.random_assignment = testfiles_path_basic + "DataFromText-MiningProject/ass1-" + f"{choice(random_assignment_suffix)}" + ".txt"
         self.poem_tokens = Tokenizer(file=self.poem_file)
         self.random_assignment_tokens = Tokenizer(file=self.random_assignment)
 
