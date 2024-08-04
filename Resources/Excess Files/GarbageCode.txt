@@ -13,25 +13,25 @@ Phase1:
                 self.NoPunctuationsArray: array = self.getNoPunctuations()
                 self.NoStopWordsArray: array = self.getNoStopWords()
                 self.lemmaArry: array = self.lemma()
-                
-                
+
+
             def getText(self) -> str:
                 with open(self.file, 'r', encoding="utf-8-sig") as f:
                     text = f.read()
                     text = array(text.split("\n"))
                     textNoEndline = " ".join(text)
                     return textNoEndline.lower()
-            
+
             def getNoPunctuations(self) -> array:
                 rt = RegexpTokenizer(r'\w+')
                 textNoPunctuations = array(rt.tokenize(self.textNoEnline))
                 return textNoPunctuations
-            
+
             def getNoStopWords(self) -> array:
                 sw = array(stopwords.words("english"))
                 mask = isin(self.NoPunctuationsArray, sw)
                 return self.NoPunctuationsArray[~mask]
-            
+
             def lemma(self) -> array:
                 lemma = WordNetLemmatizer()
                 lemmawords = array([])
@@ -207,7 +207,7 @@ Phase1:
                 if self._tokens_by_wordpunct.size == 0:
                     print("Warning: empty list of tokens by word/punctuation. \nPlease make sure that there's data to work with.")
                 return self._tokens_by_wordpunct
-            
+
             @property
             def tokens_by_word(self):
                 if self._tokens_by_word.size == 0:
@@ -250,7 +250,7 @@ Phase1:
             """
             #TODO
             MUST be used with TWO sets of Tokens.
-            Applies fundamental algorithms to evaluate similarity between TWO sources 
+            Applies fundamental algorithms to evaluate similarity between TWO sources
             (like cosine similarity, KMP...) and stores the results.
             """
             pass
@@ -308,12 +308,12 @@ Phase1:
                 # lemmatizations
                 self._tokens_by_wordpunct = array([self.lemmatize_tokens(token) for token in self.tokens_by_wordpunct])
                 self._tokens_by_sentence = array([self.lemmatize_tokens(token) for token in self.tokens_by_sentence])
-                
+
             def remove_stopwords(tokens):
                     stop_words = set(stopwords.words("english"))
                     mask = np.isin(tokens, list(stop_words), invert=True)
                     return tokens[~mask]
-                
+
             def lemmatize_tokens(tokens:str) -> str:
                 lemmatizer = WordNetLemmatizer()
                 tokens = lemmatizer.lemmatize(tokens, 'n')
@@ -322,7 +322,7 @@ Phase1:
                 tokens = lemmatizer.lemmatize(tokens, 'r')
                 tokens = lemmatizer.lemmatize(tokens, 's')
                 return tokens
-            
+
             @property
             def tokens_by_sentence(self):
                 if self._tokens_by_sentence.size == 0:
@@ -334,7 +334,7 @@ Phase1:
                 if self._tokens_by_wordpunct.size == 0:
                     print("Warning: empty list of tokens by word/punctuation. \nPlease make sure that there's data to work with.")
                 return self._tokens_by_wordpunct
-            
+
             @property
             def tokens_by_word(self):
                 if self._tokens_by_word.size == 0:
@@ -379,7 +379,7 @@ Phase1:
             """
             #TODO
             MUST be used with TWO sets of Tokens.
-            Applies fundamental algorithms to evaluate similarity between TWO sources 
+            Applies fundamental algorithms to evaluate similarity between TWO sources
             (like cosine similarity, KMP...) and stores the results.
             """
             pass
@@ -445,7 +445,7 @@ Phase1:
                 token, tag = element[0], element[1]
                 if not self.is_only_punctuation(token):
                     self._tokens_by_wordpunct[i] = lemmatizer.lemmatize(token, self.get_wordnet_pos(tag))
-                    self._tokens_by_word = append(self._tokens_by_word, self._tokens_by_wordpunct[i]) 
+                    self._tokens_by_word = append(self._tokens_by_word, self._tokens_by_wordpunct[i])
                 else:
                     # corrects eventual mistakes (like tagging a '.' as a noun for example)
                     self.part_of_speeches[i] = (self.part_of_speeches[i][0], "Punct")
@@ -520,7 +520,7 @@ Phase1:
         """
         #TODO
         MUST be used with TWO sets of Tokens.
-        Applies fundamental algorithms to evaluate similarity between TWO sources 
+        Applies fundamental algorithms to evaluate similarity between TWO sources
         (like cosine similarity, KMP...) and stores the results.
         """
         pass
@@ -531,3 +531,28 @@ Phase1:
     tokenizer = Tokenizer(file=source_path)
     statistics = TextProcessingStatistics(base_content=tokenizer)
     statistics.display_statistics()
+
+
+# Phase2:
+    #code1:
+        def __post_init__(self):
+            self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number)
+            self.recycleUrls()
+
+        @staticmethod
+        def makeUrls(word_sent_domain:str, number:int, begin:int= 0) -> ndarray:
+            return array(list(search(word_sent_domain, num=number, start=begin)), dtype="S100")
+
+
+        def recycleUrls(self) -> None: # TODO
+            unrechable_url = 0
+            for url in self._url_array:
+                if get(url).status_code != 200:
+                    unrechable_url +=1
+                    unwanted = self._url_array != url
+                    self._url_array[unwanted]
+            if unrechable_url != 0:
+                self.number += self.number + 1
+                new_url = self.makeUrls(f"{self.word_sent} {self.useless_domain}", unrechable_url, self.number)
+                append(self.url_array, new_url)
+                self.recycleUrls()
