@@ -10,7 +10,7 @@ from sys import platform
 from requests import get
 from os import remove
 
-headers = {'User-Agent': 'MyScraper '} # To discuss
+headers = {'User-Agent': 'MyScraper'} # To discuss
 
 @dataclass
 class URLs:
@@ -34,6 +34,23 @@ class URLs:
             # Avoid error 429 (Too many requests)
         """
         self._url_array = array(list(search(f"{self.word_sent} {self.useless_domain}", num=self.number, stop=self.number, pause=1)), dtype="U100")
+
+    def recycleUrls(self) -> None:
+        """
+            #TODO check the function, after googles allows to conduct your experiment (# I'm no longer allowed to make Http request to google (╥﹏╥) )
+        """
+        unrechable_url = 0
+        for url in self._url_array:
+            if get(url).status_code != 200:
+                unrechable_url +=1
+                unwanted = self._url_array != url
+                self._url_array[unwanted]
+
+        if unrechable_url != 0:
+            self.number += self.number + 1
+            new_url = self.makeUrls(f"{self.word_sent} {self.useless_domain}", unrechable_url, self.number)
+            append(self.url_array, new_url)
+            self.recycleUrls()
 
     @property
     def url_array(self) -> ndarray:
