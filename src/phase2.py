@@ -1,56 +1,89 @@
 # 2024 Copyright ©
 from urllib.robotparser import RobotFileParser
 from dataclasses import field, dataclass
+from numpy import array, ndarray, append
 from urllib.parse import urlparse
-from numpy import array, ndarray
 from googlesearch import search
 from bs4 import BeautifulSoup
 from subprocess import run
 from sys import platform
-from requests import get
+from requests import get, exceptions
+from time import sleep
 from os import remove
 
-headers = {'User-Agent': 'MyScraper'} # To discuss
+from requests.adapters import Response
+
+headers = {'User-Agent': 'Plagialand'} # To discuss
 
 @dataclass
 class URLs:
     """
         # Create an array of urls
     """
-
     word_sent: str
     number: int
-    # To discuss (wheither inculde useful domain or exclude useless domain)
-    useless_domain: str = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com"
+    #Exclude useless domain
+    useless_domain: str = field(init=False, repr=False)
     _url_array: ndarray = field(init=False, repr=False)
 
     def __post_init__(self):
-        self.makeUrls()
+        self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com"
+        self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number)
+        self.recycleUrls()
 
-    def makeUrls(self):
+    @staticmethod
+    def makeUrls(word_sent:str, number:int, end:int, begin:int=0) -> ndarray:
         """
             # TODO filter unreachable url (garpage code)
             # TOCHECK (it seems that googlesearch has a limited number of http requests)
             # Avoid error 429 (Too many requests)
+            # TODO Find better search methode than google
         """
-        self._url_array = array(list(search(f"{self.word_sent} {self.useless_domain}", num=self.number, stop=self.number, pause=1)), dtype="U100")
+        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype="U100")
+
+    @staticmethod
+    def manageRobotsDotTxt(url:str) -> bool:
+        """
+            check the robots.txt file in site if it's allow to scrape
+            #To disscus if reponse is false:
+                1) Forget the url and find another one, using later on using URLs class (better option)
+                2) Allow but at the user risque, taking the full responsiblity
+
+        """
+        parsed_url = urlparse(url)
+        robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
+
+        rfp = RobotFileParser()
+        rfp.set_url(robots_url)
+        rfp.read()# Read robots.txt
+        return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaland" is allowed to scrap the url
 
     def recycleUrls(self) -> None:
         """
-            #TODO check the function, after googles allows to conduct your experiment (# I'm no longer allowed to make Http request to google (╥﹏╥) )
+        # TODO Where to start_at
+        # TODO better error solving
         """
-        unrechable_url = 0
-        for url in self._url_array:
-            if get(url).status_code != 200:
-                unrechable_url +=1
-                unwanted = self._url_array != url
-                self._url_array[unwanted]
-
-        if unrechable_url != 0:
-            self.number += self.number + 1
-            new_url = self.makeUrls(f"{self.word_sent} {self.useless_domain}", unrechable_url, self.number)
-            append(self.url_array, new_url)
-            self.recycleUrls()
+        start_at = self.number # start at none seen url
+        response:Response
+        while self.number:
+            for url in self._url_array[start_at-self.number:]:
+                try:
+                    response = get(url)
+                    response.raise_for_status()
+                    sleep(0.5)
+                except:
+                    print("error")
+                    response.status_code = 0
+                if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
+                    self.number -=1
+                else:
+                    unwanted = self._url_array != url
+                    self._url_array[unwanted] # Remove unwanted url from array
+            if self.number:
+                print(self.number)
+                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number, start_at+1)
+                start_at += self.number
+                append(self._url_array, new_urls)
 
     @property
     def url_array(self) -> ndarray:
@@ -65,27 +98,10 @@ class HtmlText:
     """
 
     url: str
-    response: bool
 
     def __post_init__(self):
-        self.manage_robots_txt()
-        if self.response:
-            self.makeTempText()
-        else:
-            print("scraping is not allowed")
+        self.makeTempText()
 
-    def manageRobotsDotTxt(self):# I think it would be more efficient in URLs class :|
-        """
-            check the robots.txt file in site if it's allow to scrape
-            #TODO if reponse is false: To disscus
-                1) Forget the url and find another one, using later on using URLs class (better option)
-                2) Allow but at the user risque, taking the full responsiblity
-
-        """
-        base_url = "https://" + urlparse(self.url).netloc + "/robots.txt"
-        rp = RobotFileParser()
-        rp.set_url(base_url)
-        self.response = rp.can_fetch("*",self.url)
 
     def makeTempText(self):
         """
@@ -110,6 +126,7 @@ class UserStatus:
     """
         Improve user experience, manage status, internet connection, etc...
     """
+
     @staticmethod
     def check_wifi_connection_linux():
         """
