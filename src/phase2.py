@@ -1,5 +1,6 @@
 # 2024 Copyright ©
 from urllib.robotparser import RobotFileParser
+from requests import get, exceptions, Response
 from dataclasses import field, dataclass
 from numpy import array, ndarray, append
 from urllib.parse import urlparse
@@ -7,11 +8,8 @@ from googlesearch import search
 from bs4 import BeautifulSoup
 from subprocess import run
 from sys import platform
-from requests import get, exceptions
 from time import sleep
 from os import remove
-
-from requests.adapters import Response
 
 headers = {'User-Agent': 'Plagialand'} # To discuss
 
@@ -44,8 +42,8 @@ class URLs:
     @staticmethod
     def manageRobotsDotTxt(url:str) -> bool:
         """
-            check the robots.txt file in site if it's allow to scrape
-            #To disscus if reponse is false:
+            - Get robots.txt file from the url site and check if it's allowed to scrape
+            # To disscus if reponse is false:
                 1) Forget the url and find another one, using later on using URLs class (better option)
                 2) Allow but at the user risque, taking the full responsiblity
 
@@ -60,16 +58,18 @@ class URLs:
 
     def recycleUrls(self) -> None:
         """
-        # TODO Where to start_at
+        - Filter replace urls that are {unrechable, not allowed to scrape and with errors} with new functional urls.
         # TODO better error solving
         """
-        start_at = self.number # start at none seen url
-        response:Response
+        cut_at:int = self.number # start at none seen url
+        response: Response
+        start_cycle = self.number+1
         while self.number:
-            for url in self._url_array[start_at-self.number:]:
+            for url in self._url_array[cut_at-self.number:]:
                 try:
                     response = get(url)
                     response.raise_for_status()
+                    print(response)
                     sleep(0.5)
                 except:
                     print("error")
@@ -78,12 +78,11 @@ class URLs:
                     self.number -=1
                 else:
                     unwanted = self._url_array != url
-                    self._url_array[unwanted] # Remove unwanted url from array
+                    self._url_array = self._url_array[unwanted] # Remove unwanted url from array
             if self.number:
-                print(self.number)
-                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number, start_at+1)
-                start_at += self.number
-                append(self._url_array, new_urls)
+                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number, start_cycle)
+                start_cycle += self.number
+                self._url_array = append(self._url_array, new_urls)
 
     @property
     def url_array(self) -> ndarray:
@@ -179,3 +178,5 @@ class UserStatus:
             # Getting the user name/info for legal accusation (just in case :x)
         """
         pass
+x = URLs("football", 10)
+print(x.url_array)
