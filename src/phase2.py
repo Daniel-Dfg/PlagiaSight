@@ -11,7 +11,7 @@ from sys import platform
 from time import sleep
 from os import remove
 
-headers = {'User-Agent': 'Plagialand'} # To discuss
+headers = {'User-Agent': 'PlagaiLence'} # To discuss
 
 @dataclass
 class URLs:
@@ -32,12 +32,11 @@ class URLs:
     @staticmethod
     def makeUrls(word_sent:str, number:int, end:int, begin:int=0) -> ndarray:
         """
-            # TODO filter unreachable url (garpage code)
             # TOCHECK (it seems that googlesearch has a limited number of http requests)
             # Avoid error 429 (Too many requests)
             # TODO Find better search methode than google
         """
-        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype="U100")
+        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype=Response)
 
     @staticmethod
     def manageRobotsDotTxt(url:str) -> bool:
@@ -64,17 +63,21 @@ class URLs:
         cut_at:int = self.number # start at none seen url
         response: Response
         start_cycle = self.number+1
+        count = 0
         while self.number:
             for url in self._url_array[cut_at-self.number:]:
                 try:
-                    response = get(url)
+                    response = get(url, headers=headers)
                     response.raise_for_status()
                     print(response)
+                    print(url)
                     sleep(0.5)
                 except:
                     print("error")
                     response.status_code = 0
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
+                    self._url_array[count] = response
+                    count +=1
                     self.number -=1
                 else:
                     unwanted = self._url_array != url
@@ -93,10 +96,10 @@ class URLs:
 @dataclass
 class HtmlText:
     """
-        #Create a temporary text from site html
+        #Create a temporary text file from url site html text
     """
 
-    url: str
+    response: Response
 
     def __post_init__(self):
         self.makeTempText()
@@ -106,15 +109,15 @@ class HtmlText:
         """
             TODO (or not): How to manage sites with multilayer/pages
         """
-        response = get(self.url, headers=headers)
-        if response.status_code == 200: # OK response
-            bs = BeautifulSoup(response.text, "html.parser")
+        try:
+            self.response.raise_for_status()
+            bs = BeautifulSoup(self.response.text, "html.parser")
             html_tags_list = bs.find_all(["h1", "h2", "h3", "p"]) # Get good part of any info site (ideal of an info site)
             with open("temp.txt", "w", encoding="utf-8-sig") as t:
                 for html_tag in html_tags_list:
-                    t.write(html_tag.get_text()) # Tansform each tag to a text and write it in the temp file
-        else:
-            print(f'error code {response}')
+                    t.write(html_tag.get_text()+"\n") # Tansform each tag to a text and write it in the temp file
+        except:
+            print("error")
 
     def removeTempText(self): # To discuss (wheither temp file or stright up str)
         remove("temp.txt")
@@ -160,7 +163,7 @@ class UserStatus:
             # TODO run in parallel (and when requests and googlescreach)
             # TODO manage internet connection errors more efficently, know what every response means.
         """
-        response = get("example.com")
+        response = get("example.com"; headers=headers)
         if response.status_code == 200:
             print("OK for internet connection")
         else:
@@ -178,5 +181,7 @@ class UserStatus:
             # Getting the user name/info for legal accusation (just in case :x)
         """
         pass
-x = URLs("football", 10)
-print(x.url_array)
+
+x = URLs("foot", 10)
+p = x.url_array
+HtmlText(p[0])
