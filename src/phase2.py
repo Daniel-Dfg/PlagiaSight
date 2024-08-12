@@ -163,7 +163,7 @@ class UserStatus:
             # TODO run in parallel (and when requests and googlescreach)
             # TODO manage internet connection errors more efficently, know what every response means.
         """
-        response = get("example.com"; headers=headers)
+        response = get("example.com", headers=headers)
         if response.status_code == 200:
             print("OK for internet connection")
         else:
@@ -182,6 +182,6 @@ class UserStatus:
         """
         pass
 
-x = URLs("foot", 10)
+x = URLs("Shakespeare", 4)
 p = x.url_array
 HtmlText(p[0])
