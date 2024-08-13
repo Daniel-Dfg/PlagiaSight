@@ -1,23 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg width="25px" height="25px" viewBox="0 0 25 25" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <filter filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB" id="filter_1">
-      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 0" result="hardAlpha" />
-      <feMorphology radius="3" operator="erode" in="SourceAlpha" result="effect0_innerShadow" />
-      <feOffset dx="0" dy="0" />
-      <feGaussianBlur stdDeviation="2.5" />
-      <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
-      <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.49803922 0" />
-      <feBlend mode="normal" in2="shape" result="effect0_innerShadow" />
-    </filter>
-    <path d="M-867 -156C-864.238 -156 -862 -153.762 -862 -151L-862 -136C-862 -133.238 -864.238 -131 -867 -131L-882 -131C-884.762 -131 -887 -133.238 -887 -136L-887 -151C-887 -153.762 -884.762 -156 -882 -156L-867 -156Z" id="path_1" />
+    <path d="M-834 -177L-834 -177L-834 -152L-859 -152L-859 -177L-834 -177Z" id="path_1" />
     <clipPath id="clip_1">
       <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
     </clipPath>
   </defs>
-  <g id="la--window-close" filter="url(#filter_1)">
+  <g id="la--window-close">
+    <path d="M-834 -177L-834 -177L-834 -152L-859 -152L-859 -177L-834 -177Z" id="la--window-close" fill="none" stroke="none" />
     <path d="M3.90625 3.90625L3.90625 21.0938L21.0938 21.0938L21.0938 3.90625L3.90625 3.90625ZM5.46875 5.46875L19.5313 5.46875L19.5313 19.5313L5.46875 19.5313L5.46875 5.46875ZM9.13124 8.05704L8.03202 9.15547L11.3766 12.5L7.98358 15.8938L9.08202 16.9922L12.4758 13.5984L15.8445 16.968L16.9437 15.8688L13.5742 12.5L16.8945 9.17969L15.7961 8.08126L12.4758 11.4016L9.13124 8.05704Z" id="Shape" fill="#FFFFFF" fill-rule="evenodd" stroke="none" clip-path="url(#clip_1)" />
   </g>
 </svg>

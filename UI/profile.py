@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget, QPushButton
 from PySide6.QtCore import QSize
 from PySide6.QtSvg import QSvgRenderer
 
-class Pro(QPushButton):
+class Profile(QPushButton):
     def __init__(self, parent: QWidget= None) -> None:
         super().__init__(parent)
         size = 75

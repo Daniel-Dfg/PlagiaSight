@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg width="28px" height="28px" viewBox="0 0 28 28" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <path d="M-321 -147L-321 -147L-321 -119L-349 -119L-349 -147L-321 -147Z" id="path_1" />
+    <path d="M-292 -172L-292 -172L-292 -144L-320 -144L-320 -172L-292 -172Z" id="path_1" />
+    <path d="M28 0L28 0L28 28L0 28L0 0L28 0L28 0Z" id="path_2" />
     <clipPath id="clip_1">
       <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
     </clipPath>
+    <clipPath id="clip_2">
+      <use xlink:href="#path_2" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
   </defs>
-  <g id="ContactIcon">
-    <path d="M-321 -147L-321 -147L-321 -119L-349 -119L-349 -147L-321 -147Z" id="ContactIcon" fill="none" stroke="none" />
-    <path d="M11.468 1.29847C7.17479 2.05963 4.29105 4.22893 2.93019 7.06428C1.56933 9.89963 1.73134 13.4009 3.22183 15.437C4.71233 17.4731 7.5312 18.044 8.21162 19.5473C8.89203 21.0506 7.434 23.4862 6.75357 24.8183C6.07314 26.1503 6.17034 26.3787 7.56363 25.3891C8.95692 24.3996 11.6462 22.1923 15.2752 20.3465C18.9042 18.5006 23.4727 17.0164 25.6112 13.9907C27.7497 10.9651 27.4581 6.39824 24.4609 3.79126C21.4637 1.18428 15.7612 0.53731 11.468 1.29847L11.468 1.29847Z" id="Shape" fill="#FFFFFF" fill-rule="evenodd" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" clip-path="url(#clip_1)" />
+  <g id="Contact">
+    <path d="M-292 -172L-292 -172L-292 -144L-320 -144L-320 -172L-292 -172Z" id="Contact" fill="none" stroke="none" />
+    <g id="Group" transform="translate(-349 -147)" clip-path="url(#clip_1)">
+      <g id="Group" transform="translate(349 147)">
+        <path d="M28 0L28 0L28 28L0 28L0 0L28 0L28 0Z" id="Path" fill="none" fill-rule="evenodd" stroke="none" />
+        <g clip-path="url(#clip_2)">
+          <path d="M11.468 1.29847C7.17479 2.05963 4.29105 4.22893 2.93019 7.06428C1.56933 9.89963 1.73134 13.4009 3.22183 15.437C4.71233 17.4731 7.5312 18.044 8.21162 19.5473C8.89203 21.0506 7.434 23.4862 6.75357 24.8183C6.07314 26.1503 6.17034 26.3787 7.56363 25.3891C8.95692 24.3996 11.6462 22.1923 15.2752 20.3465C18.9042 18.5006 23.4727 17.0164 25.6112 13.9907C27.7497 10.9651 27.4581 6.39824 24.4609 3.79126C21.4637 1.18428 15.7612 0.53731 11.468 1.29847L11.468 1.29847L11.468 1.29847Z" id="Path" fill="#ECECEC" fill-rule="evenodd" stroke="#ECECEC" stroke-width="1" stroke-linecap="round" />
+        </g>
+      </g>
+    </g>
   </g>
 </svg>
