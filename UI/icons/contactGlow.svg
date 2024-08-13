@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="29px" height="29px" viewBox="0 0 29 29" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path d="M-317 -143L-317 -143L-317 -114L-346 -114L-346 -143L-317 -143Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
+  </defs>
+  <g id="ContactIcon">
+    <path d="M-317 -143L-317 -143L-317 -114L-346 -114L-346 -143L-317 -143Z" id="ContactIcon" fill="none" stroke="none" />
+    <path d="M11.8776 1.34484C7.43103 2.13319 4.4443 4.37996 3.03484 7.31657C1.62538 10.2532 1.79317 13.8795 3.3369 15.9883C4.88063 18.0971 7.80017 18.6884 8.50489 20.2454C9.20961 21.8024 7.6995 24.325 6.99477 25.7046C6.29003 27.0842 6.39071 27.3207 7.83376 26.2959C9.27681 25.271 12.0621 22.9849 15.8207 21.0731C19.5794 19.1614 24.311 17.6241 26.5259 14.4904C28.7408 11.3567 28.4388 6.62674 25.3345 3.92666C22.2303 1.22658 16.3241 0.556499 11.8776 1.34484L11.8776 1.34484Z" id="Shape" fill="#FFFFFF" fill-rule="evenodd" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" clip-path="url(#clip_1)" />
+  </g>
+</svg>

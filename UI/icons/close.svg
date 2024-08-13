@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="25px" height="25px" viewBox="0 0 25 25" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path d="M-871 -165L-871 -165L-871 -140L-896 -140L-896 -165L-871 -165Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
+  </defs>
+  <g id="la--window-close">
+    <path d="M-871 -165L-871 -165L-871 -140L-896 -140L-896 -165L-871 -165Z" id="la--window-close" fill="none" stroke="none" />
+    <path d="M3.90625 3.90625L3.90625 21.0938L21.0938 21.0938L21.0938 3.90625L3.90625 3.90625ZM5.46875 5.46875L19.5313 5.46875L19.5313 19.5313L5.46875 19.5313L5.46875 5.46875ZM9.13124 8.05704L8.03202 9.15547L11.3766 12.5L7.98358 15.8938L9.08202 16.9922L12.4758 13.5984L15.8445 16.968L16.9437 15.8688L13.5742 12.5L16.8945 9.17969L15.7961 8.08126L12.4758 11.4016L9.13124 8.05704Z" id="Shape" fill="#FFFFFF" fill-rule="evenodd" stroke="none" clip-path="url(#clip_1)" />
+  </g>
+</svg>

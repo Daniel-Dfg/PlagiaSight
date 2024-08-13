@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB" id="filter_1">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 0" result="hardAlpha" />
+      <feMorphology radius="3" operator="erode" in="SourceAlpha" result="effect0_innerShadow" />
+      <feOffset dx="0" dy="0" />
+      <feGaussianBlur stdDeviation="2.5" />
+      <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+      <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.47058824 0" />
+      <feBlend mode="normal" in2="shape" result="effect0_innerShadow" />
+    </filter>
+    <path d="M-872 -156C-869.238 -156 -867 -153.762 -867 -151L-867 -141C-867 -138.238 -869.238 -136 -872 -136L-882 -136C-884.762 -136 -887 -138.238 -887 -141L-887 -151C-887 -153.762 -884.762 -156 -882 -156L-872 -156Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
+  </defs>
+  <g id="weui--max-window-filled" filter="url(#filter_1)">
+    <path d="M17.5 12.5L17.5 16.6667C17.5 17.1269 17.1269 17.5 16.6667 17.5L12.5 17.5L12.5 15.8333L15.8333 15.8333L15.8333 12.5L17.5 12.5ZM7.5 2.5L7.5 4.16667L4.16667 4.16667L4.16667 7.5L2.5 7.5L2.5 3.33333C2.5 2.8731 2.8731 2.5 3.33333 2.5L7.5 2.5ZM14.6533 4.16667L12.5 4.16667L12.5 2.5L16.6667 2.5C17.1269 2.5 17.5 2.8731 17.5 3.33333L17.5 7.5L15.8333 7.5L15.8333 5.345L12.195 8.98167L11.0167 7.80333L14.6533 4.16667ZM5.34667 15.8317L7.5 15.8317L7.5 17.4983L3.33333 17.4983C2.8731 17.4983 2.5 17.1252 2.5 16.665L2.5 12.4983L4.16667 12.4983L4.16667 14.6542L7.805 11.0167L8.98333 12.195L5.34667 15.8317Z" id="Shape" fill="#FFFFFF" fill-rule="evenodd" stroke="none" clip-path="url(#clip_1)" />
+  </g>
+</svg>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="35px" height="35px" viewBox="0 0 35 35" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB" id="filter_1">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 0" />
+      <feOffset dx="0" dy="0" />
+      <feGaussianBlur stdDeviation="2" />
+      <feColorMatrix type="matrix" values="0 0 0 0 0.39215687 0 0 0 0 0.39215687 0 0 0 0 0.39215687 0 0 0 1 0" />
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect0_dropShadow" />
+      <feBlend mode="normal" in="SourceGraphic" in2="effect0_dropShadow" result="shape" />
+    </filter>
+    <path d="M-193 -126L-193 -126L-193 -91L-228 -91L-228 -126L-193 -126Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
+  </defs>
+  <g id="ph--moon-fill">
+    <path d="M-193 -126L-193 -126L-193 -91L-228 -91L-228 -126L-193 -126Z" id="ph--moon-fill" fill="none" stroke="none" />
+    <path d="M34.3155 21.891C33.3651 24.9939 31.4606 27.718 28.8728 29.6757C24.2388 33.1642 18.031 33.7316 12.8415 31.141C7.65212 28.5504 4.37361 23.2473 4.37501 17.4462C4.36489 14.1264 5.44386 10.895 7.44642 8.24755C9.40362 5.65921 12.1271 3.75424 15.2294 2.80371C15.6461 2.67538 16.0995 2.78798 16.4078 3.09634C16.7161 3.40469 16.8287 3.85825 16.7004 4.27502C15.3182 8.84797 16.5635 13.8107 19.9409 17.1888C23.3183 20.5669 28.2799 21.8125 32.8518 20.43C33.2685 20.3017 33.722 20.4143 34.0302 20.7226C34.3385 21.031 34.4511 21.4845 34.3228 21.9013L34.3155 21.891Z" id="Path" fill="#000000" stroke="none" filter="url(#filter_1)" clip-path="url(#clip_1)" />
+  </g>
+</svg>

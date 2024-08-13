@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB" id="filter_1">
+      <feFlood flood-opacity="0" result="BackgroundImageFix" />
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 0" result="hardAlpha" />
+      <feMorphology radius="3" operator="erode" in="SourceAlpha" result="effect0_innerShadow" />
+      <feOffset dx="0" dy="0" />
+      <feGaussianBlur stdDeviation="2.5" />
+      <feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1" />
+      <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.49803922 0" />
+      <feBlend mode="normal" in2="shape" result="effect0_innerShadow" />
+    </filter>
+    <path d="M-872 -156C-869.238 -156 -867 -153.762 -867 -151L-867 -141C-867 -138.238 -869.238 -136 -872 -136L-882 -136C-884.762 -136 -887 -138.238 -887 -141L-887 -151C-887 -153.762 -884.762 -156 -882 -156L-872 -156Z" id="path_1" />
+    <clipPath id="clip_1">
+      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
+  </defs>
+  <g id="icon-park-outline--reduce" filter="url(#filter_1)">
+    <g id="Group" transform="translate(2.5 2.5)" clip-path="url(#clip_1)">
+      <path d="M0 2.5L0 1.25C0 0.904822 0.122039 0.610194 0.366117 0.366117C0.610194 0.122039 0.904822 0 1.25 0L13.75 0C14.0952 0 14.3898 0.122039 14.6339 0.366117C14.878 0.610194 15 0.904822 15 1.25L15 13.75C15 14.0952 14.878 14.3898 14.6339 14.6339C14.3898 14.878 14.0952 15 13.75 15L1.25 15C0.904822 15 0.610194 14.878 0.366117 14.6339C0.122039 14.3898 0 14.0952 0 13.75L0 2.5Z" id="Path" fill="none" fill-rule="evenodd" stroke="#FFFFFF" stroke-width="1" stroke-linejoin="round" />
+      <g id="Group" transform="translate(4.166687 7.486252)">
+        <path d="M0 0L6.66667 0" id="Path" fill="none" fill-rule="evenodd" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+      </g>
+    </g>
+  </g>
+</svg>
