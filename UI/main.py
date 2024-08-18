@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QApplication
 from PySide6.QtCore import Qt
 from esr import ESR
 from user import UserInfo
-from UI.profile import Profile
+from profile import Profile
 
 class Window(QWidget):
     def __init__(self):
