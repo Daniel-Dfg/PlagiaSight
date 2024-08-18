@@ -2,8 +2,8 @@
 
 from string import punctuation # helps to check if a string is made of punctuation only here
 from math import sqrt
-from numpy import array, append, flexible, ndarray
-from nltk.tokenize import wordpunct_tokenize
+from numpy import array, append, flexible, ndarray, mean, median
+from nltk.tokenize import simple, wordpunct_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk import FreqDist, pos_tag
@@ -17,13 +17,12 @@ import nltk
 @dataclass
 class Tokenizer:
     """
-    -> Extracts and Tokenizes data from source
+    -> Tokenizes data from source (text data MUST be provided in argument)
     --> Cleans the data to make it analyzable
 
     - contains the tokenization methods and the tokens themselves (using @property)
     """
-    file: str
-    _raw_data: str = field(init=False, repr=False)
+    _raw_data: str = field(init=True, repr=False)
     _tokens_by_sentence: ndarray = field(init=False, repr=False)
     _tokens_by_wordpunct: ndarray = field(init=False,  repr=False)
     _tokens_by_word: ndarray = field(init=False, repr=False, default_factory=lambda: array([])) # will be created after tokens by wordpunct curation
@@ -33,15 +32,10 @@ class Tokenizer:
 
     def __post_init__(self):
         #MUST RENAME FUCTIONS PROPERLY #TODO
-        self.extract_raw_from_file()
+
+        #self.extract_raw_from_file()
         self.tokenize_text()
         self.clean_data()
-
-    def extract_raw_from_file(self):
-        if not path.exists(self.file):
-            raise FileNotFoundError("Specified file doesn't exist")
-        with open(self.file, 'r', encoding='utf-8-sig', errors='ignore') as f: #might consider chardet or cchardet to detect encoding
-            self._raw_data = f.read().lower()
 
     def tokenize_text(self):
         tokens_by_sentence_first_pass = array(self.raw_data.replace('\n', 'þ').replace('.', 'þ').split('þ'))
@@ -158,6 +152,7 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
     trigrams : Counter = field(init=False, repr=False)
     text_richness: float = field(init=False, repr=False)
     average_sentence_length: float = field(init=False, repr=False)
+    median_sentence_length: float = field(init=False, repr=False)
     keywords_scores: dict = field(init=False, repr=False)
 
     def __post_init__(self):
@@ -167,7 +162,9 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
         self.word_freq = FreqDist(self.base.tokens_by_word)
         self.pos_freq = FreqDist(self.base.part_of_speeches)
         self.text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
-        self.average_sentence_length = sum(len(sent.split()) for sent in self.base.tokens_by_sentence) / len(self.base.tokens_by_sentence)
+        sentences_lengths = [len(sent.split()) for sent in self.base.tokens_by_sentence]
+        self.average_sentence_length = float(mean(sentences_lengths))
+        self.median_sentence_length = float(median(sentences_lengths))
         self.get_syntagms_scores()
         #self.display_statistics()
 
@@ -201,8 +198,8 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
     Applies fundamental algorithms to evaluate similarity between TWO sources
     (like cosine similarity, n-grams similarity...) and stores the results.
     """
-    input_tokens_sets : TokensStatsAndRearrangements = field(init=True)
-    source_tokens_sets : TokensStatsAndRearrangements = field(init=True)
+    input_tokens_sets : TokensStatsAndRearrangements
+    source_tokens_sets : TokensStatsAndRearrangements
     _cosine_sim_words : float = field(init=False, default=-1) # -1 is a sentinel value
     _jaccard_sim_words : float = field(init=False, default=-1)
     _cosine_sim_pos : float = field(init=False, default=-1)
@@ -214,17 +211,8 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
     _identical_trigrams : dict[tuple[str, str, str], tuple[int, int]] = field(init=False, repr=False, default_factory=dict)
 
     def __post_init__(self):
-        """
-            #will do a function launch_analysis #TODO
-            print(f"Cosine Similarity: {self.cosine_similarity}")
-            print(f"Jaccard Similarity: {self.jaccard_similarity}")
-            print("Similar Bigrams:")
-            for bigram, occurrences in self.similar_bigrams.items():
-                print(f"{bigram}: {occurrences}")
-            print("Similar Trigrams:")
-            for trigram, occurrences in self.similar_trigrams.items():
-                print(f"{trigram}: {occurrences}")
-        """
+        pass
+
     def cosine_similarity(self, source_terms : dict, input_terms : dict) -> float: #both args are WordFreqs (from pos or words)
         both_texts_words_union = set(source_terms.keys()).union(set(input_terms.keys()))
         input_norm = sqrt(sum(x**2 for x in input_terms.values()))
@@ -295,29 +283,8 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
         return self._identical_trigrams
 
 
-#t = "/home/daniel/Documents/INFO/PersonalProjects/PlagiarismDetectionProject/Resources/Sample Data/BasicTexts/DataFromText-MiningProject/ass1-202.txt"
-t2 = "./Resources/Sample Data/BasicTexts/poem1.txt"
-#t2 = "../Resources/Sample Data/BasicTexts/DataFromText-MiningProject/ass1-211.txt"
-tok = Tokenizer(file=t2)
-#tsar = TokensStatsAndRearrangements(base=tok)
-#tok2 = Tokenizer(file=t2)
-#tsar2 = TokensStatsAndRearrangements(base=tok2)
-
-#tpa = TextProcessingAlgorithms(input_tokens_sets=tsar, source_tokens_sets=tsar2)
-
-print('SENTENCE')
-print(tok.tokens_by_sentence)
-print('-----------')
-print('WORDPUNCT')
-print(tok.tokens_by_wordpunct)
-print('-----------')
-print('POS')
-print(tok.part_of_speeches)
-print('-------------')
-print('WORD')
-print(tok.tokens_by_word)
-print('-----------')
-print('SYNTAGM')
-for tt in tok.tokens_by_syntagm:
-    print(tt)
-#print(tok.raw_data)"""
+def extract_raw_from_file(file):
+    if not path.exists(file):
+        raise FileNotFoundError("Specified file doesn't exist")
+    with open(file, 'r', encoding='utf-8-sig', errors='ignore') as f: #might consider chardet or cchardet to detect encoding
+        return f.read().lower()
