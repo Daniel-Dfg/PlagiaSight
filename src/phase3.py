@@ -1,3 +1,4 @@
+
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QMainWindow, QVBoxLayout, QWidget, QPushButton, QLabel, QSpacerItem, QSizePolicy, QTreeWidgetItem, QTreeWidget, QStackedWidget, QTextEdit, QFileDialog, QComboBox, QListWidget, QRadioButton, QButtonGroup, QProgressBar
 from PySide6.QtCore import Qt, QUrl, Signal, QTimer
 from PySide6.QtGui import QIcon, QDragEnterEvent, QDropEvent, QStandardItem, QStandardItemModel
@@ -29,6 +30,7 @@ class NonSelectableComboBox(QComboBox):
 
 class DropArea(QTextEdit):
     def __init__(self, expected_type, step1_widget):
+
         super().__init__()
         self.setAcceptDrops(True)
         self.expected_type = expected_type
@@ -145,6 +147,7 @@ class HelpWindow(QWidget):
         for i in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(i)
             item.setExpanded(i == step_index)
+
 
 class GetInTouchWindow(QWidget):
     def __init__(self, main_window):
