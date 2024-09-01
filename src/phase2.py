@@ -11,7 +11,14 @@ from sys import platform
 from time import sleep
 from os import remove
 
-headers = {'User-Agent': 'PlagaiLence'} # To discuss
+# Important for safe and sure scraping
+headers = {'User-Agent': 'PlagaLand', # name of the app
+           'Accept': 'text/html', # wanted file
+           'Accept-Encoding': 'gzip, deflate, br', # accept compression
+           'Accept-Language': 'en', # used language
+           'DNT': '1', # do not track (if possible)
+           'Upgrade-Insecure-Requests': '1', # Upgrade request https if possible
+           'Cache-Control': 'no-cache'}
 
 @dataclass
 class URLs:
@@ -20,8 +27,7 @@ class URLs:
     """
     word_sent: str
     number: int
-    #Exclude useless domain
-    useless_domain: str = field(init=False, repr=False)
+    useless_domain: str = field(init=False, repr=False) #Exclude useless domain
     _url_array: ndarray = field(init=False, repr=False)
 
     def __post_init__(self):
@@ -53,7 +59,7 @@ class URLs:
         rfp = RobotFileParser()
         rfp.set_url(robots_url)
         rfp.read()# Read robots.txt
-        return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaland" is allowed to scrap the url
+        return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
 
     def recycleUrls(self) -> None:
         """
