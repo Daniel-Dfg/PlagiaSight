@@ -12,80 +12,76 @@ from os import path
 from collections import Counter
 from nltk.util import ngrams
 import nltk
-
+#TODO : fix phase1 to send more concrete and 'actionable' warnings when needed (like when a file is empty)
 
 @dataclass
 class Tokenizer:
-    """
-    -> Tokenizes data from source (text data MUST be provided in argument)
-    --> Cleans the data to make it analyzable
-
-    - contains the tokenization methods and the tokens themselves (using @property)
-    """
-    _raw_data: str = field(init=True, repr=False)
+    _raw_data: str
     _tokens_by_sentence: ndarray = field(init=False, repr=False)
-    _tokens_by_wordpunct: ndarray = field(init=False,  repr=False)
-    _tokens_by_word: ndarray = field(init=False, repr=False, default_factory=lambda: array([])) # will be created after tokens by wordpunct curation
-    _tokens_by_syntagm: ndarray = field(init=False, repr=False, default_factory=lambda :array([])) # will be created later (must clear that #TODO)
-    _part_of_speeches: ndarray = field(init=False, repr=False, default_factory=lambda:array([])) #only contains the pos tags themselves, not the words/punct signs
-    #_top_common_word_sentences: array = field(init=False, repr=False)
+    _tokens_by_wordpunct: ndarray = field(init=False, repr=False)
+    _tokens_by_word: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
+    _tokens_by_syntagm: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
+    _part_of_speeches: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
 
     def __post_init__(self):
-        #MUST RENAME FUCTIONS PROPERLY #TODO
+        # Tokenisation à l'initialisation
+        sentences = self._raw_data.replace('\n', 'þ').replace('.', 'þ').split('þ')
+        self._tokens_by_sentence = array([sent.strip() for sent in sentences if sent.strip()])
+        self._tokens_by_wordpunct = array(wordpunct_tokenize(self._raw_data)) #first pass, will be filtered in self.clean_data() -> self._filter_and_group_tokens(...)
 
-        #self.extract_raw_from_file()
-        self.tokenize_text()
+        # Nettoyage des données
         self.clean_data()
 
-    def tokenize_text(self):
-        tokens_by_sentence_first_pass = array(self.raw_data.replace('\n', 'þ').replace('.', 'þ').split('þ'))
-        self._tokens_by_sentence = array([sent.strip() for sent in tokens_by_sentence_first_pass if sent.strip()])
-        self._tokens_by_wordpunct = array(wordpunct_tokenize(self.raw_data))
-
     def clean_data(self):
-        # Needs doc and clarification #TODO
-        # Lemmatization
+        """Méthode principale pour nettoyer les données."""
+        pos_tags = self._lemmatize_and_tag_tokens()
+        self._filter_and_group_tokens(pos_tags)
+
+    def _lemmatize_and_tag_tokens(self):
+        """Lemmatization et étiquetage des POS."""
         lemmatizer = WordNetLemmatizer()
-        pos_first_pass = pos_tag(self.tokens_by_wordpunct)
-        for i, element in enumerate(pos_first_pass):
-            token, tag = element[0], element[1]
+        pos_tags = []
+        for token, tag in pos_tag(self._tokens_by_wordpunct):
             if not self.is_only_punctuation(token):
-                self._tokens_by_wordpunct[i] = lemmatizer.lemmatize(token, self.get_wordnet_pos(tag))
+                lemmatized_token = lemmatizer.lemmatize(token, self.get_wordnet_pos(tag))
+                pos_tags.append((lemmatized_token, tag))
             else:
-                tag = "Punct"
-                pos_first_pass[i] = (pos_first_pass[i][0], "Punct")
+                pos_tags.append((token, "Punct"))
+        return pos_tags
+
+    def _filter_and_group_tokens(self, pos_tags):
+        """Filtrage des tokens et regroupement en syntagmes."""
         stop_words = set(stopwords.words('english'))
-        i = 0
-        new_tokens_by_wordpunct = array([])
-        syntagms = []  # Temporary list to hold syntagms
+        filtered_tokens_by_wordpunct = []
+        all_syntagms = []
         current_syntagm = []
 
-        for i, word in enumerate(self.tokens_by_wordpunct): # len(tok_by_wp) == len(pos_first_pass) at this point : time for filtering
-            if word in stop_words or self.is_only_punctuation(word) or word == '':
-                if current_syntagm != []:
-                    syntagms.append(current_syntagm)
+        for token, pos in pos_tags:
+            if token in stop_words or self.is_only_punctuation(token) or token == '': #if this token is a "breaker"
+                if current_syntagm:
+                    all_syntagms.append(current_syntagm)
                     current_syntagm = []
-                if self.is_only_punctuation(word):
-                    new_tokens_by_wordpunct = append(new_tokens_by_wordpunct, word)
-                    self._part_of_speeches = append(self._part_of_speeches, pos_first_pass[i][1])
+                if self.is_only_punctuation(token):
+                    filtered_tokens_by_wordpunct.append(token)
+                    self._part_of_speeches = append(self._part_of_speeches, pos)
             else:
-                current_syntagm.append(word)
-                new_tokens_by_wordpunct = append(new_tokens_by_wordpunct, word)
-                self._part_of_speeches = append(self._part_of_speeches, pos_first_pass[i][1])
-                self._tokens_by_word = append(self._tokens_by_word, word)
-            i += 1
+                current_syntagm.append(token)
+                filtered_tokens_by_wordpunct.append(token)
+                self._part_of_speeches = append(self._part_of_speeches, pos)
+                self._tokens_by_word = append(self._tokens_by_word, token)
 
         if current_syntagm:
-            syntagms.append(current_syntagm)
+            all_syntagms.append(current_syntagm)
 
-        self._tokens_by_syntagm = array(syntagms, dtype=object) #not clean at all conversion, might fix later
-        self._tokens_by_wordpunct = new_tokens_by_wordpunct
-        #filtering done
+        self._tokens_by_syntagm = array(all_syntagms, dtype=object)
+        self._tokens_by_wordpunct = array(filtered_tokens_by_wordpunct)
 
     def is_only_punctuation(self, token):
+        """Vérifie si un token est composé uniquement de ponctuation."""
         return all(char in punctuation for char in token)
 
     def get_wordnet_pos(self, tag):
+        """Convertit un tag POS en format reconnu par le lemmatizer WordNet."""
         if tag.startswith('J'):
             return wordnet.ADJ
         elif tag.startswith('V'):
@@ -93,36 +89,36 @@ class Tokenizer:
         elif tag.startswith('R'):
             return wordnet.ADV
         else:
-            return wordnet.NOUN # By default
+            return wordnet.NOUN  # Par défaut
 
-
-    @property
-    def tokens_by_syntagm(self):
-        if self._tokens_by_syntagm.size == 0:
-            print("Warning: empty list of tokens by syntagm. \nPlease make sure that there's data to work with.")
-        return self._tokens_by_syntagm
     @property
     def tokens_by_sentence(self):
-        if self._tokens_by_sentence.size == 0:
+        if not self._tokens_by_sentence.size:
             print("Warning: empty list of tokens by sentence. \nPlease make sure that there's data to work with.")
         return self._tokens_by_sentence
 
     @property
     def tokens_by_wordpunct(self):
-        if self._tokens_by_wordpunct.size == 0:
+        if not self._tokens_by_wordpunct.size:
             print("Warning: empty list of tokens by word/punctuation. \nPlease make sure that there's data to work with.")
         return self._tokens_by_wordpunct
 
     @property
     def tokens_by_word(self):
-        if self._tokens_by_word.size == 0:
+        if not self._tokens_by_word.size:
             print("Warning: empty list of tokens by word. \nPlease make sure that there's data to work with.")
         return self._tokens_by_word
 
     @property
+    def tokens_by_syntagm(self):
+        if not self._tokens_by_syntagm.size:
+            print("Warning: empty list of tokens by syntagm. \nPlease make sure that there's data to work with.")
+        return self._tokens_by_syntagm
+
+    @property
     def part_of_speeches(self):
-        if self._part_of_speeches.size == 0:
-            print("Warning")
+        if not self._part_of_speeches.size:
+            print("Warning: empty list of POS tags.")
         return self._part_of_speeches
 
     @property
@@ -133,8 +129,8 @@ class Tokenizer:
 
 
 
-@dataclass
 class TokensStatsAndRearrangements: # To be referred as TSAR later on
+    #TODO : make proper getters when needed.
     """
     MUST be used with ONE set of Tokens.
     - Provides statistical insights over ONE source (word frequency, text richness, POS...)
@@ -145,35 +141,19 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
     the input and the source would allow us to conjecture (with a certain uncertainty still) if they go over the same subjects.
     This idea would help us distinguish STRUCTURAL similarities in the text from WORD similarities (since one doesn't imply the other).
     """
-    base: Tokenizer
-    word_freq: FreqDist = field(init=False, repr=False)
-    pos_freq:FreqDist = field(init=False, repr=False)
-    bigrams : Counter = field(init=False, repr=False)
-    trigrams : Counter = field(init=False, repr=False)
-    text_richness: float = field(init=False, repr=False)
-    average_sentence_length: float = field(init=False, repr=False)
-    median_sentence_length: float = field(init=False, repr=False)
-    keywords_scores: dict = field(init=False, repr=False)
 
-    def __post_init__(self):
+    def __init__(self, base):
+        self.base = base
         self.keywords_scores = {}
         self.bigrams = Counter(ngrams(self.base.tokens_by_word, 2))
         self.trigrams = Counter(ngrams(self.base.tokens_by_word, 3))
         self.word_freq = FreqDist(self.base.tokens_by_word)
         self.pos_freq = FreqDist(self.base.part_of_speeches)
         self.text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
-        sentences_lengths = [len(sent.split()) for sent in self.base.tokens_by_sentence]
-        self.average_sentence_length = float(mean(sentences_lengths))
-        self.median_sentence_length = float(median(sentences_lengths))
+        self.sent_lengths = [len(sent.split()) for sent in self.base.tokens_by_sentence]
+        self.average_sent_length = float(mean(self.sent_lengths))
+        self.median_sent_length = float(median(self.sent_lengths))
         self.get_syntagms_scores()
-        #self.display_statistics()
-
-    def display_statistics(self):
-        print(f"Word Frequency (WordPunct): {self.word_freq.most_common(5)}")
-        print(f"Text Richness: {self.text_richness}")
-        print(f"Average Sentence Length: {self.average_sentence_length}")
-        print(f"Bigrams: {self.bigrams.most_common(5)}")
-        print(f"Trigrams: {self.trigrams.most_common(5)}")
 
     def get_syntagms_scores(self):
         word_degrees = {}
@@ -281,10 +261,27 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
             source_trigrams = self.source_tokens_sets.trigrams
             self._identical_trigrams = self.find_similar_ngrams(input_trigrams, source_trigrams)
         return self._identical_trigrams
+    """
+    #FOR TESTING PURPOSES
+    def display_simple_results(self):
+        print(f"Simple results:")
+        print(f"Text1 richness: {self.source_tokens_sets.text_richness}, Text2 richness: {self.input_tokens_sets.text_richness}")
+        print(f"Words cosine similarity: {self.cosine_sim_words}")
+        print(f"Words Jaccard similarity: {self.jaccard_sim_words}")
+        print(f"average sentence length: {self.source_tokens_sets.average_sent_length}, {self.input_tokens_sets.average_sent_length}")
+
+    def display_complex_results(self):
+        print(f"Complex results:")
+        self.display_simple_results()
+        print(f"POS cosine similarity: {self.cosine_sim_pos}")
+        print(f"POS Jaccard similarity: {self.jaccard_sim_pos}")
+        print(f"Similar bigrams: {self.similar_bigrams}")
+        print(f"Similar trigrams: {self.similar_trigrams}")
+    """
 
 
-def extract_raw_from_file(file):
-    if not path.exists(file):
+def extract_raw_from_file(file_path : str) -> str:
+    if not path.exists(file_path):
         raise FileNotFoundError("Specified file doesn't exist")
-    with open(file, 'r', encoding='utf-8-sig', errors='ignore') as f: #might consider chardet or cchardet to detect encoding
+    with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f: #might consider using chardet or cchardet to detect encoding
         return f.read().lower()

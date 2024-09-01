@@ -6,6 +6,12 @@ import webbrowser
 import os
 from TextAnalysis_AkaPhase1 import *
 from phase2 import *
+from random import randint
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+from numpy import arange, argsort
+from sys import argv
 #TODO : fix logic for step 1 directory drop (an invalid directory should not overwrite a previous valid one)
 #TODO : rethink the overall logic of the stacked widgets to make it easier to manipulate,
 #notably by adding more attrs to the MainWindow to keep the logic consistent
@@ -14,7 +20,21 @@ CLASSIC_STYLESHEET = """
 color: black;
 background-color: white;
 """
-#TODO : add and use stylesheets (last task to do whatsoever)
+
+
+#TODO : rename global constants to be shorter
+INDIV_CHARACTERISTICS = ["Text Richness", "average sentence length", "median sentence length"]
+TEX_DIS_SIMPLE_FUNC_EQUIVALENTS = ["text_richness", "average_sent_length", "median_sent_length"]
+
+TEXTUAL_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS = ["Cosine sim (words)", "Jaccard sim (words)"]
+TEX_DIS_SIMPLE_COMMON_FUNC_EQUIVALENTS =  ["cosine_sim_words", "jaccard_sim_words"]
+GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS = ["word frequency (top 20% or so)", "Sentences length (plotting)"]
+GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE = ["word_freq", "sent_lengths"] #TODO : reevaluate these notations
+
+TEXTUAL_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS = TEXTUAL_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS + ["Cosine sim (pos)", "Jaccard sim (pos)"]
+TEX_DIS_COMPLEX_COMMON_FUNC_EQUIVALENTS = TEX_DIS_SIMPLE_COMMON_FUNC_EQUIVALENTS + ["cosine_sim_pos", "jaccard_sim_pos"]
+GRAPH_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS = GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS + ["most common bigrams (top 20% or so)", "most common trigrams (top 20% or so)"]
+GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_COMPLEX = GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE + ["most_common_bigrams", "most_common_trigrams"] #TODO : reevaluate this expr
 
 class NonSelectableComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -114,7 +134,6 @@ class DropArea(QTextEdit):
             self.show_warning("Please select a directory with 2 to 5 .txt files.")
             self.step1_widget.next_button.setEnabled(False)
 
-
 class HelpWindow(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -147,7 +166,6 @@ class HelpWindow(QWidget):
         for i in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(i)
             item.setExpanded(i == step_index)
-
 
 class GetInTouchWindow(QWidget):
     def __init__(self, main_window):
@@ -203,7 +221,7 @@ class GetInTouchWindow(QWidget):
         contact_widget.setLayout(contact_layout)
         parent_layout.addWidget(contact_widget)
 
-class Step0Widget(QWidget):
+class Step0_WelcomingMessage(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -226,12 +244,12 @@ class Step0Widget(QWidget):
 
     def proceed_to_step1(self, expected_type):
         self.main_window.expected_type = expected_type
-        self.main_window.step1_widget = Step1Widget(self.main_window)
+        self.main_window.step1_widget = Step1_FileDropAndCheck(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step1_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step1_widget)
         self.main_window.help_window.expand_step(1)
 
-class Step1Widget(QWidget):
+class Step1_FileDropAndCheck(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -299,12 +317,13 @@ class Step1Widget(QWidget):
 
     def proceed_to_step2(self):
         print("Proceeding to step 2 with files:", self.drop_area.correct_files)
-        self.main_window.step2_widget = Step2Widget(self.main_window)
+        if not hasattr(self.main_window, "step2_widget"):
+            self.main_window.step2_widget = Step2_AnalysisComplexityPick(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step2_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step2_widget)
         self.main_window.help_window.expand_step(2)
 
-class Step2Widget(QWidget):
+class Step2_AnalysisComplexityPick(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -354,16 +373,16 @@ class Step2Widget(QWidget):
             self.launch_button.setEnabled(True)
 
     def launch_analysis(self):
-        selected_analysis = "Simple" if self.simple_analysis_radio.isChecked() else "Complex"
+        selected_analysis = "simple" if self.simple_analysis_radio.isChecked() else "complex"
         print(f"Launching {selected_analysis} Analysis")
 
         #Move on to Step3Widget
-        self.main_window.step3_widget = Step3Widget(self.main_window, selected_analysis)
+        self.main_window.step3_widget = Step3_LoadResults(self.main_window, selected_analysis)
         self.main_window.stacked_widget.addWidget(self.main_window.step3_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step3_widget)
         self.main_window.help_window.expand_step(3)
 
-class Step3Widget(QWidget):
+class Step3_LoadResults(QWidget):
     done = Signal()
     def __init__(self, main_window, selected_analysis):
 
@@ -382,9 +401,8 @@ class Step3Widget(QWidget):
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(100)
         layout.addWidget(self.progress_bar)
-        layout.addWidget(self.next_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.done.connect(lambda: self.move_on())
+        self.done.connect(lambda: QTimer.singleShot(500, self.move_to_step4))
 
         self.setLayout(layout)
 
@@ -397,10 +415,13 @@ class Step3Widget(QWidget):
         if len(content) == 1:
             #web scraping, etc
             ...
+            print("processing indiv")
             self.main_window.final_results = OneFileComparison(content[0], self.analysis_type)
         else:
+            ...
+            print("processing dir")
             #compare files between each other
-            self.main_window.final_results = CrossCompare(content, self.analysis_type)
+            self.main_window.final_results = CrossCompare(files_paths=content, comparison_type=self.analysis_type)
 
 
         # Mark all as complete
@@ -409,16 +430,13 @@ class Step3Widget(QWidget):
         self.progress_bar.setValue(100)
         self.done.emit()
 
-    def move_on(self):
-        #TODO : make the code and the transition cleaner
-        print("waiting")
-        QTimer.singleShot(500, self.move_to_step4)
 
     def move_to_step4(self):
+
         print("doing the do")
         if not hasattr(self.main_window, 'step4_widget'):
             print("creation")
-            self.main_window.step4_widget = Step4Widget(self.main_window)
+            self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
         else:
             print("Step4Widget déjà créé.")
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
@@ -426,16 +444,231 @@ class Step3Widget(QWidget):
         self.main_window.help_window.expand_step(4)
         print("creation done")
 
-class Step4Widget(QWidget):
+class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
 
+        # Création des éléments de l'interface
         layout = QVBoxLayout()
-        label = QLabel("Analysis Complete!")
-        layout.addWidget(label)
+
+        # Bouton pour afficher les graphiques
+        graph_view_button = QPushButton("View Graph")
+        graph_view_button.clicked.connect(self.view_graph)
+        layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        title_label = QLabel("Comparison Results")
+        layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # Menus déroulants pour sélectionner les fichiers à comparer
+        file_selection_layout = QHBoxLayout()
+        self.right_content_title = QComboBox()
+
+        if isinstance(self.main_window.final_results, OneFileComparison):
+            self.left_content_title = QComboBox()
+            self.left_content_title.addItem(self.main_window.final_results.source_file)
+            right_items = ["site1", "site2", "site3"]
+            self.right_content_title.addItems(right_items)
+        elif isinstance(self.main_window.final_results, CrossCompare):
+            self.left_content_title = QComboBox()
+            self.left_content_title.addItems(self.main_window.step1_widget.drop_area.correct_files)
+            right_items = self.main_window.step1_widget.drop_area.correct_files
+            self.right_content_title.addItems(right_items)
+            self.right_content_title.removeItem(0)
+            self.left_content_title.currentIndexChanged.connect(self.update_results)
+        else:
+            raise TypeError("Unexpected type for final_results")
+
+        file_selection_layout.addWidget(QLabel("File 1:"))
+        file_selection_layout.addWidget(self.left_content_title)
+        file_selection_layout.addWidget(QLabel("File 2:"))
+        file_selection_layout.addWidget(self.right_content_title)
+
+        layout.addLayout(file_selection_layout)
+
+        # Dictionnaires pour stocker les labels des résultats
+        self.file1_result_labels = {}
+        self.file2_result_labels = {}
+        self.common_result_labels = {}
+
+        # Créer les lignes pour chaque caractéristique
+        self.textual_display_common_charcs = TEXTUAL_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS if self.main_window.step3_widget.analysis_type == "simple" else TEXTUAL_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS
+        self.textual_display_common_func_labels = TEX_DIS_SIMPLE_COMMON_FUNC_EQUIVALENTS if self.main_window.step3_widget.analysis_type == "simple" else TEX_DIS_COMPLEX_COMMON_FUNC_EQUIVALENTS
+
+        self.graphical_display_elems_names = GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS if self.main_window.step3_widget.analysis_type == "simple" else GRAPH_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS
+        self.graphical_display_func_labels = GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE if self.main_window.step3_widget.analysis_type == "simple" else GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_COMPLEX
+        for char in INDIV_CHARACTERISTICS:
+            line_layout = QHBoxLayout()
+
+            char_label = QLabel(char)
+            common_result_label = QLabel("-")
+            result2_label = QLabel("-")
+
+            line_layout.addWidget(char_label)
+            line_layout.addWidget(common_result_label)
+            line_layout.addWidget(result2_label)
+
+            # Stocker les labels dans les dictionnaires
+            self.file1_result_labels[char] = common_result_label
+            self.file2_result_labels[char] = result2_label
+
+            layout.addLayout(line_layout)
+
+        # Ajouter les caractéristiques communes
+        for common_char in self.textual_display_common_charcs:
+            line_layout = QHBoxLayout()
+
+            char_label = QLabel(common_char)
+            common_result_label = QLabel("C")
+
+            line_layout.addWidget(char_label)
+            line_layout.addWidget(common_result_label)
+            self.common_result_labels[common_char] = common_result_label
+
+            layout.addLayout(line_layout)
+
         self.setLayout(layout)
-        #TODO : display the results
+        self.right_content_title.currentIndexChanged.connect(self.update_results)
+        self.update_results()
+
+    def update_results(self):
+        print("updating textual results")
+        file1, file2 = self.left_content_title.currentText(), self.right_content_title.currentText()
+        results = self.main_window.final_results
+        for char_name, char_label in zip(INDIV_CHARACTERISTICS, TEX_DIS_SIMPLE_FUNC_EQUIVALENTS):
+            res_file1 = getattr(results.file_stats[file1], char_label)
+            res_file2 = getattr(results.file_stats[file2], char_label)
+            # Mettre à jour les labels directement
+            self.file1_result_labels[char_name].setText(str(res_file1))
+            self.file2_result_labels[char_name].setText(str(res_file2))
+
+        if isinstance(self.main_window.final_results, OneFileComparison):
+            ...
+            print("Not done yet")
+            raise
+
+        else:
+            for common_char_name, common_char_label in zip(self.textual_display_common_charcs, self.textual_display_common_func_labels):
+                common_res = getattr(results.get_comparison(file1, file2), common_char_label)
+                self.common_result_labels[common_char_name].setText(str(common_res))
+
+    def prepare_graphs_data(self):
+        file1, file2 = self.left_content_title.currentText(), self.right_content_title.currentText()
+        results = self.main_window.final_results
+        graphs_data = []
+
+        for char_name, char_label in zip(self.graphical_display_elems_names, self.graphical_display_func_labels):
+            res_file1 = getattr(results.file_stats[file1], char_label)
+            res_file2 = getattr(results.file_stats[file2], char_label)
+            if char_label == "term_freq": #side note : might not be the most clear to the reader to have this
+                res_file1 = res_file1.most_common(int(len(res_file1) * 0.2))
+                res_file2 = res_file2.most_common(int(len(res_file2) * 0.2))
+                #needed later : iterate over the union of the elems to make a sorted dict[tuple[float, float]] ?
+
+            categories = [f"{file1} {char_name}", f"{file2} {char_name}"]
+            values = [res_file1, res_file2]
+            graphs_data.append((categories, values))
+        return graphs_data
+
+    def view_graph(self):
+        # Préparez les données initiales pour les graphiques
+        graphs_data = self.prepare_graphs_data()
+
+        # Instanciez et affichez la fenêtre de graphiques
+        self.graph_window = GraphWindow(self.main_window)
+        self.graph_window.show()
+
+        # Connecter les ComboBoxes pour mettre à jour les graphiques dynamiquement
+        self.left_content_title.currentIndexChanged.connect(self.update_graph_window)
+        self.right_content_title.currentIndexChanged.connect(self.update_graph_window)
+
+    def update_graph_window(self):
+        if self.graph_window:  # Vérifiez si la fenêtre du graphique est déjà ouverte
+            new_graphs_data = self.prepare_graphs_data()
+            self.graph_window.update_graphs_data(new_graphs_data)
+
+
+class GraphWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Graphs: Sentence Length & Word Frequencies")
+        layout = QVBoxLayout(self)
+
+        # Configuration des boutons de navigation
+        button_layout = QHBoxLayout()
+        self.sentence_length_button = QPushButton("Sentence Length Graph")
+        self.sentence_length_button.clicked.connect(self.show_sentence_length_graph)
+        self.word_freq_button = QPushButton("Word Frequency Graph")
+        self.word_freq_button.clicked.connect(self.show_word_freq_graph)
+        button_layout.addWidget(self.sentence_length_button)
+        button_layout.addWidget(self.word_freq_button)
+
+        layout.addLayout(button_layout)
+
+        # Ajout du canvas de Matplotlib
+        self.canvas = FigureCanvas(Figure(figsize=(10, 6)))
+        layout.addWidget(NavigationToolbar(self.canvas, self))
+        layout.addWidget(self.canvas)
+
+        # Initialisation de l'axe pour les graphiques
+        self._static_ax = self.canvas.figure.subplots()
+
+        # Génération des données aléatoires pour les graphiques
+        self.sentence_length_data = self.generate_sentence_length_data()
+        self.word_freq_data = self.generate_word_freq_data()
+
+        # Affichage initial
+        self.show_sentence_length_graph()
+
+    def generate_sentence_length_data(self):
+        """Génère des données fictives pour la longueur des phrases."""
+        sentence_indices = np.arange(1, 11)  # Indices de phrases de 1 à 10
+        lengths_text1 = np.random.randint(5, 20, size=10)  # Longueur des phrases du texte 1
+        lengths_text2 = np.random.randint(5, 20, size=10)  # Longueur des phrases du texte 2
+        return sentence_indices, lengths_text1, lengths_text2
+
+    def generate_word_freq_data(self):
+        """Génère des données fictives pour les fréquences de mots."""
+        words = ['word1', 'word2', 'word3', 'word4', 'word5', 'word6']  # Liste des mots
+        freq_text1 = np.random.randint(1, 15, size=len(words))  # Fréquence des mots pour le texte 1
+        freq_text2 = np.random.randint(1, 15, size=len(words))  # Fréquence des mots pour le texte 2
+        return words, freq_text1, freq_text2
+
+    def show_sentence_length_graph(self):
+        """Affiche le graphique comparant les longueurs de phrases."""
+        self._static_ax.clear()
+        indices, lengths_text1, lengths_text2 = self.sentence_length_data
+        bar_width = 0.35
+        index = np.arange(len(indices))
+        self._static_ax.bar(index, lengths_text1, bar_width, label='Text 1')
+        self._static_ax.bar(index + bar_width, lengths_text2, bar_width, label='Text 2')
+
+        self._static_ax.set_xlabel('Sentence Index')
+        self._static_ax.set_ylabel('Sentence Length')
+        self._static_ax.set_title('Sentence Length Comparison')
+        self._static_ax.set_xticks(index + bar_width / 2)
+        self._static_ax.set_xticklabels(indices)
+        self._static_ax.legend()
+        self.canvas.draw()
+
+    def show_word_freq_graph(self):
+        """Affiche le graphique comparant les fréquences de mots."""
+        self._static_ax.clear()
+        words, freq_text1, freq_text2 = self.word_freq_data
+        bar_width = 0.35
+        index = np.arange(len(words))
+        self._static_ax.bar(index, freq_text1, bar_width, label='Text 1')
+        self._static_ax.bar(index + bar_width, freq_text2, bar_width, label='Text 2')
+
+        self._static_ax.set_xlabel('Words')
+        self._static_ax.set_ylabel('Frequency')
+        self._static_ax.set_title('Word Frequency Comparison')
+        self._static_ax.set_xticks(index + bar_width / 2)
+        self._static_ax.set_xticklabels(words, rotation=45, ha="right")
+        self._static_ax.legend()
+        self.canvas.draw()
+
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -447,7 +680,7 @@ class MainWindow(QMainWindow):
 
         self.stacked_widget = QStackedWidget()
 
-        self.step0_widget = Step0Widget(self)
+        self.step0_widget = Step0_WelcomingMessage(self)
         self.stacked_widget.addWidget(self.step0_widget)
 
         self.main_layout.addWidget(self.stacked_widget)
@@ -503,9 +736,11 @@ class MainWindow(QMainWindow):
             self.help_window.expand_step(current_index)
 
 
+
 """
 Toutes les sources doivent passer par la tokenization et le TSAR pour les stats individuelles.
-Par contre, seules les sources doivent passer par une lecture, et les textes en ligne doivent passer par le web scraping.
+Par contre, seules les sources doivent passer par une lecture, et les textes en ligne doivent
+passer par le web scraping.
 
 Pour la cross-comparaison, on a des cas différents selon le type d'analyse :
     - Si on a 1 fichier, on doit comparer ce fichier avec les sources internet.
@@ -520,12 +755,11 @@ class OneFileComparison:
     """
     source_file : str # file path
     comparison_type : str # either "simple" or "complex"
-    source_data : TokensStatsAndRearrangements = field(init=False, repr=False) #will be filled up with the data found
-    online_data : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False) #dict[site_name, TSAR]
+    file_stats : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False) #dict[site_name, TSAR]
     comparison_with : dict[str, TextProcessingAlgorithms] = field(init=False, repr=False) #dict[site_name, TPA]
 
     def __post_init__(self):
-        self.source_data = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file)))
+        self.file_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file)))
         #links = get_links_from_keywords(self.source_data.base.find_keywords()) (pseudocode)
         #for link in links:
             #self.online_data[link] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_link(link)))
@@ -548,7 +782,7 @@ class CrossCompare:
         self.file_stats = {}
         self.comparisons = {}
         if self.comparison_type not in ["simple", "complex"]:
-            raise ValueError("Invalid comparison type. Must be either 'simple' or 'complex'.")
+            raise ValueError(f"Invalid comparison type. Must be either 'simple' or 'complex'. It is currently {self.comparison_type}.")
 
         # Générer les statistiques pour chaque fichier
         for file in self.files_paths:
@@ -564,8 +798,10 @@ class CrossCompare:
                     self.comparisons[(file1, file2)] = TextProcessingAlgorithms(tsar1, tsar2)
                     if self.comparison_type == "simple":
                         self.simple_analysis_two_files(file1, file2)
+                        #self.comparisons[(file1, file2)].display_simple_results()
                     elif self.comparison_type == "complex":
                         self.complex_analysis_two_files(file1, file2)
+                        #self.comparisons[(file1, file2)].display_complex_results()
 
 
     def simple_analysis_two_files(self, file1, file2) -> None:
@@ -578,7 +814,6 @@ class CrossCompare:
         # additional computations
         a, b = self.comparisons[(file1, file2)].cosine_sim_pos, \
                self.comparisons[(file1, file2)].jaccard_sim_pos
-
         ...
 
     def get_comparison(self, file1: str, file2: str) -> TextProcessingAlgorithms:
@@ -590,8 +825,14 @@ class CrossCompare:
             raise ValueError("The comparison between these files does not exist.")
 
 
+
 if __name__ == "__main__":
-    app = QApplication([])
+    # Check whether there is already a running QApplication (e.g., if running from an IDE).
+    qapp = QApplication.instance()
+    if not qapp:
+        qapp = QApplication(argv)
+
     window = MainWindow()
     window.show()
-    app.exec()
+    window.raise_()
+    qapp.exec()
