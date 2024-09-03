@@ -3,3 +3,4 @@ venv/
 pyrightconfig.json
 test.py
 temp.txt
+.google-cookie

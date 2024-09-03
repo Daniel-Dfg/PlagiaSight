@@ -44,7 +44,7 @@ class URLs:
             # Avoid error 429 (Too many requests)
             # TODO Find better search methode than google
         """
-        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype="S200")
+        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype="S150")
 
     @staticmethod
     def manageRobotsDotTxt(url:bytes) -> bool:
@@ -77,7 +77,7 @@ class URLs:
                     print(url)
                     sleep(0.5)
                 except:
-                    print("error")
+                    print("Unreachable website")
                     response.status_code = 0
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
                     self._response_array[count] = response
@@ -192,7 +192,7 @@ class UserStatus:
         """
         pass
 
-#x = URLs("Shakespeare", 4)
-#p = x.response_array
-#temp = HtmlText(p[0])
-#temp.removeTempText()
+x = URLs("Shakespeare", 20)
+p = x.response_array
+temp = HtmlText(p[0])
+temp.removeTempText()
