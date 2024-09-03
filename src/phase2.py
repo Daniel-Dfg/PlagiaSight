@@ -1,8 +1,7 @@
-# 2024 Copyright ©
 from urllib.robotparser import RobotFileParser
 from requests import get, exceptions, Response
 from dataclasses import field, dataclass
-from numpy import array, ndarray, append
+from numpy import array, ndarray, append, zeros
 from urllib.parse import urlparse
 from googlesearch import search
 from bs4 import BeautifulSoup
@@ -27,12 +26,15 @@ class URLs:
     """
     word_sent: str
     number: int
-    useless_domain: str = field(init=False, repr=False) #Exclude useless domain
+    useless_domain: str = field(init=False, repr=False) # Exclude useless domain
     _url_array: ndarray = field(init=False, repr=False)
+    _response_array: ndarray = field(init=False, repr=False)
+    #TODO dict store url infos: response, title, author, date, co-author, etc...
 
     def __post_init__(self):
         self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com"
         self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number)
+        self._response_array = zeros(self.number, dtype=Response)
         self.recycleUrls()
 
     @staticmethod
@@ -42,28 +44,24 @@ class URLs:
             # Avoid error 429 (Too many requests)
             # TODO Find better search methode than google
         """
-        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype=Response)
+        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype="S200")
 
     @staticmethod
-    def manageRobotsDotTxt(url:str) -> bool:
+    def manageRobotsDotTxt(url:bytes) -> bool:
         """
             - Get robots.txt file from the url site and check if it's allowed to scrape
-            # To disscus if reponse is false:
-                1) Forget the url and find another one, using later on using URLs class (better option)
-                2) Allow but at the user risque, taking the full responsiblity
-
         """
-        parsed_url = urlparse(url)
+        parsed_url = urlparse(url.decode())
         robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
 
         rfp = RobotFileParser()
         rfp.set_url(robots_url)
-        rfp.read()# Read robots.txt
+        rfp.read() # Read robots.txt
         return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
 
     def recycleUrls(self) -> None:
         """
-        - Filter replace urls that are {unrechable, not allowed to scrape and with errors} with new functional urls.
+        - Filter replace urls that are {unreachable, not allowed to scrape and with errors} with new functional urls.
         # TODO better error solving
         """
         cut_at:int = self.number # start at none seen url
@@ -82,7 +80,7 @@ class URLs:
                     print("error")
                     response.status_code = 0
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
-                    self._url_array[count] = response
+                    self._response_array[count] = response
                     count +=1
                     self.number -=1
                 else:
@@ -98,11 +96,17 @@ class URLs:
         if self._url_array.size == 0:
             print("Warning: url array is empty")
         return self._url_array
+    
+    @property
+    def response_array(self) ->ndarray:
+        if self._response_array.size == 0:
+            print("Warning: url array is empty")
+        return self._response_array
 
 @dataclass
 class HtmlText:
     """
-        #Create a temporary text file from url site html text
+        # Create a temporary text file from url site html text
     """
 
     response: Response
@@ -121,11 +125,11 @@ class HtmlText:
             html_tags_list = bs.find_all(["h1", "h2", "h3", "p"]) # Get good part of any info site (ideal of an info site)
             with open("temp.txt", "w", encoding="utf-8-sig") as t:
                 for html_tag in html_tags_list:
-                    t.write(html_tag.get_text()+"\n") # Tansform each tag to a text and write it in the temp file
+                    t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
         except:
-            print("error")
+            print("Response error")
 
-    def removeTempText(self): # To discuss (wheither temp file or stright up str)
+    def removeTempText(self): # To discuss (whether temp file or straight up str)
         remove("temp.txt")
 
 
@@ -188,6 +192,7 @@ class UserStatus:
         """
         pass
 
-x = URLs("Shakespeare", 4)
-p = x.url_array
-HtmlText(p[0])
+#x = URLs("Shakespeare", 4)
+#p = x.response_array
+#temp = HtmlText(p[0])
+#temp.removeTempText()
