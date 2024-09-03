@@ -10,31 +10,34 @@ from random import randint
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from numpy import arange, argsort
+from numpy import arange
 from sys import argv
 #TODO : fix logic for step 1 directory drop (an invalid directory should not overwrite a previous valid one)
 #TODO : rethink the overall logic of the stacked widgets to make it easier to manipulate,
 #notably by adding more attrs to the MainWindow to keep the logic consistent
 
-CLASSIC_STYLESHEET = """
-color: black;
-background-color: white;
-"""
-
 
 #TODO : rename global constants to be shorter
 INDIV_CHARACTERISTICS = ["Text Richness", "average sentence length", "median sentence length"]
-TEX_DIS_SIMPLE_FUNC_EQUIVALENTS = ["text_richness", "average_sent_length", "median_sent_length"]
+INDIV_CHARS_FUNCTS = ["text_richness", "average_sent_length", "median_sent_length"]
 
-TEXTUAL_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS = ["Cosine sim (words)", "Jaccard sim (words)"]
-TEX_DIS_SIMPLE_COMMON_FUNC_EQUIVALENTS =  ["cosine_sim_words", "jaccard_sim_words"]
-GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS = ["word frequency (top 20% or so)", "Sentences length (plotting)"]
-GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE = ["word_freq", "sent_lengths"] #TODO : reevaluate these notations
+COMMON_CHARS_SIMPLE = ["Cosine sim (words)", "Jaccard sim (words)"]
+COMMON_CHARS_SIMPLE_FUNCTS =  ["cosine_sim_words", "jaccard_sim_words"]
+GRAPH_COMMON_CHARS_SIMPLE = ["word frequency (top 20% or so)", "Sentences length (plotting)"]
+GRAPH_COMMON_CHARS_SIMPLE_FUNCTS = ["word_freq", "sent_lengths"]
 
+COMMON_CHARS_COMPLEX = COMMON_CHARS_SIMPLE + ["Cosine sim (pos)", "Jaccard sim (pos)"]
+COMMON_CHARS_COMPLEX_FUNCTS = COMMON_CHARS_SIMPLE_FUNCTS + ["cosine_sim_pos", "jaccard_sim_pos"]
+GRAPH_COMMON_CHARS_COMPLEX = GRAPH_COMMON_CHARS_SIMPLE + ["most common bigrams (top 20% or so)", "most common trigrams (top 20% or so)"]
+GRAPH_COMMON_CHARS_COMPLEX_FUNCTS = GRAPH_COMMON_CHARS_SIMPLE_FUNCTS + ["bigrams", "trigrams"] #TODO : reevaluate this expr
+
+<<<<<<< Updated upstream
 TEXTUAL_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS = TEXTUAL_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS + ["Cosine sim (pos)", "Jaccard sim (pos)"]
 TEX_DIS_COMPLEX_COMMON_FUNC_EQUIVALENTS = TEX_DIS_SIMPLE_COMMON_FUNC_EQUIVALENTS + ["cosine_sim_pos", "jaccard_sim_pos"]
 GRAPH_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS = GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS + ["most common bigrams (top 20% or so)", "most common trigrams (top 20% or so)"]
 GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_COMPLEX = GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE + ["most_common_bigrams", "most_common_trigrams"] #TODO : reevaluate this expr
+=======
+>>>>>>> Stashed changes
 
 class NonSelectableComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -47,6 +50,7 @@ class NonSelectableComboBox(QComboBox):
         if not selectable:
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsEnabled)
         self.standard_model.appendRow(item)
+
 
 class DropArea(QTextEdit):
     def __init__(self, expected_type, step1_widget):
@@ -133,6 +137,7 @@ class DropArea(QTextEdit):
         else:
             self.show_warning("Please select a directory with 2 to 5 .txt files.")
             self.step1_widget.next_button.setEnabled(False)
+
 
 class HelpWindow(QWidget):
     def __init__(self, main_window):
@@ -384,12 +389,12 @@ class Step2_AnalysisComplexityPick(QWidget):
 
 class Step3_LoadResults(QWidget):
     done = Signal()
-    def __init__(self, main_window, selected_analysis):
+    def __init__(self, main_window, analysis_complexity):
 
         super().__init__()
         self.main_window = main_window
         self.next_button = QPushButton("Next")
-        self.analysis_type = selected_analysis
+        self.analysis_complexity = analysis_complexity
 
         layout = QVBoxLayout()
 
@@ -402,7 +407,7 @@ class Step3_LoadResults(QWidget):
         self.progress_bar.setMaximum(100)
         layout.addWidget(self.progress_bar)
 
-        self.done.connect(lambda: QTimer.singleShot(500, self.move_to_step4))
+        self.done.connect(lambda: QTimer.singleShot(300, self.move_to_step4))
 
         self.setLayout(layout)
 
@@ -416,12 +421,12 @@ class Step3_LoadResults(QWidget):
             #web scraping, etc
             ...
             print("processing indiv")
-            self.main_window.final_results = OneFileComparison(content[0], self.analysis_type)
+            self.main_window.final_results = OneFileComparison(content[0], self.analysis_complexity)
         else:
             ...
-            print("processing dir")
+            print("processing a set of FILES")
             #compare files between each other
-            self.main_window.final_results = CrossCompare(files_paths=content, comparison_type=self.analysis_type)
+            self.main_window.final_results = CrossCompare(files_paths=content, comparison_type=self.analysis_complexity)
 
 
         # Mark all as complete
@@ -432,27 +437,19 @@ class Step3_LoadResults(QWidget):
 
 
     def move_to_step4(self):
-
-        print("doing the do")
         if not hasattr(self.main_window, 'step4_widget'):
-            print("creation")
             self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
-        else:
-            print("Step4Widget déjà créé.")
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step4_widget)
         self.main_window.help_window.expand_step(4)
-        print("creation done")
 
 class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
 
-        # Création des éléments de l'interface
         layout = QVBoxLayout()
 
-        # Bouton pour afficher les graphiques
         graph_view_button = QPushButton("View Graph")
         graph_view_button.clicked.connect(self.view_graph)
         layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -460,14 +457,13 @@ class Step4_DisplayResults(QWidget):
         title_label = QLabel("Comparison Results")
         layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # Menus déroulants pour sélectionner les fichiers à comparer
         file_selection_layout = QHBoxLayout()
         self.right_content_title = QComboBox()
 
         if isinstance(self.main_window.final_results, OneFileComparison):
             self.left_content_title = QComboBox()
             self.left_content_title.addItem(self.main_window.final_results.source_file)
-            right_items = ["site1", "site2", "site3"]
+            right_items = sorted(list(self.main_window.final_results.comparison_with.keys())) #the site names
             self.right_content_title.addItems(right_items)
         elif isinstance(self.main_window.final_results, CrossCompare):
             self.left_content_title = QComboBox()
@@ -492,11 +488,17 @@ class Step4_DisplayResults(QWidget):
         self.common_result_labels = {}
 
         # Créer les lignes pour chaque caractéristique
-        self.textual_display_common_charcs = TEXTUAL_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS if self.main_window.step3_widget.analysis_type == "simple" else TEXTUAL_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS
-        self.textual_display_common_func_labels = TEX_DIS_SIMPLE_COMMON_FUNC_EQUIVALENTS if self.main_window.step3_widget.analysis_type == "simple" else TEX_DIS_COMPLEX_COMMON_FUNC_EQUIVALENTS
+        self.textual_display_common_charcs = COMMON_CHARS_SIMPLE if self.main_window.step3_widget.analysis_complexity == "simple" else COMMON_CHARS_COMPLEX
+        self.textual_display_common_func_labels = COMMON_CHARS_SIMPLE_FUNCTS if self.main_window.step3_widget.analysis_complexity == "simple" else COMMON_CHARS_COMPLEX_FUNCTS
 
+<<<<<<< Updated upstream
         self.graphical_display_elems_names = GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS if self.main_window.step3_widget.analysis_type == "simple" else GRAPH_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS
         self.graphical_display_func_labels = GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE if self.main_window.step3_widget.analysis_type == "simple" else GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_COMPLEX
+=======
+        self.graphical_display_elems_names = GRAPH_COMMON_CHARS_SIMPLE if self.main_window.step3_widget.analysis_complexity == "simple" else GRAPH_COMMON_CHARS_COMPLEX
+        self.graphical_display_func_labels = GRAPH_COMMON_CHARS_SIMPLE_FUNCTS if self.main_window.step3_widget.analysis_complexity == "simple" else GRAPH_COMMON_CHARS_COMPLEX_FUNCTS
+
+>>>>>>> Stashed changes
         for char in INDIV_CHARACTERISTICS:
             line_layout = QHBoxLayout()
 
@@ -535,7 +537,7 @@ class Step4_DisplayResults(QWidget):
         print("updating textual results")
         file1, file2 = self.left_content_title.currentText(), self.right_content_title.currentText()
         results = self.main_window.final_results
-        for char_name, char_label in zip(INDIV_CHARACTERISTICS, TEX_DIS_SIMPLE_FUNC_EQUIVALENTS):
+        for char_name, char_label in zip(INDIV_CHARACTERISTICS, INDIV_CHARS_FUNCTS):
             res_file1 = getattr(results.file_stats[file1], char_label)
             res_file2 = getattr(results.file_stats[file2], char_label)
             # Mettre à jour les labels directement
@@ -755,14 +757,28 @@ class OneFileComparison:
     """
     source_file : str # file path
     comparison_type : str # either "simple" or "complex"
-    file_stats : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False) #dict[site_name, TSAR]
-    comparison_with : dict[str, TextProcessingAlgorithms] = field(init=False, repr=False) #dict[site_name, TPA]
+    content_stats : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TSAR]
+    comparison_with : dict[str, TextProcessingAlgorithms] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TPA]
 
     def __post_init__(self):
-        self.file_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file)))
+        #TODO : make this more explicit
+        self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file)))
+        source_file_keywords = {k: v for k, v in sorted(self.content_stats[self.source_file].keywords_scores.items(), key=lambda item: item[1], reverse=True)[:3]}
+        for keyword in source_file_keywords.keys():
+            u = URLs(keyword, 2)
+            associated_urls = u.url_array
+            for response in associated_urls:
+                site_name = urlparse(response.url).netloc
+                text = HtmlText(response)
+                text.makeTempText()
+                self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file("temp.txt")))
+                self.comparison_with[site_name] = TextProcessingAlgorithms(self.content_stats[self.source_file], self.content_stats[site_name])
+
+                #
+
         #links = get_links_from_keywords(self.source_data.base.find_keywords()) (pseudocode)
         #for link in links:
-            #self.online_data[link] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_link(link)))
+            #self.online_data[link] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_link(text)))
             #self.comparison_with[link] = TextProcessingAlgorithms(self.source_data, self.online_data[link])
         ...
 
