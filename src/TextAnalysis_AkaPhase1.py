@@ -150,9 +150,9 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
         self.word_freq = FreqDist(self.base.tokens_by_word)
         self.pos_freq = FreqDist(self.base.part_of_speeches)
         self.text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
-        self.sent_lengths = [len(sent.split()) for sent in self.base.tokens_by_sentence]
-        self.average_sent_length = float(mean(self.sent_lengths))
-        self.median_sent_length = float(median(self.sent_lengths))
+        self.sent_lengths = {sent : len(sent.split()) for sent in self.base.tokens_by_sentence}
+        self.average_sent_length = float(mean(list(self.sent_lengths.values())))
+        self.median_sent_length = float(median(list(self.sent_lengths.values())))
         self.get_syntagms_scores()
 
     def get_syntagms_scores(self):
@@ -173,7 +173,7 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
 @dataclass
 class TextProcessingAlgorithms: # To be referred as TPA later on
     """
-    #TODO
+    #TODO : rename that class to be more descriptive
     MUST be used with TWO sets of Tokens.
     Applies fundamental algorithms to evaluate similarity between TWO sources
     (like cosine similarity, n-grams similarity...) and stores the results.
@@ -184,6 +184,7 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
     _jaccard_sim_words : float = field(init=False, default=-1)
     _cosine_sim_pos : float = field(init=False, default=-1)
     _jaccard_sim_pos : float = field(init=False, default=-1)
+    _all_term_frequencies : dict[str, float] = field(init=False, default_factory=dict) #TODO : add usage for this in phase3 to avoid repetitive computations
 
     #bigrams structure : {(word1, word2) : (input_text_occurences, source_text_occurences)}
     _identical_bigrams : dict[tuple[str, str], tuple[int, int]] = field(init=False, repr=False, default_factory=dict)
@@ -192,6 +193,13 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
 
     def __post_init__(self):
         pass
+
+    @property
+    def all_term_frequencies(self):
+        if not self._all_term_frequencies:
+            all_terms = set(self.input_tokens_sets.word_freq.keys()).union(set(self.source_tokens_sets.word_freq.keys()))
+            self._all_term_frequencies = {term : self.input_tokens_sets.word_freq.get(term, 0) + self.source_tokens_sets.word_freq.get(term, 0) for term in all_terms}
+        return self._all_term_frequencies
 
     def cosine_similarity(self, source_terms : dict, input_terms : dict) -> float: #both args are WordFreqs (from pos or words)
         both_texts_words_union = set(source_terms.keys()).union(set(input_terms.keys()))
