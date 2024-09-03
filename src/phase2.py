@@ -40,11 +40,11 @@ class URLs:
     @staticmethod
     def makeUrls(word_sent:str, number:int, end:int, begin:int=0) -> ndarray:
         """
-            # TOCHECK (it seems that googlesearch has a limited number of http requests)
+            # TO CHECK (it seems that googlesearch has a limited number of http requests per secondes)
             # Avoid error 429 (Too many requests)
             # TODO Find better search methode than google
         """
-        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=2)), dtype="S150")
+        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=2, user_agent=headers["User-Agent"])), dtype="S150")
 
     @staticmethod
     def manageRobotsDotTxt(url:bytes) -> bool:
@@ -53,10 +53,12 @@ class URLs:
         """
         parsed_url = urlparse(url.decode())
         robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
-
         rfp = RobotFileParser()
         rfp.set_url(robots_url)
-        rfp.read() # Read robots.txt
+        try:
+            rfp.read() # Read robots.txt
+        except UnicodeDecodeError: # No robots.txt
+            return True
         return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
 
     def recycleUrls(self) -> None:
@@ -192,7 +194,7 @@ class UserStatus:
         """
         pass
 
-x = URLs("Shakespeare", 20)
+x = URLs("Shakespeare", 1)
 p = x.response_array
 temp = HtmlText(p[0])
 temp.removeTempText()
