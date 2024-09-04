@@ -20,17 +20,16 @@ class UserInfo(QFrame):
                            }
 
                            QPushButton#setting:hover{
-                                background-image:url(./icons/settingGlow.svg);
+                                icon:url(./icons/settingGlow.svg);
                             }
                            QPushButton#help:hover{
-                                background-image:url(./icons/helpGlow.svg);
+                                icon:url(./icons/helpGlow.svg);
                             }
                             QPushButton#contact:hover{
-                                background-image:url(./icons/contactGlow.svg);
+                                icon:url(./icons/contactGlow.svg);
                             }
                             QPushButton#dark_mode:hover{                         
-                                background-image:url(./icons/darkmodeGlow.svg);
-                                icon:none;
+                                icon:url(./icons/darkmodeGlow.svg);
                             }
                            """)
         

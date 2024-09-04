@@ -128,11 +128,11 @@ class HtmlText:
         try:
             self.response.raise_for_status()
             bs = BeautifulSoup(self.response.text, "html.parser")
-            html_tags_list = bs.find_all(["h1", "h2", "h3", "p"]) # Get good part of any info site (ideal of an info site)
+            html_tags_list = bs.find_all(["h1", "h2", "h3", "p", "pre"]) # Get good part of any info site (ideal of an info site)
             with open("temp.txt", "w", encoding="utf-8-sig") as t:
                 for html_tag in html_tags_list:
                     t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
-        except:
+        except RequestException:
             print("Response error")
 
     def removeTempText(self): # To discuss (whether temp file or straight up str)
@@ -198,7 +198,7 @@ class UserStatus:
         """
         pass
 
-x = URLs("spear", 10)
+#x = URLs("spear", 10)
 #p = x.response_array
 #temp = HtmlText(p[0])
 #temp.removeTempText()
