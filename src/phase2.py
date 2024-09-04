@@ -1,17 +1,24 @@
-# 2024 Copyright ©
+from requests import get, RequestException, Response, ReadTimeout, ConnectionError, HTTPError
+from numpy import array, ndarray, append, zeros
 from urllib.robotparser import RobotFileParser
-from requests import get, exceptions, Response
+from http.client import RemoteDisconnected
 from dataclasses import field, dataclass
-from numpy import array, ndarray, append
+from duckduckgo_search import DDGS
 from urllib.parse import urlparse
-from googlesearch import search
 from bs4 import BeautifulSoup
 from subprocess import run
 from sys import platform
 from time import sleep
 from os import remove
 
-headers = {'User-Agent': 'PlagaiLence'} # To discuss
+# Important for safe and sure scraping
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', # name of the app
+           'Accept': 'text/html', # wanted file
+           'Accept-Encoding': 'gzip, deflate, br', # accept compression
+           'Accept-Language': 'en', # used language
+           'DNT': '1', # do not track (if possible)
+           'Upgrade-Insecure-Requests': '1', # Upgrade request https if possible
+           'Cache-Control': 'no-cache'}
 
 @dataclass
 class URLs:
@@ -20,44 +27,47 @@ class URLs:
     """
     word_sent: str
     number: int
-    #Exclude useless domain
-    useless_domain: str = field(init=False, repr=False)
+    useless_domain: str = field(init=False, repr=False) # Exclude useless domain
     _url_array: ndarray = field(init=False, repr=False)
+    _response_array: ndarray = field(init=False, repr=False)
+    #TODO dict store url infos: response, title, author, date, co-author, etc...
 
     def __post_init__(self):
-        self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com"
-        self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number)
+        self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com -site:amazon.jobs -site:indeed.com"
+        self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number)
+        self._response_array = zeros(self.number, dtype=Response)
         self.recycleUrls()
 
     @staticmethod
-    def makeUrls(word_sent:str, number:int, end:int, begin:int=0) -> ndarray:
+    def makeUrls(word_sent:str, number:int, start:int =0) -> ndarray:
         """
-            # TOCHECK (it seems that googlesearch has a limited number of http requests)
-            # Avoid error 429 (Too many requests)
-            # TODO Find better search methode than google
+            # google: Avoid error 429 (Too many requests) and ddgo: Avoid error 202 Ratelimit
+            # Solution using multi proxy ports and search engines
+            # And search limit search per word_sent max 10
         """
-        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=0.5)), dtype=Response)
+        ddgo = DDGS(headers=headers)
+        results = ddgo.text(word_sent, max_results=number)
+        urls = [result['href'] for result in results][start:]
+        return array(urls, dtype="S150")
 
     @staticmethod
-    def manageRobotsDotTxt(url:str) -> bool:
+    def manageRobotsDotTxt(url:bytes) -> bool:
         """
             - Get robots.txt file from the url site and check if it's allowed to scrape
-            # To disscus if reponse is false:
-                1) Forget the url and find another one, using later on using URLs class (better option)
-                2) Allow but at the user risque, taking the full responsiblity
-
         """
-        parsed_url = urlparse(url)
+        parsed_url = urlparse(url.decode())
         robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
-
         rfp = RobotFileParser()
         rfp.set_url(robots_url)
-        rfp.read()# Read robots.txt
-        return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaland" is allowed to scrap the url
+        try:
+            rfp.read() # Read robots.txt
+        except (UnicodeDecodeError, RemoteDisconnected, RequestException): # No robots.txt
+            return True
+        return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
 
     def recycleUrls(self) -> None:
         """
-        - Filter replace urls that are {unrechable, not allowed to scrape and with errors} with new functional urls.
+        - Filter replace urls that are {unreachable, not allowed to scrape and with errors} with new functional urls.
         # TODO better error solving
         """
         cut_at:int = self.number # start at none seen url
@@ -67,23 +77,23 @@ class URLs:
         while self.number:
             for url in self._url_array[cut_at-self.number:]:
                 try:
-                    response = get(url, headers=headers)
+                    response = get(url, headers=headers, timeout=2)
                     response.raise_for_status()
                     print(response)
                     print(url)
-                    sleep(0.5)
-                except:
-                    print("error")
+                    sleep(1)
+                except (ReadTimeout, ConnectionError, HTTPError):
+                    print("Unreachable website")
                     response.status_code = 0
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
-                    self._url_array[count] = response
+                    self._response_array[count] = response
                     count +=1
                     self.number -=1
                 else:
                     unwanted = self._url_array != url
                     self._url_array = self._url_array[unwanted] # Remove unwanted url from array
             if self.number:
-                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number, start_cycle)
+                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number+start_cycle, start_cycle)
                 start_cycle += self.number
                 self._url_array = append(self._url_array, new_urls)
 
@@ -92,11 +102,17 @@ class URLs:
         if self._url_array.size == 0:
             print("Warning: url array is empty")
         return self._url_array
+    
+    @property
+    def response_array(self) ->ndarray:
+        if self._response_array.size == 0:
+            print("Warning: url array is empty")
+        return self._response_array
 
 @dataclass
 class HtmlText:
     """
-        #Create a temporary text file from url site html text
+        # Create a temporary text file from url site html text
     """
 
     response: Response
@@ -115,11 +131,11 @@ class HtmlText:
             html_tags_list = bs.find_all(["h1", "h2", "h3", "p"]) # Get good part of any info site (ideal of an info site)
             with open("temp.txt", "w", encoding="utf-8-sig") as t:
                 for html_tag in html_tags_list:
-                    t.write(html_tag.get_text()+"\n") # Tansform each tag to a text and write it in the temp file
+                    t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
         except:
-            print("error")
+            print("Response error")
 
-    def removeTempText(self): # To discuss (wheither temp file or stright up str)
+    def removeTempText(self): # To discuss (whether temp file or straight up str)
         remove("temp.txt")
 
 
@@ -163,7 +179,7 @@ class UserStatus:
             # TODO run in parallel (and when requests and googlescreach)
             # TODO manage internet connection errors more efficently, know what every response means.
         """
-        response = get("example.com", headers=headers)
+        response = get("example.com", headers=headers, timeout=2)
         if response.status_code == 200:
             print("OK for internet connection")
         else:
@@ -182,6 +198,7 @@ class UserStatus:
         """
         pass
 
-x = URLs("Shakespeare", 4)
-p = x.url_array
-HtmlText(p[0])
+x = URLs("spear", 10)
+#p = x.response_array
+#temp = HtmlText(p[0])
+#temp.removeTempText()

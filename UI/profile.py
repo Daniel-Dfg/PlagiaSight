@@ -1,7 +1,7 @@
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QPushButton
 from PySide6.QtCore import QSize
-from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtSvg import QSvgGenerator
 
 class Profile(QPushButton):
     def __init__(self, parent: QWidget= None) -> None:
