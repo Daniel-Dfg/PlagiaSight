@@ -1,9 +1,10 @@
-from urllib.robotparser import RobotFileParser
-from requests import get, exceptions, Response
-from dataclasses import field, dataclass
+from requests import get, RequestException, Response, ReadTimeout, ConnectionError, HTTPError
 from numpy import array, ndarray, append, zeros
+from urllib.robotparser import RobotFileParser
+from http.client import RemoteDisconnected
+from dataclasses import field, dataclass
+from duckduckgo_search import DDGS
 from urllib.parse import urlparse
-from googlesearch import search
 from bs4 import BeautifulSoup
 from subprocess import run
 from sys import platform
@@ -11,7 +12,7 @@ from time import sleep
 from os import remove
 
 # Important for safe and sure scraping
-headers = {'User-Agent': 'PlagaLand', # name of the app
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', # name of the app
            'Accept': 'text/html', # wanted file
            'Accept-Encoding': 'gzip, deflate, br', # accept compression
            'Accept-Language': 'en', # used language
@@ -32,19 +33,22 @@ class URLs:
     #TODO dict store url infos: response, title, author, date, co-author, etc...
 
     def __post_init__(self):
-        self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com"
-        self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number)
+        self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com -site:amazon.jobs -site:indeed.com"
+        self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number)
         self._response_array = zeros(self.number, dtype=Response)
         self.recycleUrls()
 
     @staticmethod
-    def makeUrls(word_sent:str, number:int, end:int, begin:int=0) -> ndarray:
+    def makeUrls(word_sent:str, number:int, start:int =0) -> ndarray:
         """
-            # TO CHECK (it seems that googlesearch has a limited number of http requests per secondes)
-            # Avoid error 429 (Too many requests)
-            # TODO Find better search methode than google
+            # google: Avoid error 429 (Too many requests) and ddgo: Avoid error 202 Ratelimit
+            # Solution using multi proxy ports and search engines
+            # And search limit search per word_sent max 10
         """
-        return array(list(search(word_sent, num=number, stop=end, start=begin, pause=2, user_agent=headers["User-Agent"])), dtype="S150")
+        ddgo = DDGS(headers=headers)
+        results = ddgo.text(word_sent, max_results=number)
+        urls = [result['href'] for result in results][start:]
+        return array(urls, dtype="S150")
 
     @staticmethod
     def manageRobotsDotTxt(url:bytes) -> bool:
@@ -57,7 +61,7 @@ class URLs:
         rfp.set_url(robots_url)
         try:
             rfp.read() # Read robots.txt
-        except UnicodeDecodeError: # No robots.txt
+        except (UnicodeDecodeError, RemoteDisconnected, RequestException): # No robots.txt
             return True
         return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
 
@@ -73,12 +77,12 @@ class URLs:
         while self.number:
             for url in self._url_array[cut_at-self.number:]:
                 try:
-                    response = get(url, headers=headers)
+                    response = get(url, headers=headers, timeout=2)
                     response.raise_for_status()
                     print(response)
                     print(url)
                     sleep(1)
-                except:
+                except (ReadTimeout, ConnectionError, HTTPError):
                     print("Unreachable website")
                     response.status_code = 0
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
@@ -89,7 +93,7 @@ class URLs:
                     unwanted = self._url_array != url
                     self._url_array = self._url_array[unwanted] # Remove unwanted url from array
             if self.number:
-                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, self.number, start_cycle)
+                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number+start_cycle, start_cycle)
                 start_cycle += self.number
                 self._url_array = append(self._url_array, new_urls)
 
@@ -175,7 +179,7 @@ class UserStatus:
             # TODO run in parallel (and when requests and googlescreach)
             # TODO manage internet connection errors more efficently, know what every response means.
         """
-        response = get("example.com", headers=headers)
+        response = get("example.com", headers=headers, timeout=2)
         if response.status_code == 200:
             print("OK for internet connection")
         else:
@@ -194,7 +198,7 @@ class UserStatus:
         """
         pass
 
-x = URLs("Shakespeare", 1)
-p = x.response_array
-temp = HtmlText(p[0])
-temp.removeTempText()
+x = URLs("spear", 10)
+#p = x.response_array
+#temp = HtmlText(p[0])
+#temp.removeTempText()

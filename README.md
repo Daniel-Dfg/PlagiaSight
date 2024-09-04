@@ -12,6 +12,6 @@
 ### Coded By:
 &emsp;&emsp;[https://github.com/Daniel-Dfg](https://github.com/Daniel-Dfg)
 
-&emsp;&emsp;[https://github.com/Luckyyyin](https://github.com/Luckyyyin)
+&emsp;&emsp;[https://github.com/LUCKYINS](https://github.com/Luckyyyin)
 
 &emsp;&emsp;[https://github.com/onuriscoding](https://github.com/onuriscoding)
