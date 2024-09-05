@@ -1,12 +1,13 @@
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QPushButton
-from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QFrame, QWidget, QPushButton
+from PySide6.QtCore import QRect, QSize, QPropertyAnimation, QPoint, QRect
 from PySide6.QtSvg import QSvgGenerator
-
+size = 75
 class Profile(QPushButton):
-    def __init__(self, parent: QWidget= None) -> None:
-        super().__init__(parent)
-        size = 75
+    def __init__(self, parent, child):
+        super().__init__(parent, child)
+        self.user = child
+        self.uh = self.user.height()
         self.setStyleSheet("""
                            *{
                                background-color:rgba(0, 0, 0, 0);
@@ -20,3 +21,15 @@ class Profile(QPushButton):
         self.setIcon(QIcon("./icons/profile.svg"))
         self.setIconSize(QSize(size, size))
         self.setObjectName("profile")
+        self.pressed.connect(self.up)
+
+    def up(self):
+        self.animation = QPropertyAnimation(self.user, b"size")
+        if self.user.height() == self.uh:
+            self.animation.setEndValue(QSize(self.user.width(), 50))
+            self.animation.setDuration(200)
+            self.animation.start()
+        else:
+            self.animation.setEndValue(QSize(self.user.width(), self.uh))
+            self.animation.setDuration(200)
+            self.animation.start()

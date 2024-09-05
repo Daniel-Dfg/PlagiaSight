@@ -18,11 +18,11 @@ class Window(QWidget):
         esr = ESR(self)
         esr.setGeometry(550, 18, 0, 0)
         user_info = UserInfo(self)
-        user_info.setGeometry(25, 40, 0, 0)
-        pro = Profile(self)
+        user_info.move(25, 40)
+        pro = Profile(self, user_info)
         pro.setGeometry(5, 18, 0, 0)
-        
-        
+
+
     # Drag window
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -38,7 +38,7 @@ class Window(QWidget):
 
     def mouseReleaseEvent(self, event):
         self.drag_start_pos = None
-        
+
 if __name__== "__main__":
     app = QApplication()
     window = Window()
