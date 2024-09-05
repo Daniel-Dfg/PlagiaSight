@@ -6,7 +6,7 @@ import webbrowser
 import os
 from TextAnalysis_AkaPhase1 import *
 from phase2 import *
-from random import randint
+from random import randint, sample
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
@@ -34,7 +34,7 @@ GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE = ["word_freq", "sent_lengths"] #TO
 TEXTUAL_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS = TEXTUAL_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS + ["Cosine sim (pos)", "Jaccard sim (pos)"]
 TEX_DIS_COMPLEX_COMMON_FUNC_EQUIVALENTS = TEX_DIS_SIMPLE_COMMON_FUNC_EQUIVALENTS + ["cosine_sim_pos", "jaccard_sim_pos"]
 GRAPH_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS = GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS + ["most common bigrams (top 20% or so)", "most common trigrams (top 20% or so)"]
-GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_COMPLEX = GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE + ["most_common_bigrams", "most_common_trigrams"] #TODO : reevaluate this expr
+GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_COMPLEX = GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE + ["bigrams", "trigrams"] #TODO : reevaluate this expr
 
 class NonSelectableComboBox(QComboBox):
     def __init__(self, parent=None):
@@ -117,7 +117,7 @@ class DropArea(QTextEdit):
 
     def show_invalid_files(self):
         self.invalid_files_combo.clear()
-        self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ""}:", selectable=True)
+        self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ''}:", selectable=True)
         for f in self.invalid_files:
             self.invalid_files_combo.add_item(f)
         self.invalid_files_combo.setVisible(True)
@@ -497,6 +497,7 @@ class Step4_DisplayResults(QWidget):
 
         self.graphical_display_elems_names = GRAPH_DISPLAY_COMMON_CHARACS_SIMPLE_ANALYSIS if self.main_window.step3_widget.analysis_type == "simple" else GRAPH_DISPLAY_COMMON_CHARACS_COMPLEX_ANALYSIS
         self.graphical_display_func_labels = GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_SIMPLE if self.main_window.step3_widget.analysis_type == "simple" else GRAPH_DISPLAY_COMMON_FUNC_EQUIVALENTS_COMPLEX
+
         for char in INDIV_CHARACTERISTICS:
             line_layout = QHBoxLayout()
 
@@ -543,10 +544,8 @@ class Step4_DisplayResults(QWidget):
             self.file2_result_labels[char_name].setText(str(res_file2))
 
         if isinstance(self.main_window.final_results, OneFileComparison):
-            ...
-            print("Not done yet")
-            raise
-
+            # Traitement spécifique pour OneFileComparison
+            raise NotImplementedError("OneFileComparison handling not implemented.")
         else:
             for common_char_name, common_char_label in zip(self.textual_display_common_charcs, self.textual_display_common_func_labels):
                 common_res = getattr(results.get_comparison(file1, file2), common_char_label)
@@ -558,54 +557,69 @@ class Step4_DisplayResults(QWidget):
         graphs_data = []
 
         for char_name, char_label in zip(self.graphical_display_elems_names, self.graphical_display_func_labels):
+            print("getting", char_name, "aka", char_label)
             res_file1 = getattr(results.file_stats[file1], char_label)
             res_file2 = getattr(results.file_stats[file2], char_label)
-            if char_label == "term_freq": #side note : might not be the most clear to the reader to have this
-                res_file1 = res_file1.most_common(int(len(res_file1) * 0.2))
-                res_file2 = res_file2.most_common(int(len(res_file2) * 0.2))
-                #needed later : iterate over the union of the elems to make a sorted dict[tuple[float, float]] ?
 
-            categories = [f"{file1} {char_name}", f"{file2} {char_name}"]
-            values = [res_file1, res_file2]
-            graphs_data.append((categories, values))
+            graphs_data.append((char_name, res_file1, res_file2))
+
         return graphs_data
 
     def view_graph(self):
-        # Préparez les données initiales pour les graphiques
         graphs_data = self.prepare_graphs_data()
-
-        # Instanciez et affichez la fenêtre de graphiques
         self.graph_window = GraphWindow(self.main_window)
-        self.graph_window.show()
 
-        # Connecter les ComboBoxes pour mettre à jour les graphiques dynamiquement
+        for graph_name, res_file1, res_file2 in graphs_data:
+            freq_dist1 = res_file1
+            freq_dist2 = res_file2
+            self.graph_window.add_graph(
+                name=graph_name,
+                freq_dist1=freq_dist1,
+                freq_dist2=freq_dist2,
+                x_label="Items",
+                y_label="Frequency",
+                title=f"{graph_name} Comparison"
+            )
+
+        self.graph_window.show()
+        #TODO : fix the logic of this
         self.left_content_title.currentIndexChanged.connect(self.update_graph_window)
         self.right_content_title.currentIndexChanged.connect(self.update_graph_window)
 
     def update_graph_window(self):
         if self.graph_window:  # Vérifiez si la fenêtre du graphique est déjà ouverte
             new_graphs_data = self.prepare_graphs_data()
-            self.graph_window.update_graphs_data(new_graphs_data)
+            for graph_name, res_file1, res_file2 in new_graphs_data:
+                freq_dist1 = FreqDist(dict(res_file1))
+                freq_dist2 = FreqDist(dict(res_file2))
+                self.graph_window.update_graph(
+                    name=graph_name,
+                    freq_dist1=freq_dist1,
+                    freq_dist2=freq_dist2,
+                    x_label="Items",
+                    y_label="Frequency",
+                    title=f"{graph_name} Comparison"
+                )
 
 
 class GraphWindow(QWidget):
-    def __init__(self):
+    #TODO : documentation of this
+    def __init__(self, main_window):
+        self.main_window = main_window
         super().__init__()
         self.setWindowTitle("Graphs: Sentence Length & Word Frequencies")
         layout = QVBoxLayout(self)
 
-        # Configuration des boutons de navigation
         button_layout = QHBoxLayout()
-        self.sentence_length_button = QPushButton("Sentence Length Graph")
-        self.sentence_length_button.clicked.connect(self.show_sentence_length_graph)
-        self.word_freq_button = QPushButton("Word Frequency Graph")
-        self.word_freq_button.clicked.connect(self.show_word_freq_graph)
-        button_layout.addWidget(self.sentence_length_button)
-        button_layout.addWidget(self.word_freq_button)
+        self.previous_button = QPushButton("Previous Graph")
+        self.previous_button.clicked.connect(self.show_previous_graph)
+        self.next_button = QPushButton("Next Graph")
+        self.next_button.clicked.connect(self.show_next_graph)
+        button_layout.addWidget(self.previous_button)
+        button_layout.addWidget(self.next_button)
 
         layout.addLayout(button_layout)
 
-        # Ajout du canvas de Matplotlib
         self.canvas = FigureCanvas(Figure(figsize=(10, 6)))
         layout.addWidget(NavigationToolbar(self.canvas, self))
         layout.addWidget(self.canvas)
@@ -613,60 +627,83 @@ class GraphWindow(QWidget):
         # Initialisation de l'axe pour les graphiques
         self._static_ax = self.canvas.figure.subplots()
 
-        # Génération des données aléatoires pour les graphiques
-        self.sentence_length_data = self.generate_sentence_length_data()
-        self.word_freq_data = self.generate_word_freq_data()
+        # Liste des noms des graphiques ajoutés
+        self.graph_names = []
+        self.current_graph_index = 0
 
-        # Affichage initial
-        self.show_sentence_length_graph()
+    def add_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
+        """
+        Generic method to add a comparison graph from a FreqDist distribution.
+        """
+        all_keys = set(freq_dist1.keys()).union(set(freq_dist2.keys()))
 
-    def generate_sentence_length_data(self):
-        """Génère des données fictives pour la longueur des phrases."""
-        sentence_indices = np.arange(1, 11)  # Indices de phrases de 1 à 10
-        lengths_text1 = np.random.randint(5, 20, size=10)  # Longueur des phrases du texte 1
-        lengths_text2 = np.random.randint(5, 20, size=10)  # Longueur des phrases du texte 2
-        return sentence_indices, lengths_text1, lengths_text2
+        total_frequencies = {key: freq_dist1.get(key, 0) + freq_dist2.get(key, 0) for key in all_keys}
 
-    def generate_word_freq_data(self):
-        """Génère des données fictives pour les fréquences de mots."""
-        words = ['word1', 'word2', 'word3', 'word4', 'word5', 'word6']  # Liste des mots
-        freq_text1 = np.random.randint(1, 15, size=len(words))  # Fréquence des mots pour le texte 1
-        freq_text2 = np.random.randint(1, 15, size=len(words))  # Fréquence des mots pour le texte 2
-        return words, freq_text1, freq_text2
+        sorted_keys = sorted(total_frequencies.keys(), key=lambda k: total_frequencies[k], reverse=True)
 
-    def show_sentence_length_graph(self):
-        """Affiche le graphique comparant les longueurs de phrases."""
-        self._static_ax.clear()
-        indices, lengths_text1, lengths_text2 = self.sentence_length_data
-        bar_width = 0.35
-        index = np.arange(len(indices))
-        self._static_ax.bar(index, lengths_text1, bar_width, label='Text 1')
-        self._static_ax.bar(index + bar_width, lengths_text2, bar_width, label='Text 2')
+        threshold_percentage = 0.1  # 10% of terms kept if...
+        threshold = 30 # ... more than 30 terms in total
+        if len(sorted_keys) > threshold:
+            sorted_keys = sorted_keys[:int(len(sorted_keys) * threshold_percentage)]
 
-        self._static_ax.set_xlabel('Sentence Index')
-        self._static_ax.set_ylabel('Sentence Length')
-        self._static_ax.set_title('Sentence Length Comparison')
-        self._static_ax.set_xticks(index + bar_width / 2)
-        self._static_ax.set_xticklabels(indices)
-        self._static_ax.legend()
-        self.canvas.draw()
+        y_data1 = [freq_dist1.get(key, 0) for key in sorted_keys]
+        y_data2 = [freq_dist2.get(key, 0) for key in sorted_keys]
 
-    def show_word_freq_graph(self):
-        """Affiche le graphique comparant les fréquences de mots."""
-        self._static_ax.clear()
-        words, freq_text1, freq_text2 = self.word_freq_data
-        bar_width = 0.35
-        index = np.arange(len(words))
-        self._static_ax.bar(index, freq_text1, bar_width, label='Text 1')
-        self._static_ax.bar(index + bar_width, freq_text2, bar_width, label='Text 2')
+        # Prepare graph data
+        graph_data = (sorted_keys, y_data1, y_data2, x_label, y_label, title)
+        setattr(self, name, graph_data)
+        self.graph_names.append(name)
+        self.current_graph_index = len(self.graph_names) - 1
+        self.show_graph(name)
 
-        self._static_ax.set_xlabel('Words')
-        self._static_ax.set_ylabel('Frequency')
-        self._static_ax.set_title('Word Frequency Comparison')
-        self._static_ax.set_xticks(index + bar_width / 2)
-        self._static_ax.set_xticklabels(words, rotation=45, ha="right")
-        self._static_ax.legend()
-        self.canvas.draw()
+    def update_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
+        if hasattr(self, name):
+            common_keys = list(set(freq_dist1.keys()).intersection(set(freq_dist2.keys())))
+            common_keys.sort()
+
+            y_data1 = [freq_dist1[key] for key in common_keys]
+            y_data2 = [freq_dist2[key] for key in common_keys]
+
+            graph_data = (common_keys, y_data1, y_data2, x_label, y_label, title)
+            setattr(self, name, graph_data)
+            if self.graph_names[self.current_graph_index] == name:
+                self.show_graph(name)
+        else:
+            raise AttributeError(f"No graph named '{name}' found.")
+
+    def show_graph(self, name):
+        #TODO : document this
+        if hasattr(self, name):
+            self._static_ax.clear()
+            x_data, y_data1, y_data2, x_label, y_label, title = getattr(self, name)
+            bar_width = 0.35
+            index = arange(len(x_data))
+            self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
+            self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
+
+            self._static_ax.set_xlabel(x_label)
+            self._static_ax.set_ylabel(y_label)
+            self._static_ax.set_title(title)
+            self._static_ax.set_xticks(index + bar_width / 2)
+            self._static_ax.set_xticklabels(x_data, rotation=45, ha="right")
+            self._static_ax.legend()
+            self.canvas.draw()
+        else:
+            raise AttributeError(f"No graph named '{name}' found.")
+
+    def show_previous_graph(self):
+        if self.current_graph_index > 0:
+            self.current_graph_index -= 1
+        else:
+            self.current_graph_index = len(self.graph_names) - 1
+        self.show_graph(self.graph_names[self.current_graph_index])
+
+    def show_next_graph(self):
+        if self.current_graph_index < len(self.graph_names) - 1:
+            self.current_graph_index += 1
+        else:
+            self.current_graph_index = 0
+        self.show_graph(self.graph_names[self.current_graph_index])
 
 
 
