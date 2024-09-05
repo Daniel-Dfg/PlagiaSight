@@ -661,3 +661,12 @@ Phase1:
 
         def removeTempText(self): # To discuss (wheither temp file or stright up str)
             remove("temp.txt")
+    #code2:
+        def makeUrls(word_sent:str, number:int, end:int, begin:int=0) -> ndarray:
+            """
+                # TO CHECK (it seems that googlesearch has a limited number of http requests per secondes)
+                # Avoid error 429 (Too many requests)
+                # TODO Find better search methode than google
+                # Soluation using multi proxy part and search engines
+            """
+            return array(list(search(word_sent, num=number, stop=end, start=begin, pause=2, user_agent=headers["User-Agent"])), dtype="S150")

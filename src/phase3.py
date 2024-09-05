@@ -117,7 +117,7 @@ class DropArea(QTextEdit):
 
     def show_invalid_files(self):
         self.invalid_files_combo.clear()
-        self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ""}:", selectable=True)
+        self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ''}:", selectable=True)
         for f in self.invalid_files:
             self.invalid_files_combo.add_item(f)
         self.invalid_files_combo.setVisible(True)
