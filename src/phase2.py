@@ -4,6 +4,7 @@ from urllib.robotparser import RobotFileParser
 from http.client import RemoteDisconnected
 from dataclasses import field, dataclass
 from duckduckgo_search import DDGS
+from megasearch import megaSearch
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from subprocess import run
@@ -45,9 +46,7 @@ class URLs:
             # Solution using multi proxy ports and search engines
             # And search limit search per word_sent max 10
         """
-        ddgo = DDGS(headers=headers)
-        results = ddgo.text(word_sent, max_results=number)
-        urls = [result['href'] for result in results][start:]
+        urls = megaSearch(word_sent, number, headers, start)
         return array(urls, dtype="S150")
 
     @staticmethod
@@ -79,9 +78,9 @@ class URLs:
                 try:
                     response = get(url, headers=headers, timeout=2)
                     response.raise_for_status()
-                    print(response)
                     print(url)
-                    sleep(1)
+                    print(response)
+                    sleep(2)
                 except (ReadTimeout, ConnectionError, HTTPError):
                     print("Unreachable website")
                     response.status_code = 0
@@ -128,11 +127,11 @@ class HtmlText:
         try:
             self.response.raise_for_status()
             bs = BeautifulSoup(self.response.text, "html.parser")
-            html_tags_list = bs.find_all(["h1", "h2", "h3", "p"]) # Get good part of any info site (ideal of an info site)
+            html_tags_list = bs.find_all(["h1", "h2", "h3", "p", "pre"]) # Get good part of any info site (ideal of an info site)
             with open("temp.txt", "w", encoding="utf-8-sig") as t:
                 for html_tag in html_tags_list:
                     t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
-        except:
+        except RequestException:
             print("Response error")
 
     def removeTempText(self): # To discuss (whether temp file or straight up str)
@@ -198,7 +197,7 @@ class UserStatus:
         """
         pass
 
-x = URLs("spear", 10)
+#x = URLs("spear", 10)
 #p = x.response_array
 #temp = HtmlText(p[0])
 #temp.removeTempText()
