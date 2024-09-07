@@ -10,6 +10,8 @@ from nltk import FreqDist, pos_tag
 from dataclasses import dataclass, field
 from collections import Counter
 from nltk.util import ngrams
+from os import path
+import chardet
 import nltk
 #TODO : fix phase1 to send more concrete and 'actionable' warnings when needed (like when a file is empty)
 
@@ -285,3 +287,14 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
         print(f"Similar trigrams: {self.similar_trigrams}")
     """
 
+def extract_raw_from_file(file_path: str) -> str:
+            if not path.exists(file_path):
+                raise FileNotFoundError("Specified file doesn't exist")
+
+            with open(file_path, 'rb') as file:  # Detects the encoding of file
+                raw_data = file.read()
+                result = chardet.detect(raw_data)
+                file_encoding = result['encoding']
+
+            with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
+                return f.read().lower()
