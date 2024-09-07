@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg width="35px" height="35px" viewBox="0 0 35 35" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <filter filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB" id="filter_1">
-      <feFlood flood-opacity="0" result="BackgroundImageFix" />
-      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 128 0" />
-      <feOffset dx="0" dy="0" />
-      <feGaussianBlur stdDeviation="2" />
-      <feColorMatrix type="matrix" values="0 0 0 0 0.39215687 0 0 0 0 0.39215687 0 0 0 0 0.39215687 0 0 0 1 0" />
-      <feBlend mode="normal" in2="BackgroundImageFix" result="effect0_dropShadow" />
-      <feBlend mode="normal" in="SourceGraphic" in2="effect0_dropShadow" result="shape" />
-    </filter>
-    <path d="M-193 -126L-193 -126L-193 -91L-228 -91L-228 -126L-193 -126Z" id="path_1" />
+    <path d="M-136 -162L-136 -162L-136 -130L-168 -130L-168 -162L-136 -162Z" id="path_1" />
+    <path d="M32 0L32 0L32 32L0 32L0 0L32 0L32 0Z" id="path_2" />
     <clipPath id="clip_1">
       <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
     </clipPath>
+    <clipPath id="clip_2">
+      <use xlink:href="#path_2" clip-rule="evenodd" fill-rule="evenodd" />
+    </clipPath>
   </defs>
-  <g id="ph--moon-fill">
-    <path d="M-193 -126L-193 -126L-193 -91L-228 -91L-228 -126L-193 -126Z" id="ph--moon-fill" fill="none" stroke="none" />
-    <path d="M34.3155 21.891C33.3651 24.9939 31.4606 27.718 28.8728 29.6757C24.2388 33.1642 18.031 33.7316 12.8415 31.141C7.65212 28.5504 4.37361 23.2473 4.37501 17.4462C4.36489 14.1264 5.44386 10.895 7.44642 8.24755C9.40362 5.65921 12.1271 3.75424 15.2294 2.80371C15.6461 2.67538 16.0995 2.78798 16.4078 3.09634C16.7161 3.40469 16.8287 3.85825 16.7004 4.27502C15.3182 8.84797 16.5635 13.8107 19.9409 17.1888C23.3183 20.5669 28.2799 21.8125 32.8518 20.43C33.2685 20.3017 33.722 20.4143 34.0302 20.7226C34.3385 21.031 34.4511 21.4845 34.3228 21.9013L34.3155 21.891Z" id="Path" fill="#000000" stroke="none" filter="url(#filter_1)" clip-path="url(#clip_1)" />
+  <g id="DarkMode">
+    <path d="M-136 -162L-136 -162L-136 -130L-168 -130L-168 -162L-136 -162Z" id="DarkMode" fill="none" stroke="none" />
+    <g id="Group" transform="translate(-346 -143)" clip-path="url(#clip_1)">
+      <g id="Group" transform="translate(346 143)">
+        <path d="M32 0L32 0L32 32L0 32L0 0L32 0L32 0Z" id="Path" fill="none" fill-rule="evenodd" stroke="none" />
+        <g clip-path="url(#clip_2)">
+          <path d="M29.4425 18.7763C28.6349 21.4125 27.0165 23.7268 24.8175 25.39C20.8796 28.3538 15.6044 28.8358 11.1946 26.6349C6.7848 24.434 3.99881 19.9286 4 15C3.9914 12.1796 4.90828 9.43425 6.60999 7.18502C8.27317 4.98601 10.5875 3.36758 13.2237 2.56002C13.5778 2.451 13.9632 2.54666 14.2251 2.80864C14.4871 3.07061 14.5828 3.45595 14.4737 3.81002C13.2992 7.69513 14.3574 11.9114 17.2274 14.7813C20.0974 17.6513 24.3136 18.7095 28.1987 17.535C28.5528 17.426 28.9381 17.5217 29.2001 17.7836C29.4621 18.0456 29.5577 18.4309 29.4487 18.785L29.4425 18.7763L29.4425 18.7763Z" id="Path" fill="#FFFFFF" fill-rule="evenodd" stroke="none" />
+        </g>
+      </g>
+    </g>
   </g>
 </svg>

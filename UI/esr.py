@@ -13,18 +13,18 @@ class ESR(QFrame):
         #Parent QWidget
         self.parent = parent
         # Frame
-        self.setFixedSize(width, height)
+        self.setObjectName("esr")
+        self.resize(width, height)
         self.setStyleSheet("""
                            *{
-                                background-color: #2E5C6F;
+                                background-color: none;
                                 border-radius: 8px;
-                                border-style: none;
+                                border-style: none; 
                            }
-                           QPushButton{
+                           QFrame#esr{
                                background-color:#2E5C6F;
                            }
                            QPushButton#exit:hover{
-
                                 background-image:url(./icons/closeGlow.svg)
                             }
                             QPushButton#resize:hover{
@@ -44,34 +44,32 @@ class ESR(QFrame):
         self.setGraphicsEffect(shadow)
         
         #Exit button
-        exit = QPushButton()
+        exit = QPushButton(self)
         exit.setObjectName("exit")
         exit.setFixedSize(25, 25)
         exit.setIcon(QIcon("./icons/close.svg"))
         exit.setIconSize(QSize(25, 25))
+        exit.move(88, 0)
         exit.pressed.connect(self.parent.close)
         
         #Resize button
-        resize = QPushButton()
+        resize = QPushButton(self)
         resize.setObjectName("resize")
         resize.setFixedSize(20, 20)
         resize.setIcon(QIcon("./icons/resize.svg"))
         resize.setIconSize(QSize(20, 20))
-        resize.pressed.connect(self.parent.showMaximized)
+        resize.move(50, 2)
+        #resize.pressed.connect(self.parent.showMaximized)
         
         #Reduce button
-        reduce = QPushButton()
+        reduce = QPushButton(self)
         reduce.setObjectName("reduce")
         reduce.setFixedSize(20, 20)
         reduce.setIconSize(QSize(20, 20))
         reduce.setIcon(QIcon("./icons/reduce.svg"))
+        reduce.move(12, 2)
         reduce.pressed.connect(self.parent.showMinimized)
         
-        #HBOX
-        hbox = QHBoxLayout(self)
-        hbox.addWidget(reduce)
-        hbox.addWidget(resize)
-        hbox.addWidget(exit)
-        hbox.setContentsMargins(0, 0, 0 ,0)
+        
         
                 

@@ -13,12 +13,14 @@ class Profile(QPushButton):
                                background-color:rgba(0, 0, 0, 0);
                                border-style:none;
                            }
+                           QPushButton#profile{
+                               icon:url(./icons/profile.svg);
+                           }
                            QPushButton#profile:hover{
                                icon:url(./icons/profileGlow.svg);
                            }
                            """)
-        self.setFixedSize(size+10, size+10)
-        self.setIcon(QIcon("./icons/profile.svg"))
+        self.resize(size+10, size+10)
         self.setIconSize(QSize(size, size))
         self.setObjectName("profile")
         self.pressed.connect(self.up)

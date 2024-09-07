@@ -1,26 +1,23 @@
-from PySide6.QtWidgets import QWidget, QApplication
+from PySide6.QtWidgets import QWidget, QApplication, QFrame
 from PySide6.QtCore import Qt
 from esr import ESR
 from user import UserInfo
 from profile import Profile
+from background import Background
 
 class Window(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        background = QWidget(self)
-        background.setStyleSheet("""
-                                 background-color:#DDDDDD;
-                                 border-radius:15px;
-                                 """)
-        background.setGeometry(0,0, 700, 550)
+        background = Background(self)
+        background.move(0,0)
         esr = ESR(self)
-        esr.setGeometry(550, 18, 0, 0)
-        user_info = UserInfo(self)
+        esr.move(550, 18)
+        user_info = UserInfo(self, background, esr)
         user_info.move(25, 40)
         pro = Profile(self, user_info)
-        pro.setGeometry(5, 18, 0, 0)
+        pro.move(5, 18)
 
 
     # Drag window
