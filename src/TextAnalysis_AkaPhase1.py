@@ -8,7 +8,6 @@ from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk import FreqDist, pos_tag
 from dataclasses import dataclass, field
-from os import path
 from collections import Counter
 from nltk.util import ngrams
 import nltk
@@ -141,9 +140,9 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
     the input and the source would allow us to conjecture (with a certain uncertainty still) if they go over the same subjects.
     This idea would help us distinguish STRUCTURAL similarities in the text from WORD similarities (since one doesn't imply the other).
     """
-
+    
     def __init__(self, base):
-        self.base = base
+        self.base : Tokenizer = base
         self.keywords_scores = {}
         self.bigrams = Counter(ngrams(self.base.tokens_by_word, 2))
         self.trigrams = Counter(ngrams(self.base.tokens_by_word, 3))
@@ -157,8 +156,8 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
 
     def get_syntagms_scores(self):
         word_degrees = {}
-        for s in self.base.tokens_by_syntagm:
-            degree = len(s) - 1
+        for s in self.base.tokens_by_syntagm: # For each syntagm
+            degree = len(s) - 1 # Length of syntagm
             for word in s:
                 if word not in word_degrees:
                     word_degrees[word] = 0
@@ -168,7 +167,6 @@ class TokensStatsAndRearrangements: # To be referred as TSAR later on
         for s in self.base.tokens_by_syntagm:
             phrase_score = sum(words_scores[word] for word in s)
             self.keywords_scores[' '.join(s)] = phrase_score
-
 
 @dataclass
 class TextProcessingAlgorithms: # To be referred as TPA later on
@@ -287,9 +285,3 @@ class TextProcessingAlgorithms: # To be referred as TPA later on
         print(f"Similar trigrams: {self.similar_trigrams}")
     """
 
-
-def extract_raw_from_file(file_path : str) -> str:
-    if not path.exists(file_path):
-        raise FileNotFoundError("Specified file doesn't exist")
-    with open(file_path, 'r', encoding='utf-8-sig', errors='ignore') as f: #might consider using chardet or cchardet to detect encoding
-        return f.read().lower()
