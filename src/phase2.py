@@ -11,7 +11,7 @@ from subprocess import run
 from sys import platform
 from time import sleep
 from os import remove
-
+cooldown = [False]
 # Important for safe and sure scraping
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', # name of the app
            'Accept': 'text/html', # wanted file
@@ -43,18 +43,18 @@ class URLs:
     def makeUrls(word_sent:str, number:int, start:int =0) -> ndarray:
         """
             # google: Avoid error 429 (Too many requests) and ddgo: Avoid error 202 Ratelimit
-            # Solution using multi proxy ports and search engines
+            # Solution using multi proxy ports and multi search engines (megaSearch)
             # And search limit search per word_sent max 10
         """
-        urls = megaSearch(word_sent, number, headers, start)
-        return array(urls, dtype="S150")
+        urls = megaSearch(word_sent, number,cooldown, headers, start)
+        return array(urls, dtype="U130")
 
     @staticmethod
-    def manageRobotsDotTxt(url:bytes) -> bool:
+    def manageRobotsDotTxt(url:str) -> bool:
         """
             - Get robots.txt file from the url site and check if it's allowed to scrape
         """
-        parsed_url = urlparse(url.decode())
+        parsed_url = urlparse(url)
         robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
         rfp = RobotFileParser()
         rfp.set_url(robots_url)
@@ -67,7 +67,6 @@ class URLs:
     def recycleUrls(self) -> None:
         """
         - Filter replace urls that are {unreachable, not allowed to scrape and with errors} with new functional urls.
-        # TODO better error solving
         """
         cut_at:int = self.number # start at none seen url
         response: Response
@@ -77,7 +76,6 @@ class URLs:
             for url in self._url_array[cut_at-self.number:]:
                 try:
                     response = get(url, headers=headers, timeout=2)
-                    response.raise_for_status()
                     print(url)
                     print(response)
                     sleep(2)
