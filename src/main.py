@@ -1,10 +1,17 @@
 """
     Coders: Daniel-Dfg and Luckyyyin
 """
-def main():
-    pass
-    print("hello world")
-    import nltk
+from sys import argv
+from PySide6.QtWidgets import QApplication
+from UI_Functional.main_window import MainWindow
 
 if __name__ == "__main__":
-    main()
+    # Check whether there is already a running QApplication (e.g., if running from an IDE).
+    qapp = QApplication.instance()
+    if not qapp:
+        qapp = QApplication(argv)
+
+    window = MainWindow()
+    window.show()
+    window.raise_()
+    qapp.exec()
