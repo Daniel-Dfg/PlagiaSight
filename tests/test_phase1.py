@@ -8,7 +8,7 @@ import pytest
 import unittest
 import nltk
 import chardet
-from src import Tokenizer, TokensStatsAndRearrangements, TextProcessingAlgorithms
+from src import Tokenizer, TokensStatsAndRearrangements, TokensComparisonAlgorithms
 from random import choice
 from os import path
 
@@ -50,7 +50,7 @@ class TestTextAnalysis(unittest.TestCase):
         self.source_TSAR = TokensStatsAndRearrangements(
             self.source_tokens)
 
-        self.tpa = TextProcessingAlgorithms(
+        self.tpa = TokensComparisonAlgorithms(
             input_tokens_sets=self.poem_TSAR, source_tokens_sets=self.source_TSAR)
 
     def test_word_tokenization(self):
@@ -91,15 +91,15 @@ class TestTextAnalysis(unittest.TestCase):
         for syntagm, expected in zip(syntagm_tokens_poem, expected_syntagms):
             self.assertListEqual(syntagm, expected)
 
-    def test_syntagm_scores(self):
-        self.poem_TSAR.get_syntagms_scores()  # Calculate keywords_score
+    def test_syntagms_scores(self):
+        self.poem_TSAR.evaluate_syntagms_scores()  # Calculate keywords_score
         expected_keywords_score = {
             'march': 0.0, 'abyss': 0.0, 'look': 0.0, 'acknowledge': 0.0,
             'existence': 0.0, 'live': 0.0, 'life': 0.0, 'full': 0.0
         }
-        self.assertEqual(len(self.poem_TSAR.keywords_scores),
+        self.assertEqual(len(self.poem_TSAR.syntagms_scores),
                          len(expected_keywords_score))
-        self.assertDictEqual(self.poem_TSAR.keywords_scores,
+        self.assertDictEqual(self.poem_TSAR.syntagms_scores,
                              expected_keywords_score)
 
     def test_all_term_freq(self):
