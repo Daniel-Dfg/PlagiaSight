@@ -1,7 +1,7 @@
 from PySide6.QtGui import QColor, QIcon
 from PySide6.QtWidgets import QWidget, QFrame, QPushButton, QGraphicsDropShadowEffect, QHBoxLayout, QVBoxLayout
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtSvg import  QtSvg
+#from PySide6.QtSvg import QtSvgWidget
 
 
 width = 125
