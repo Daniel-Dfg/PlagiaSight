@@ -31,7 +31,6 @@ jmespath==1.0.1
 joblib==1.4.2
 kiwisolver==1.4.7
 lxml==5.2.2
-macholib @ file:///AppleInternal/Library/BuildRoots/860631e9-c1c5-11ee-98ee-b6ef2fd8d87b/Library/Caches/com.apple.xbs/Sources/python3/macholib-1.15.2-py2.py3-none-any.whl
 matplotlib==3.9.2
 nltk==3.9.1
 numpy==2.0.2
