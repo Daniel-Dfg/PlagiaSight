@@ -6,7 +6,7 @@ from PySide6.QtSvg import QSvgRenderer
 w = 722
 h = 53
 iconsize = 55
-class UserInfo(QPushButton):
+class UserTools(QPushButton):
     def __init__(self, parent:QWidget) -> None:
         super().__init__(parent)
         #UserInfo
@@ -30,7 +30,7 @@ class UserInfo(QPushButton):
                             QPushButton#dark_mode:hover{
                             }
                            """)
-        
+
         #Contact button
         contact = QPushButton(self)
         contact.setObjectName("contact")
@@ -38,7 +38,7 @@ class UserInfo(QPushButton):
         contact.setIconSize(QSize(iconsize, iconsize))
         contact.setIcon(QIcon("./icons/contact.svg"))
         contact.move(0,0)
-        
+
         #Help button
         help = QPushButton(self)
         help.setObjectName("help")
@@ -54,8 +54,8 @@ class UserInfo(QPushButton):
         setting.setIcon(QIcon("./icons/setting.svg"))
         setting.setIconSize(QSize(iconsize+10, iconsize+10))
         setting.move(150, 0)
-        
-        
+
+
         #Wifi
         wifi = QPushButton(self)
         wifi.setObjectName("wifi")
@@ -63,4 +63,3 @@ class UserInfo(QPushButton):
         wifi.setIcon(QIcon("./icons/wifi.svg"))
         wifi.setIconSize(QSize(iconsize, iconsize))
         wifi.move(670, 0)
-        

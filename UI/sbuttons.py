@@ -5,6 +5,9 @@ from PySide6.QtCore import QSize
 w = 410
 h = 60
 class SButtons(QPushButton):
+    """
+    - Special button
+    """
     def __init__(self, text:str, parent:QWidget= None) -> None:
         super().__init__(text, parent)
         self.resize(w, h)
@@ -17,4 +20,3 @@ class SButtons(QPushButton):
                                font-size: 18px;
                            }
                            """)
-        

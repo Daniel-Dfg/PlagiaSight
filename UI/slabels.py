@@ -3,6 +3,9 @@ from PySide6.QtWidgets import QLabel, QWidget
 
 
 class SLabels(QLabel):
+    """
+    - Special label
+    """
     def __init__(self, text:str, parent:QWidget= None) -> None:
         super().__init__(text,parent)
         self.setStyleSheet("""
@@ -13,7 +16,7 @@ class SLabels(QLabel):
                                font-size: none;
                            }
                            """)
+        # Set the font
         font = QFontDatabase.addApplicationFont("./font/AllertaStencil-Regular.ttf")
         font_family = QFontDatabase.applicationFontFamilies(font)[0]
         self.setFont(QFont(font_family))
-        
