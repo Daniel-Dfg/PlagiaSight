@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg width="19.954" height="20" viewBox="0 0 19.954 20" fill="none" stroke="none" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <path d="M-839 -177L-839 -177L-839 -157L-859 -157L-859 -177L-839 -177Z" id="path_1" />
-    <clipPath id="clip_1">
-      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    <path id="path_1" d="M19.9538 0L19.9538 0L19.9538 20L0 20L0 0L19.9538 0Z" />
+    <rect id="rect_2" x="0" y="0" width="19.954" height="20" />
+    <clipPath id="clip_path_3">
+      <use xlink:href="#rect_2" />
     </clipPath>
   </defs>
-  <g id="icon-park-outline--reduce">
-    <path d="M-839 -177L-839 -177L-839 -157L-859 -157L-859 -177L-839 -177Z" id="icon-park-outline--reduce" fill="none" stroke="none" />
-    <g id="Group" transform="translate(2.5 2.5)" clip-path="url(#clip_1)">
-      <path d="M0 2.5L0 1.25C0 0.904822 0.122039 0.610194 0.366117 0.366117C0.610194 0.122039 0.904822 0 1.25 0L13.75 0C14.0952 0 14.3898 0.122039 14.6339 0.366117C14.878 0.610194 15 0.904822 15 1.25L15 13.75C15 14.0952 14.878 14.3898 14.6339 14.6339C14.3898 14.878 14.0952 15 13.75 15L1.25 15C0.904822 15 0.610194 14.878 0.366117 14.6339C0.122039 14.3898 0 14.0952 0 13.75L0 2.5Z" id="Path" fill="none" fill-rule="evenodd" stroke="#ECECEC" stroke-width="1" stroke-linejoin="round" />
-      <g id="Group" transform="translate(4.166687 7.5)">
-        <path d="M0 0L6.66667 0" id="Path" fill="none" fill-rule="evenodd" stroke="#ECECEC" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" />
+  <g id="Frame" opacity="1" clip-path="url(#clip_path_3)">
+    <g transform="translate(0 2)">
+      <use xlink:href="#path_1" style="mix-blend-mode:normal;" />
+      <g>
+        <path id="path2" d="M0 0.1761L15.9379 0" style="fill:#DDDDDD;stroke-width:1.002;stroke:#DDDDDD;stroke-linecap:round;mix-blend-mode:normal;" transform="translate(2.008 10.013)" />
       </g>
     </g>
   </g>

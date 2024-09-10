@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication
-from greeting import Greetings
+from slabels import SLabels
 
 app = QApplication([])
-window = Greetings()
+window = SLabels(text="A set of files between eachother")
 window.show()
 app.exec()

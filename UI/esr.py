@@ -4,10 +4,10 @@ from PySide6.QtCore import QSize, Qt
 #from PySide6.QtSvg import QtSvgWidget
 
 
-width = 125
-height = 25
-
-class ESR(QFrame):
+width = 130
+height = 30
+iconsize = 30
+class ESR(QPushButton):
     def __init__(self, parent:QWidget=None) -> None:
         super().__init__(parent)
         #Parent QWidget
@@ -18,56 +18,43 @@ class ESR(QFrame):
         self.setStyleSheet("""
                            *{
                                 background-color: none;
-                                border-radius: 8px;
                                 border-style: none; 
                            }
                            QFrame#esr{
-                               background-color:#2E5C6F;
                            }
                            QPushButton#exit:hover{
-                                background-image:url(./icons/closeGlow.svg)
                             }
                             QPushButton#resize:hover{
-                                background-image:url(./icons/resizeGlow.svg);
                             }
                             QPushButton#reduce:hover{
-                                background-image:url(./icons/reduceGlow.svg)
                             }
                            """)
-        
-        #Shadow
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(20)
-        shadow.setXOffset(0)
-        shadow.setYOffset(0)
-        shadow.setColor(QColor("black"))
-        self.setGraphicsEffect(shadow)
         
         #Exit button
         exit = QPushButton(self)
         exit.setObjectName("exit")
-        exit.setFixedSize(25, 25)
+        exit.setFixedSize(iconsize,iconsize)
         exit.setIcon(QIcon("./icons/close.svg"))
-        exit.setIconSize(QSize(25, 25))
-        exit.move(88, 0)
+        exit.setIconSize(QSize(iconsize, iconsize))
+        exit.move(100, 0)
         exit.pressed.connect(self.parent.close)
         
         #Resize button
         resize = QPushButton(self)
         resize.setObjectName("resize")
-        resize.setFixedSize(20, 20)
+        resize.setFixedSize(iconsize, iconsize)
         resize.setIcon(QIcon("./icons/resize.svg"))
-        resize.setIconSize(QSize(20, 20))
+        resize.setIconSize(QSize(iconsize, iconsize))
         resize.move(50, 2)
         #resize.pressed.connect(self.parent.showMaximized)
         
         #Reduce button
         reduce = QPushButton(self)
         reduce.setObjectName("reduce")
-        reduce.setFixedSize(20, 20)
-        reduce.setIconSize(QSize(20, 20))
+        reduce.setFixedSize(iconsize, iconsize)
+        reduce.setIconSize(QSize(iconsize, iconsize))
         reduce.setIcon(QIcon("./icons/reduce.svg"))
-        reduce.move(12, 2)
+        reduce.move(5, 0)
         reduce.pressed.connect(self.parent.showMinimized)
         
         
