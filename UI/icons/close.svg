@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg width="25px" height="25px" viewBox="0 0 25 25" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+<svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="none" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <path d="M-834 -177L-834 -177L-834 -152L-859 -152L-859 -177L-834 -177Z" id="path_1" />
-    <clipPath id="clip_1">
-      <use xlink:href="#path_1" clip-rule="evenodd" fill-rule="evenodd" />
+    <path id="path_1" d="M22 0L22 0L22 22L0 22L0 0L22 0Z" />
+    <rect id="rect_2" x="0" y="0" width="22" height="22" />
+    <clipPath id="clip_path_3">
+      <use xlink:href="#rect_2" />
     </clipPath>
   </defs>
-  <g id="la--window-close">
-    <path d="M-834 -177L-834 -177L-834 -152L-859 -152L-859 -177L-834 -177Z" id="la--window-close" fill="none" stroke="none" />
-    <path d="M3.90625 3.90625L3.90625 21.0938L21.0938 21.0938L21.0938 3.90625L3.90625 3.90625ZM5.46875 5.46875L19.5313 5.46875L19.5313 19.5313L5.46875 19.5313L5.46875 5.46875ZM9.13124 8.05704L8.03202 9.15547L11.3766 12.5L7.98358 15.8938L9.08202 16.9922L12.4758 13.5984L15.8445 16.968L16.9437 15.8688L13.5742 12.5L16.8945 9.17969L15.7961 8.08126L12.4758 11.4016L9.13124 8.05704Z" id="Shape" fill="#ECECEC" fill-rule="evenodd" stroke="none" clip-path="url(#clip_1)" />
+  <g id="close" opacity="1" clip-path="url(#clip_path_3)">
+    <g>
+      <use xlink:href="#path_1" style="mix-blend-mode:normal;" />
+      <g>
+        <path id="Path" d="M0.6325 0L0 0.6325L7.60375 8.23625L0 15.84L0.6325 16.4725L8.23625 8.86875L15.84 16.4725L16.4725 15.84L8.86875 8.23625L16.4725 0.6325L15.84 0L8.23625 7.60375L0.6325 0Z" style="fill:#FFFFFF;fill-rule:evenodd;mix-blend-mode:normal;" transform="translate(2.764 2.764)" />
+      </g>
+    </g>
   </g>
 </svg>

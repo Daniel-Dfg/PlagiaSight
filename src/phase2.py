@@ -4,13 +4,14 @@ from urllib.robotparser import RobotFileParser
 from http.client import RemoteDisconnected
 from dataclasses import field, dataclass
 from duckduckgo_search import DDGS
-from megasearch import megaSearch
+from googlesearch import search
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 from subprocess import run
 from sys import platform
 from time import sleep
 from os import remove
+
 cooldown = [False]
 # Important for safe and sure scraping
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', # name of the app
@@ -20,6 +21,53 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
            'DNT': '1', # do not track (if possible)
            'Upgrade-Insecure-Requests': '1', # Upgrade request https if possible
            'Cache-Control': 'no-cache'}
+
+
+class MegaSearch:
+    """
+    - Assure an errorless search
+    """
+    @staticmethod
+    def megaSearch(word_sent, number,cooldown, headers=None, start=0) -> list:
+        """
+         - combination of 2 search engines
+        """
+        while True:
+            try:
+                if not cooldown[0]:
+                    ddgo = DDGS(headers=headers)
+                    results = ddgo.text(word_sent, max_results=number)
+                    urls = [result['href'] for result in results][start:]
+                    sleep(2)
+                    return urls
+            except:
+                print("1 donwn")
+                cooldown[0] = True
+            try:
+                urls = list(search(word_sent, num=number, stop=number, start=start, pause=2, user_agent=headers["User-Agent"]))
+                return urls
+            except:
+                givePenalty()
+                cooldown[0] = False
+    @staticmethod
+    def givePenalty():
+        """
+        - Timeout when HTTP requests reached the limits of search engines
+        """
+        print("5 min penalty")
+        sleep(20)
+        print("Nah...")
+        sleep(20)
+        print("You're kidding right?!")
+        sleep(20)
+        print("This is search engines a abuse...")
+        sleep(60)
+        print("What are you even searching?")
+        sleep(60)
+        print("A Whale?!")
+        sleep(60)
+        print("Be patient only one minute")
+        sleep(60)
 
 @dataclass
 class URLs:
@@ -46,7 +94,7 @@ class URLs:
             # Solution using multi proxy ports and multi search engines (megaSearch)
             # And search limit search per word_sent max 10
         """
-        urls = megaSearch(word_sent, number,cooldown, headers, start)
+        urls = MegaSearch.megaSearch(word_sent, number,cooldown, headers, start)
         return array(urls, dtype="U130")
 
     @staticmethod
@@ -99,7 +147,7 @@ class URLs:
         if self._url_array.size == 0:
             print("Warning: url array is empty")
         return self._url_array
-    
+
     @property
     def response_array(self) ->ndarray:
         if self._response_array.size == 0:
@@ -169,18 +217,6 @@ class UserStatus:
         except Exception as e:
             print(f"An error occurred: {e}")
 
-    @staticmethod
-    def check_for_response():# TODO run in parallel every 5 sec
-        """
-            - Goal prevent problems when there is no internet connection
-            # TODO run in parallel (and when requests and googlescreach)
-            # TODO manage internet connection errors more efficently, know what every response means.
-        """
-        response = get("example.com", headers=headers, timeout=2)
-        if response.status_code == 200:
-            print("OK for internet connection")
-        else:
-            print("No internet connection")
 
     @staticmethod
     def save_changes(): # To discuss
@@ -188,14 +224,8 @@ class UserStatus:
             # Create/change file json, if user changes the settings, perfrence, etc...
         """
         pass
-    @staticmethod
-    def user(): # To discuss
-        """
-            # Getting the user name/info for legal accusation (just in case :x)
-        """
-        pass
 
-#x = URLs("spear", 10)
+x = URLs("spear", 10)
 #p = x.response_array
 #temp = HtmlText(p[0])
 #temp.removeTempText()
