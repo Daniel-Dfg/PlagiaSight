@@ -28,6 +28,8 @@ GRAPH_COMMON_CHARS_COMPLEX = GRAPH_COMMON_CHARS_SIMPLE + ["most common bigrams (
 GRAPH_COMMON_CHARS_COMPLEX_ATTRS = GRAPH_COMMON_CHARS_SIMPLE_ATTRS + ["bigrams", "trigrams"] #same remark as for word_freq (see GRAPH_COMMON_CHARS_SIMPLE_ATTRS)
 #########################
 
+MAX_FILES_AMOUNT = 5 #maximum amount of files comparable to each other at once
+
 class Step0_WelcomingMessage(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -39,18 +41,18 @@ class Step0_WelcomingMessage(QWidget):
         layout.addWidget(welcome_label)
 
         button1 = QPushButton("One file with related online data")
-        button1.clicked.connect(lambda: self.proceed_to_step1("file"))
+        button1.clicked.connect(lambda: self.proceed_to_step1(1))
         layout.addWidget(button1)
 
         button2 = QPushButton("Several files between each other")
         button2.setToolTip("Useful for a high school class, for instance (max N files)")
-        button2.clicked.connect(lambda: self.proceed_to_step1("directory"))
+        button2.clicked.connect(lambda: self.proceed_to_step1(MAX_FILES_AMOUNT))
         layout.addWidget(button2)
 
         self.setLayout(layout)
 
-    def proceed_to_step1(self, expected_type):
-        self.main_window.expected_type = expected_type
+    def proceed_to_step1(self, max_files_amount):
+        self.main_window.max_files_amount = max_files_amount #TODO : rethink the code elsewhere now that this has changed !!!
         self.main_window.step1_widget = Step1_FileDropAndCheck(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step1_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step1_widget)
@@ -70,7 +72,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.warning_label = QLabel("")
         warning_layout.addWidget(self.warning_label)
 
-        self.drop_area = DropArea(self.main_window.expected_type, self)
+        self.drop_area = DropArea(self, self.main_window.max_files_amount)
         layout.addWidget(self.drop_area)
 
         self.browse_button = QPushButton("Browse")
@@ -106,7 +108,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.main_window.help_window.expand_step(0)
 
     def open_file_dialog(self):
-        if self.main_window.expected_type == "file":
+        if self.main_window.max_files_amount == 1:
             file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt file", "", "Text Files (*.txt)")
             if file_name:
                 if self.drop_area.is_valid_format_file(file_name):
@@ -117,7 +119,7 @@ class Step1_FileDropAndCheck(QWidget):
                 else:
                     self.drop_area.show_warning("Please select only .txt files.")
                     self.next_button.setEnabled(False)
-        elif self.main_window.expected_type == "directory":
+        elif self.main_window.max_files_amount == 5:
             directory_path = QFileDialog.getExistingDirectory(self, "Select a directory with .txt files")
             if directory_path:
                 self.drop_area.process_directory(directory_path)
@@ -218,8 +220,8 @@ class Step3_LoadResults(QWidget):
 
     def process_files(self):
         content = self.main_window.step1_widget.drop_area.correct_files
-        #type = self.main_window.expected_type #file or directory
-        if len(content) == 1:
+        #type = self.main_window.max_files_amount
+        if self.main_window.max_files_amount == 1:
             #web scraping, etc
             ...
             print("processing indiv")

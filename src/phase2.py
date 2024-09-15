@@ -225,7 +225,7 @@ class UserStatus:
         """
         pass
 
-x = URLs("spear", 10)
+#x = URLs("spear", 10)
 #p = x.response_array
 #temp = HtmlText(p[0])
 #temp.removeTempText()
