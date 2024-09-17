@@ -1,12 +1,16 @@
-from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QHBoxLayout
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QStandardItem, QStandardItemModel
+from nltk.tokenize.api import overridden
+from typing_extensions import override
+from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
+from PySide6.QtCore import Qt, QTimer, QEvent
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QStandardItem, QStandardItemModel, QAction
 import os
 import webbrowser
 from numpy import arange
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
+
+MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
 
 class NonSelectableComboBox(QComboBox):
@@ -21,92 +25,165 @@ class NonSelectableComboBox(QComboBox):
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsEnabled)
         self.standard_model.appendRow(item)
 
-
 class DropArea(QTextEdit):
-    def __init__(self, expected_type, step1_widget):
-
+    def __init__(self, step1_widget, max_file_amount=MAX_FILES_AMOUNT):
         super().__init__()
         self.setAcceptDrops(True)
-        self.expected_type = expected_type
+        self.max_file_amount = max_file_amount
         self.step1_widget = step1_widget
-        self.warning_label = QLabel("No content dropped yet.")
-        self.warning_label.setStyleSheet("color: white;")
+        if self.max_file_amount == 1:
+            self.min_file_amount = 1
+        elif self.max_file_amount == MAX_FILES_AMOUNT:
+            self.min_file_amount = 2
+        else:
+            raise ValueError("Invalid max_file_amount value (not 1 or MAX_FILES_AMOUNT)")
+
         self.correct_files = []
         self.invalid_files = []
 
+        self.instructions_label = QLabel("Drop your content here...")
+        self.status_label = QLabel("Nothing yet dropped.")
+        self.warning_label = QLabel("Warning will show up here.")
+        self.warning_label.setStyleSheet("color: red;")
+
+        self.correct_files_list = QListWidget()
         self.invalid_files_combo = NonSelectableComboBox()
-        self.invalid_files_combo.setVisible(False)
 
-        if self.expected_type == "file":
-            self.setText("Drop a .txt file here or click 'Browse'")
-        elif self.expected_type == "directory":
-            self.setText("Drop a directory with .txt files here or click 'Browse'")
+        # Layout
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.instructions_label)
+        layout.addWidget(self.warning_label)
+        layout.addWidget(self.correct_files_list)  # To display correct files
+        layout.addWidget(self.invalid_files_combo)  # To display invalid files
+        layout.addWidget(self.status_label)
+        self.setLayout(layout)
 
-    def dragEnterEvent(self, e: QDragEnterEvent):
+    def dragEnterEvent(self, e):
         if e.mimeData().hasUrls():
             e.acceptProposedAction()
 
-    def dropEvent(self, e: QDropEvent):
-        #TODO : separate warning and status labels by making a new one for warnings only
-        self.invalid_files = []
+    def dropEvent(self, e):
+        #TODO : make this function cleaner
         files = [url.toLocalFile() for url in e.mimeData().urls()]
-        if self.expected_type == "file":
-            if len(files) == 1 and os.path.isfile(files[0]):
-                if self.is_valid_format_file(files[0]):
-                    self.setText(self.simplify_path(files[0]))
-                    self.set_ready_status()
-                    self.correct_files = [files[0]]
+        valid_set = set(self.correct_files) #for faster lookups and no duplicates
+        for file in files:
+            if os.path.isfile(file) and self.is_valid_format_file(file) and file not in valid_set:
+                if len(self.correct_files) < self.max_file_amount:
+                    self.correct_files.append(file)
+                    self.add_file_to_list(file)
+                    valid_set.add(file)
                 else:
-                    self.show_warning("⚠️ Please drop only .txt files.")
+                    self.show_warning("⚠️ Maximum file limit reached!")
+            elif os.path.isdir(file):
+                self.process_directory(file)
             else:
-                self.show_warning("⚠️ Please drop only one file.")
-        elif self.expected_type == "directory":
-            if len(files) == 1 and os.path.isdir(files[0]):
-                self.process_directory(files[0])
-            else:
-                self.show_warning("⚠️ Please drop only one directory.")
+                if file not in valid_set:
+                    self.show_warning(f"⚠️ {file} is not a file in a valid format.")
+                else:
+                    self.show_warning(f"⚠️ {file} has already been added.")
+        self.update_status()
 
     def is_valid_format_file(self, file_path):
         return file_path.endswith('.txt')
 
     def process_directory(self, directory_path):
-        self.correct_files = [os.path.join(directory_path, f) for f in os.listdir(directory_path) if self.is_valid_format_file(os.path.join(directory_path, f))]
-        self.invalid_files = [f for f in os.listdir(directory_path) if not self.is_valid_format_file(os.path.join(directory_path, f))]
-        self.show_warning(f"{len(self.invalid_files)} invalid files found.")
-        self.show_invalid_files()
-        self.show_correct_files()
-        self.check_valid_directory()
+        valid_set = set(self.correct_files)
+        valid_files = [os.path.join(directory_path, f) for f in os.listdir(directory_path) if self.is_valid_format_file(os.path.join(directory_path, f)) and f not in valid_set]
 
-    def simplify_path(self, full_path):
-        return os.path.join(".../", os.path.basename(os.path.dirname(full_path)), os.path.basename(full_path))
+        if valid_files:
+            for file in valid_files:
+                if len(self.correct_files) >= self.max_file_amount:
+                    self.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}. Won't process files from {file} to {valid_files[-1]}.")
+                    break
+                self.correct_files.append(file)
+                self.add_file_to_list(file)
+                valid_set.add(file)
+            # Only add invalid files if the directory has valid ones
+            self.invalid_files.extend([os.path.join(directory_path, f) for f in os.listdir(directory_path) if not self.is_valid_format_file(os.path.join(directory_path, f))])
+            self.update_invalid_file_list()
+            self.update_status()
+
+    def add_file_to_list(self, file):
+        """Add a file to the correct files list with a 'remove' button."""
+        item = QListWidgetItem(self.correct_files_list)
+
+        # Create a widget to hold the file path and remove button
+        widget = QWidget()
+        layout = QHBoxLayout()
+
+        file_label = QLabel(file)  # Show the file path
+        remove_button = QPushButton("✕")  # A cross button to remove the file
+        remove_button.setStyleSheet("background: none; border: none; color: red; font-weight: bold;")
+        remove_button.setFixedSize(20, 20)
+        remove_button.clicked.connect(lambda: self.remove_file(file, item))
+
+        # Initially hide the remove button
+        remove_button.setVisible(False)
+
+        # Add the file label and remove button to the layout
+        layout.addWidget(file_label)
+        layout.addWidget(remove_button)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        widget.setLayout(layout)
+
+        # Set up event filter to handle hover
+        widget.installEventFilter(self)
+
+        # Add the widget to the QListWidgetItem
+        item.setSizeHint(widget.sizeHint())
+        self.correct_files_list.setItemWidget(item, widget)
+
+    def remove_file(self, file, item):
+        self.correct_files.remove(file)
+        self.correct_files_list.takeItem(self.correct_files_list.row(item))
+        self.update_status()
+
+    def update_invalid_file_list(self):
+        """Updates the invalid files combo."""
+        self.invalid_files_combo.clear()
+        if self.invalid_files:
+            self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ''}:")
+            for file in self.invalid_files:
+                self.invalid_files_combo.add_item(file)
+            self.invalid_files_combo.setVisible(True)
+        else:
+            self.invalid_files_combo.setVisible(False)
+
+    def update_status(self, last_file_dropped = None):
+        """Update the status based on the number of correct files."""
+        if self.min_file_amount <= len(self.correct_files) <= self.max_file_amount:
+            self.set_ready_status()
+        else:
+            self.status_label.setStyleSheet("color: white;")
+            self.status_label.setText(f"⚠️ {len(self.correct_files)} file{'s' if len(self.correct_files) > 1 else ''} dropped.")
+            self.show_warning(f"Please drop at least {self.min_file_amount} valid file{'s' if self.min_file_amount==2 else ''}.")
+            self.step1_widget.next_button.setEnabled(False)
+
+    def set_ready_status(self):
+        self.status_label.setText("🗸 Ready to analyze 🗸")
+        self.status_label.setStyleSheet("color: green;")
+        self.step1_widget.next_button.setEnabled(True)
 
     def show_warning(self, message):
         self.warning_label.setText(message)
-        self.warning_label.setStyleSheet("color: red;")
 
-    def set_ready_status(self):
-        self.warning_label.setText("🗸 Ready to analyze 🗸")
-        self.warning_label.setStyleSheet("color: green;")
-        self.step1_widget.next_button.setEnabled(True)
 
-    def show_invalid_files(self):
-        self.invalid_files_combo.clear()
-        self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ''}:", selectable=True)
-        for f in self.invalid_files:
-            self.invalid_files_combo.add_item(f)
-        self.invalid_files_combo.setVisible(True)
-
-    def show_correct_files(self):
-        self.step1_widget.correct_files_list.clear()
-        self.step1_widget.correct_files_list.addItems(self.correct_files)
-        self.step1_widget.correct_files_list.setVisible(True)
-
-    def check_valid_directory(self):
-        if 2 <= len(self.correct_files) <= 5:
-            self.set_ready_status()
-        else:
-            self.show_warning("Please select a directory with 2 to 5 .txt files.")
-            self.step1_widget.next_button.setEnabled(False)
+    def eventFilter(self, arg__1, arg__2):
+        obj, event = arg__1, arg__2
+        """Handle hover events to show or hide the remove button."""
+        if event.type() == QEvent.Type.Enter:
+            # Show the remove button when mouse enters the widget
+            remove_button = obj.findChild(QPushButton)
+            if remove_button:
+                remove_button.setVisible(True) #TODO : find an alternative solution to this
+        elif event.type() == QEvent.Type.Leave:
+            # Hide the remove button when mouse leaves the widget
+            remove_button = obj.findChild(QPushButton)
+            if remove_button:
+                remove_button.setVisible(False)
+        return super().eventFilter(obj, event)
 
 
 class HelpWindow(QWidget):
@@ -154,50 +231,76 @@ class GetInTouchWindow(QWidget):
         label = QLabel("Bug? Feature request? Commentary? Collab? We're all ears!")
         layout.addWidget(label)
 
-        self.add_contact_info(layout, "Daniel D.", Mail="mailto:danieldefoing@gmail.com",
+        self.add_contact_info(layout, "Daniel D.", ["Texts similarity computations", "UI (functional)"],
+                              Mail="mailto:danieldefoing@gmail.com",
                               GitHub="https://github.com/Daniel-Dfg",
                               Discord="https://discord.com/users/720963652286414909")
 
-        self.add_contact_info(layout, "LUCKYINS", GitHub="https://github.com/Luckyyyin")
-        self.add_contact_info(layout, "onuriscoding", GitHub="https://github.com/onuriscoding")
+        self.add_contact_info(layout, "LUCKYINS", ["Web scraping", "UI (styling)"],
+                              GitHub="https://github.com/Luckyyyin")
+
+        self.add_contact_info(layout, "onuriscoding", ["UX Design", "GitHub workflows"],
+                              GitHub="https://github.com/onuriscoding")
+
+        self.add_contact_info(layout, "botEkrem", ["General Consultancy", "GitHub workflows", "Cross-platform compatibility (dockerization)"],
+                              GitHub="https://github.com/BotEkrem")
 
         self.setLayout(layout)
 
-    def add_contact_info(self, parent_layout, name, *args, **kwargs):
+    def add_contact_info(self, parent_layout, name, roles=[], *args, **kwargs):
         if len(kwargs) > 3 or not kwargs:
             raise ValueError("Too many/few contacts (1 to 3)")
 
         contact_widget = QWidget()
-        contact_layout = QHBoxLayout()
+        contact_layout = QVBoxLayout()
+
+        contact_header = QWidget()
+        contact_header_layout = QHBoxLayout()
 
         contact_label = QLabel(name + ": ")
-        contact_layout.addWidget(contact_label)
+        contact_header_layout.addWidget(contact_label)
 
         all_socials = sorted(kwargs.keys())
-        social_button_1 = QPushButton()
-        social_button_1.setIcon(QIcon(f"Resources/Excess Files/UI_elements/{all_socials[0]}_icon.png"))
-        social_button_1.setToolTip(all_socials[0])
-        social_button_1.clicked.connect(lambda: webbrowser.open(kwargs[all_socials[0]]))
-        contact_layout.addWidget(social_button_1)
+        for social in all_socials:
+            button = QPushButton()
+            button.setIcon(QIcon(f"Resources/Excess Files/UI_elements/{social}_icon.png"))
+            button.setToolTip(social)
+            button.clicked.connect(lambda _, link=kwargs[social]: webbrowser.open(link))
+            contact_header_layout.addWidget(button)
 
-        if len(all_socials) > 1:
-            social_button_2 = QPushButton()
-            social_button_2.setIcon(QIcon(f"Resources/Excess Files/UI_elements/{all_socials[1]}_icon.png"))
-            social_button_2.setToolTip(all_socials[1])
-            social_button_2.clicked.connect(lambda: webbrowser.open(kwargs[all_socials[1]]))
-            contact_layout.addWidget(social_button_2)
+        contact_header.setLayout(contact_header_layout)
+        contact_layout.addWidget(contact_header)
 
-        if len(all_socials) > 2:
-            social_button_3 = QPushButton()
-            social_button_3.setIcon(QIcon(f"Resources/Excess Files/UI_elements/{all_socials[2]}_icon.png"))
-            social_button_3.setToolTip(all_socials[2])
-            social_button_3.clicked.connect(lambda: webbrowser.open(kwargs[all_socials[2]]))
-            contact_layout.addWidget(social_button_3)
+        toggle_checkbox = QCheckBox("Show roles")
+        roles_widget = QWidget()
+        roles_layout = QVBoxLayout()
 
-        #TODO : add a section below with each person's roles in the project, so customers know
-        #who to contact immmediately.
+        for role in roles:
+            role_label = QLabel(f"• {role}")
+            roles_layout.addWidget(role_label)
+
+        roles_widget.setLayout(roles_layout)
+        roles_widget.setVisible(False)
+
+        toggle_checkbox.toggled.connect(lambda checked: self.toggle_roles(roles_widget, toggle_checkbox, checked))
+
+        contact_layout.addWidget(toggle_checkbox)
+        contact_layout.addWidget(roles_widget)
+
+        separator = QFrame()
+        separator.setFrameShape(QFrame.Shape.HLine)
+        contact_layout.addWidget(separator)
+
         contact_widget.setLayout(contact_layout)
         parent_layout.addWidget(contact_widget)
+
+    def toggle_roles(self, roles_widget, toggle_checkbox, checked):
+        if checked:
+            toggle_checkbox.setText("Hide roles")
+            roles_widget.setVisible(True)
+        else:
+            toggle_checkbox.setText("Show roles")
+            roles_widget.setVisible(False)
 
 class GraphWindow(QWidget):
     #TODO : documentation of this
