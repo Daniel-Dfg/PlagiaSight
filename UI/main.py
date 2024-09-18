@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QWidget, QApplication, QFrame
+from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import Qt
 from esr import ESR
 from user import UserTools
@@ -6,14 +6,18 @@ from sbuttons import SButtons
 from slabels import SLabels
 from background import Background
 
-class Window(QWidget):
+w = 790
+h = 560
+class Window(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
+        self.resize(w, h)
+        
         # background
-        background = Background(self)
-        background.move(0,0)
+        background = Background()
+        self.setCentralWidget(background)
 
         #Exit reSize Reduce
         esr = ESR(self)
@@ -31,6 +35,7 @@ class Window(QWidget):
 
         #Special Labels
         sl1 = SLabels("PlagiaEye", self)
+
         sl1.setStyleSheet(sl1.styleSheet().replace("font-size: none;", "font-size: 64px;"))
         sl1.move(230, 50)
         sl2 = SLabels("A transparent plagiarism detection tool.", self)

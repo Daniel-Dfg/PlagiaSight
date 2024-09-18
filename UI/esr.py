@@ -1,13 +1,13 @@
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QPushButton, QApplication, QFrame, QToolButton
-from PySide6.QtCore import QSize, QPropertyAnimation, QRect
+from PySide6.QtWidgets import QWidget, QToolButton
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtSvg import QSvgRenderer
 
 
 width = 135
 height = 35
 iconsize = 35
-class ESR(QPushButton):
+class ESR(QToolButton):
     def __init__(self, parent:QWidget) -> None:
         super().__init__(parent)
         self.parent = parent
@@ -22,16 +22,16 @@ class ESR(QPushButton):
                            }
                            QFrame#esr{
                            }
-                           QPushButton#exit:hover{
+                           QToolButton#exit:hover{
                             }
-                            QPushButton#resize:hover{
+                            QToolButton#wresize:hover{
                             }
-                            QPushButton#reduce:hover{
+                            QToolButton#reduce:hover{
                             }
                            """)
         
         #Exit button
-        exit = QPushButton(self)
+        exit = QToolButton(self)
         exit.setObjectName("exit")
         exit.setFixedSize(iconsize,iconsize)
         exit.setIcon(QIcon("./icons/close.svg"))
@@ -40,16 +40,16 @@ class ESR(QPushButton):
         exit.pressed.connect(parent.close)
         
         #Resize button
-        resize = QPushButton(self)
-        resize.setObjectName("resize")
-        resize.setFixedSize(iconsize, iconsize)
-        resize.setIcon(QIcon("./icons/resize.svg"))
-        resize.setIconSize(QSize(iconsize, iconsize))
-        resize.move(50, 0)
-        resize.pressed.connect(self.maxi)
+        self.wresize = QToolButton(self)
+        self.wresize.setObjectName("resize")
+        self.wresize.setFixedSize(iconsize, iconsize)
+        self.wresize.setIcon(QIcon("./icons/resize.svg"))
+        self.wresize.setIconSize(QSize(iconsize, iconsize))
+        self.wresize.move(50, 0)
+        self.wresize.pressed.connect(parent.showMaximized)
         
         #Reduce button
-        reduce = QPushButton(self)
+        reduce = QToolButton(self)
         reduce.setObjectName("reduce")
         reduce.setFixedSize(iconsize, iconsize)
         reduce.setIconSize(QSize(iconsize, iconsize))
@@ -57,8 +57,8 @@ class ESR(QPushButton):
         reduce.move(0, 0)
         reduce.pressed.connect(parent.showMinimized)
         
-    def maxi(self):
-        pass
-        
-        
-                
+    def window_state_changed(self, state):
+        if state == Qt.WindowState.WindowMaximized:
+            self.wresize.pressed.connect(self.parent.showNormal)
+        else: 
+            self.wresize.pressed.connect(self.parent.showMaximized)    

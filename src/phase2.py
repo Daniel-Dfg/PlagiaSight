@@ -1,6 +1,7 @@
 from requests import get, RequestException, Response, ReadTimeout, ConnectionError, HTTPError
 from numpy import array, ndarray, append, zeros
 from urllib.robotparser import RobotFileParser
+from urllib.error import URLError
 from http.client import RemoteDisconnected
 from dataclasses import field, dataclass
 from duckduckgo_search import DDGS
@@ -32,6 +33,25 @@ class MegaSearch:
         """
          - combination of 2 search engines
         """
+        @staticmethod
+        def givePenalty():
+            """
+            - Timeout when HTTP requests reached the limits of search engines
+            """
+            print("5 min penalty")
+            sleep(20)
+            print("Nah...")
+            sleep(20)
+            print("You're kidding right?!")
+            sleep(20)
+            print("This is search engines a abuse...")
+            sleep(60)
+            print("What are you even searching?")
+            sleep(60)
+            print("A Whale?!")
+            sleep(60)
+            print("Be patient only one minute")
+            sleep(60)
         while True:
             try:
                 if not cooldown[0]:
@@ -49,25 +69,6 @@ class MegaSearch:
             except:
                 givePenalty()
                 cooldown[0] = False
-    @staticmethod
-    def givePenalty():
-        """
-        - Timeout when HTTP requests reached the limits of search engines
-        """
-        print("5 min penalty")
-        sleep(20)
-        print("Nah...")
-        sleep(20)
-        print("You're kidding right?!")
-        sleep(20)
-        print("This is search engines a abuse...")
-        sleep(60)
-        print("What are you even searching?")
-        sleep(60)
-        print("A Whale?!")
-        sleep(60)
-        print("Be patient only one minute")
-        sleep(60)
 
 @dataclass
 class URLs:
@@ -183,7 +184,11 @@ class HtmlText:
     def removeTempText(self): # To discuss (whether temp file or straight up str)
         remove("temp.txt")
 
-
+class StopProcess:
+    def __init__(self) -> None:
+        pass
+    def stop(self):
+        pass
 
 class UserStatus:
     """
@@ -224,6 +229,8 @@ class UserStatus:
             # Create/change file json, if user changes the settings, perfrence, etc...
         """
         pass
+
+get('https://google.com')
 
 #x = URLs("spear", 10)
 #p = x.response_array
