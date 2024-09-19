@@ -1,13 +1,13 @@
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QPushButton, QWidget
+from PySide6.QtWidgets import QToolButton, QFrame
 from PySide6.QtCore import QSize
 from PySide6.QtSvg import QSvgRenderer
 
 w = 722
 h = 53
 iconsize = 55
-class UserTools(QPushButton):
-    def __init__(self, parent:QWidget) -> None:
+class UserTools(QFrame):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         #UserInfo
         self.resize(w, h)
@@ -16,23 +16,23 @@ class UserTools(QPushButton):
                                background-color:none;
                                border-style:none;
                            }
-                           QPushButton{
+                           QToolButton{
                                border-radius:20px;
                            }
 
-                           QPushButton#setting:hover{
+                           QToolButton#setting:hover{
                             }
-                           QPushButton#help:hover{
+                           QToolButton#help:hover{
                             }
-                            QPushButton#contact:hover{
+                            QToolButton#contact:hover{
 
                             }
-                            QPushButton#dark_mode:hover{
+                            QToolButton#dark_mode:hover{
                             }
                            """)
 
         #Contact button
-        contact = QPushButton(self)
+        contact = QToolButton(self)
         contact.setObjectName("contact")
         contact.setFixedSize(iconsize, iconsize)
         contact.setIconSize(QSize(iconsize, iconsize))
@@ -40,7 +40,7 @@ class UserTools(QPushButton):
         contact.move(0,0)
 
         #Help button
-        help = QPushButton(self)
+        help = QToolButton(self)
         help.setObjectName("help")
         help.setFixedSize(iconsize, iconsize)
         help.setIcon(QIcon("./icons/help.svg"))
@@ -48,7 +48,7 @@ class UserTools(QPushButton):
         help.move(80, 0)
 
         #Setting
-        setting = QPushButton(self)
+        setting = QToolButton(self)
         setting.setObjectName("setting")
         setting.setFixedSize(iconsize+10, iconsize+10)
         setting.setIcon(QIcon("./icons/setting.svg"))
@@ -57,7 +57,7 @@ class UserTools(QPushButton):
 
 
         #Wifi
-        wifi = QPushButton(self)
+        wifi = QToolButton(self)
         wifi.setObjectName("wifi")
         wifi.setFixedSize(iconsize, iconsize)
         wifi.setIcon(QIcon("./icons/wifi.svg"))
