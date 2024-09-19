@@ -1,5 +1,5 @@
 from TextAnalysis_AkaPhase1 import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
-from phase2 import URLs, HtmlText
+from src.WebScraper import URLs, HtmlText
 
 @dataclass
 class OneFileComparison:

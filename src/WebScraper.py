@@ -22,40 +22,52 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
            'Upgrade-Insecure-Requests': '1', # Upgrade request https if possible
            'Cache-Control': 'no-cache'}
 
-class StopProcess:
-    def __init__(self) -> None:
-        pass
-    def stop(self):
-        pass
-
+def stopProcess() -> None:
+    """
+    # Loop until the internet connection is back
+    """
+    while True: 
+        sleep(2)
+        try:
+            get("https://example.com")
+        except (ConnectionError):
+            print("No Internet connection")
+            continue
+        return
+        
+@dataclass
 class SafeSearch:
     """
-    - Assure an errorless search
+    # Assure an errorless search
     """
-    @staticmethod
-    def givePenalty():
+    phrases:list[str] = field(init=False, repr=False)
+    def __post_init__(self):
+        self.phrases = ["5 min penalty", "Nah...", "You're kidding right?!", "This is search engines a abuse...",
+                    "What are you even searching?", "A Whale?!", "Be patient only one minute"]
+    def givePenalty(self) -> None:
         """
         - Timeout when HTTP requests reached the limits of search engines
         """
-        phrases = ["5 min penalty", "Nah...", "You're kidding right?!", "This is search engines a abuse...",
-                    "What are you even searching?", "A Whale?!", "Be patient only one minute"]
-        for phrase in phrases:
+        for phrase in self.phrases:
             print(phrase)
             sleep(30)
             
-    @staticmethod
-    def safeSearch(word_sent, number, headers=None, start=0) -> list:
+    def safeSearch(self, word_sent, number, user=None, start=0) -> list:
         """
          - combination of 2 search engines
         """
         while True:
             try:
-                urls = list(search(word_sent, num=number, stop=number, start=start, user_agent=headers["User-Agent"]))
+                urls = list(search(word_sent, num=number, stop=number, start=start, user_agent=user))
                 return urls
-            except HTTPError:
-                SafeSearch.givePenalty()
+            except HTTPError: # Stop the process if the http requests limit exceeded
+                self.givePenalty()
+                continue
             except URLError:
-                pass # hold the app
+                stopProcess() # Stop the process until the internet connection is back
+                continue
+            
+ss = SafeSearch() # init SafeSearch onetime
 
 @dataclass
 class URLs:
@@ -80,7 +92,7 @@ class URLs:
         """
             # google: Avoid error 429 (Too many requests) and ddgo: Avoid error 202 Ratelimit
         """
-        urls = SafeSearch.safeSearch(word_sent, number, headers, start)
+        urls = ss.safeSearch(word_sent, number, headers["User-Agent"], start)
         return array(urls, dtype="U130")
 
     @staticmethod
@@ -92,11 +104,15 @@ class URLs:
         robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
         rfp = RobotFileParser()
         rfp.set_url(robots_url)
-        try:
-            rfp.read() # Read robots.txt
-        except (UnicodeDecodeError, RemoteDisconnected, RequestException): # No robots.txt
-            return True
-        return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
+        while True:
+            try:
+                rfp.read() # Read robots.txt
+            except (UnicodeDecodeError, RemoteDisconnected, RequestException): # No robots.txt
+                return True
+            except URLError:
+                stopProcess()
+                continue
+            return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
 
     def recycleUrls(self) -> None:
         """
@@ -108,16 +124,20 @@ class URLs:
         count = 0
         while self.number:
             for url in self._url_array[cut_at-self.number:]:
-                try:
-                    response = get(url, headers=headers, timeout=2)
-                    print(url)
-                    print(response)
-                    sleep(2)
-                except (ReadTimeout, ConnectionError):
-                    print("Unreachable website")
-                    response.status_code = 0
-                except  HTTPError:
-                    pass # Hold the app
+                while True: # To stop the process if there is no internet connection
+                    try:
+                        response = get(url, headers=headers, timeout=2)
+                        print(url)
+                        print(response)
+                        sleep(2)
+                        break # if there is internet connection
+                    except (ReadTimeout, ReadTimeout):
+                        print("Unreachable website")
+                        response.status_code = 0
+                        break # if there is internet connection
+                    except ConnectionError:
+                        stopProcess()
+                        continue
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
                     self._response_array[count] = response
                     count +=1
@@ -158,15 +178,11 @@ class HtmlText:
         """
             TODO (or not): How to manage sites with multilayer/pages
         """
-        try:
-            self.response.raise_for_status()
-            bs = BeautifulSoup(self.response.text, "html.parser")
-            html_tags_list = bs.find_all(["h1", "h2", "h3", "p", "pre"]) # Get good part of any info site (ideal of an info site)
-            with open("temp.txt", "w", encoding="utf-8-sig") as t:
-                for html_tag in html_tags_list:
-                    t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
-        except RequestException:
-            print("Response error")
+        bs = BeautifulSoup(self.response.text, "html.parser")
+        html_tags_list = bs.find_all(["h1", "h2", "h3", "p", "pre"]) # Get good part of any info site (ideal of an info site)
+        with open("temp.txt", "w", encoding="utf-8-sig") as t:
+            for html_tag in html_tags_list:
+                t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
 
     def removeTempText(self): # To discuss (whether temp file or straight up str)
         remove("temp.txt")
@@ -205,7 +221,8 @@ class UserStatus:
             print(f"An error occurred: {e}")
 
 
-#x = URLs("spear", 10)
-#p = x.response_array
-#temp = HtmlText(p[0])
+
+x = URLs("spear", 10)
+p = x.response_array
+temp = HtmlText(p[0])
 #temp.removeTempText()
