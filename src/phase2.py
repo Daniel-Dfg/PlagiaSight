@@ -4,7 +4,6 @@ from urllib.robotparser import RobotFileParser
 from urllib.error import URLError
 from http.client import RemoteDisconnected
 from dataclasses import field, dataclass
-from duckduckgo_search import DDGS
 from googlesearch import search
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
@@ -13,7 +12,7 @@ from sys import platform
 from time import sleep
 from os import remove
 
-cooldown = [False]
+
 # Important for safe and sure scraping
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', # name of the app
            'Accept': 'text/html', # wanted file
@@ -23,52 +22,40 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
            'Upgrade-Insecure-Requests': '1', # Upgrade request https if possible
            'Cache-Control': 'no-cache'}
 
+class StopProcess:
+    def __init__(self) -> None:
+        pass
+    def stop(self):
+        pass
 
-class MegaSearch:
+class SafeSearch:
     """
     - Assure an errorless search
     """
     @staticmethod
-    def megaSearch(word_sent, number,cooldown, headers=None, start=0) -> list:
+    def givePenalty():
+        """
+        - Timeout when HTTP requests reached the limits of search engines
+        """
+        phrases = ["5 min penalty", "Nah...", "You're kidding right?!", "This is search engines a abuse...",
+                    "What are you even searching?", "A Whale?!", "Be patient only one minute"]
+        for phrase in phrases:
+            print(phrase)
+            sleep(30)
+            
+    @staticmethod
+    def safeSearch(word_sent, number, headers=None, start=0) -> list:
         """
          - combination of 2 search engines
         """
-        @staticmethod
-        def givePenalty():
-            """
-            - Timeout when HTTP requests reached the limits of search engines
-            """
-            print("5 min penalty")
-            sleep(20)
-            print("Nah...")
-            sleep(20)
-            print("You're kidding right?!")
-            sleep(20)
-            print("This is search engines a abuse...")
-            sleep(60)
-            print("What are you even searching?")
-            sleep(60)
-            print("A Whale?!")
-            sleep(60)
-            print("Be patient only one minute")
-            sleep(60)
         while True:
             try:
-                if not cooldown[0]:
-                    ddgo = DDGS(headers=headers)
-                    results = ddgo.text(word_sent, max_results=number)
-                    urls = [result['href'] for result in results][start:]
-                    sleep(2)
-                    return urls
-            except:
-                print("1 donwn")
-                cooldown[0] = True
-            try:
-                urls = list(search(word_sent, num=number, stop=number, start=start, pause=2, user_agent=headers["User-Agent"]))
+                urls = list(search(word_sent, num=number, stop=number, start=start, user_agent=headers["User-Agent"]))
                 return urls
-            except:
-                givePenalty()
-                cooldown[0] = False
+            except HTTPError:
+                SafeSearch.givePenalty()
+            except URLError:
+                pass # hold the app
 
 @dataclass
 class URLs:
@@ -92,10 +79,8 @@ class URLs:
     def makeUrls(word_sent:str, number:int, start:int =0) -> ndarray:
         """
             # google: Avoid error 429 (Too many requests) and ddgo: Avoid error 202 Ratelimit
-            # Solution using multi proxy ports and multi search engines (megaSearch)
-            # And search limit search per word_sent max 10
         """
-        urls = MegaSearch.megaSearch(word_sent, number,cooldown, headers, start)
+        urls = SafeSearch.safeSearch(word_sent, number, headers, start)
         return array(urls, dtype="U130")
 
     @staticmethod
@@ -128,9 +113,11 @@ class URLs:
                     print(url)
                     print(response)
                     sleep(2)
-                except (ReadTimeout, ConnectionError, HTTPError):
+                except (ReadTimeout, ConnectionError):
                     print("Unreachable website")
                     response.status_code = 0
+                except  HTTPError:
+                    pass # Hold the app
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
                     self._response_array[count] = response
                     count +=1
@@ -184,11 +171,6 @@ class HtmlText:
     def removeTempText(self): # To discuss (whether temp file or straight up str)
         remove("temp.txt")
 
-class StopProcess:
-    def __init__(self) -> None:
-        pass
-    def stop(self):
-        pass
 
 class UserStatus:
     """
@@ -222,15 +204,6 @@ class UserStatus:
         except Exception as e:
             print(f"An error occurred: {e}")
 
-
-    @staticmethod
-    def save_changes(): # To discuss
-        """
-            # Create/change file json, if user changes the settings, perfrence, etc...
-        """
-        pass
-
-get('https://google.com')
 
 #x = URLs("spear", 10)
 #p = x.response_array
