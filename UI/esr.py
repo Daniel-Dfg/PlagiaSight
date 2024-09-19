@@ -8,9 +8,10 @@ width = 135
 height = 35
 iconsize = 35
 class ESR(QToolButton):
-    def __init__(self, parent:QWidget) -> None:
+    def __init__(self, parent:QWidget= None) -> None:
         super().__init__(parent)
         self.parent = parent
+        self.switch = False
         # Frame
         self.setObjectName("esr")
         self.resize(width, height)
@@ -24,7 +25,7 @@ class ESR(QToolButton):
                            }
                            QToolButton#exit:hover{
                             }
-                            QToolButton#wresize:hover{
+                            QToolButton#windowSize:hover{
                             }
                             QToolButton#reduce:hover{
                             }
@@ -40,13 +41,13 @@ class ESR(QToolButton):
         exit.pressed.connect(parent.close)
         
         #Resize button
-        self.wresize = QToolButton(self)
-        self.wresize.setObjectName("resize")
-        self.wresize.setFixedSize(iconsize, iconsize)
-        self.wresize.setIcon(QIcon("./icons/resize.svg"))
-        self.wresize.setIconSize(QSize(iconsize, iconsize))
-        self.wresize.move(50, 0)
-        self.wresize.pressed.connect(parent.showMaximized)
+        self.windowSize = QToolButton(self)
+        self.windowSize.setObjectName("resize")
+        self.windowSize.setFixedSize(iconsize, iconsize)
+        self.windowSize.setIcon(QIcon("./icons/resize.svg"))
+        self.windowSize.setIconSize(QSize(iconsize, iconsize))
+        self.windowSize.move(50, 0)
+        self.windowSize.pressed.connect(self.switchSize)
         
         #Reduce button
         reduce = QToolButton(self)
@@ -57,8 +58,10 @@ class ESR(QToolButton):
         reduce.move(0, 0)
         reduce.pressed.connect(parent.showMinimized)
         
-    def window_state_changed(self, state):
-        if state == Qt.WindowState.WindowMaximized:
-            self.wresize.pressed.connect(self.parent.showNormal)
+    def switchSize(self):
+        if not self.switch:
+            self.parent.showMaximized()
+            self.switch = True
         else: 
-            self.wresize.pressed.connect(self.parent.showMaximized)    
+            self.parent.showNormal()
+            self.switch = False

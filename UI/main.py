@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QApplication, QMainWindow
 from PySide6.QtCore import Qt
 from esr import ESR
-from user import UserTools
+from userTools import UserTools
 from sbuttons import SButtons
 from slabels import SLabels
 from background import Background
@@ -38,16 +38,15 @@ class Window(QMainWindow):
 
         sl1.setStyleSheet(sl1.styleSheet().replace("font-size: none;", "font-size: 64px;"))
         sl1.move(230, 50)
+        sl1.setFixedSize(350, 100)
         sl2 = SLabels("A transparent plagiarism detection tool.", self)
         sl2.setStyleSheet(sl2.styleSheet().replace("font-size: none;", "font-size: 24px;"))
         sl2.move(150, 150)
+        sl2.setFixedSize(500, 100)
         sl3 = SLabels("Compare...", self)
         sl3.setStyleSheet(sl3.styleSheet().replace("font-size: none;", "font-size: 36px;"))
         sl3.move(290, 230)
-
-
-
-
+        sl3.setFixedSize(500, 50)
 
     # Drag window
     def mousePressEvent(self, event):
