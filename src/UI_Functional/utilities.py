@@ -1,7 +1,7 @@
 from nltk.tokenize.api import overridden
 from typing_extensions import override
 from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
-from PySide6.QtCore import Qt, QTimer, QEvent
+from PySide6.QtCore import Qt, QTimer, QEvent, Signal
 from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QStandardItem, QStandardItemModel, QAction
 import os
 import webbrowser
@@ -25,165 +25,113 @@ class NonSelectableComboBox(QComboBox):
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsEnabled)
         self.standard_model.appendRow(item)
 
+
 class DropArea(QTextEdit):
-    def __init__(self, step1_widget, max_file_amount=MAX_FILES_AMOUNT):
+    def __init__(self, step1_widget, max_file_amount=5):
         super().__init__()
         self.setAcceptDrops(True)
         self.max_file_amount = max_file_amount
         self.step1_widget = step1_widget
-        if self.max_file_amount == 1:
-            self.min_file_amount = 1
-        elif self.max_file_amount == MAX_FILES_AMOUNT:
-            self.min_file_amount = 2
-        else:
-            raise ValueError("Invalid max_file_amount value (not 1 or MAX_FILES_AMOUNT)")
+
+        # Limite minimum de fichiers
+        self.min_file_amount = 1 if max_file_amount == 1 else 2
 
         self.correct_files = []
         self.invalid_files = []
-
-        self.instructions_label = QLabel("Drop your content here...")
-        self.status_label = QLabel("Nothing yet dropped.")
-        self.warning_label = QLabel("Warning will show up here.")
-        self.warning_label.setStyleSheet("color: red;")
-
-        self.correct_files_list = QListWidget()
-        self.invalid_files_combo = NonSelectableComboBox()
-
-        # Layout
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.instructions_label)
-        layout.addWidget(self.warning_label)
-        layout.addWidget(self.correct_files_list)  # To display correct files
-        layout.addWidget(self.invalid_files_combo)  # To display invalid files
-        layout.addWidget(self.status_label)
-        self.setLayout(layout)
 
     def dragEnterEvent(self, e):
         if e.mimeData().hasUrls():
             e.acceptProposedAction()
 
     def dropEvent(self, e):
-        #TODO : make this function cleaner
         files = [url.toLocalFile() for url in e.mimeData().urls()]
-        valid_set = set(self.correct_files) #for faster lookups and no duplicates
+        valid_set = set(self.correct_files)
         for file in files:
             if os.path.isfile(file) and self.is_valid_format_file(file) and file not in valid_set:
                 if len(self.correct_files) < self.max_file_amount:
                     self.correct_files.append(file)
-                    self.add_file_to_list(file)
+                    self.add_file_to_list(file, valid=True)
                     valid_set.add(file)
                 else:
-                    self.show_warning("⚠️ Maximum file limit reached!")
+                    self.step1_widget.show_warning("⚠️ Maximum file limit reached!")
             elif os.path.isdir(file):
                 self.process_directory(file)
             else:
                 if file not in valid_set:
-                    self.show_warning(f"⚠️ {file} is not a file in a valid format.")
-                else:
-                    self.show_warning(f"⚠️ {file} has already been added.")
-        self.update_status()
+                    self.step1_widget.show_warning(f"⚠️ .{file.split('.')[-1]} is not a valid file format.")
+        self.step1_widget.update_status()
 
     def is_valid_format_file(self, file_path):
         return file_path.endswith('.txt')
 
     def process_directory(self, directory_path):
         valid_set = set(self.correct_files)
-        valid_files = [os.path.join(directory_path, f) for f in os.listdir(directory_path) if self.is_valid_format_file(os.path.join(directory_path, f)) and f not in valid_set]
+        for f in os.listdir(directory_path):
+            full_path = os.path.join(directory_path, f)  # Chemin complet du fichier
+            if os.path.isfile(full_path) and self.is_valid_format_file(full_path):
+                if full_path not in valid_set:
+                    if len(self.correct_files) >= self.max_file_amount:
+                        self.step1_widget.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}.")
+                        break
+                    self.correct_files.append(full_path)  # Ajouter le chemin complet
+                    self.add_file_to_list(full_path, valid=True)
+                    valid_set.add(full_path)
+            else:
+                if full_path not in self.invalid_files:
+                    self.invalid_files.append(full_path)  # Ajouter le chemin complet pour les fichiers invalides aussi
+                    self.add_file_to_list(full_path, valid=False)
 
-        if valid_files:
-            for file in valid_files:
-                if len(self.correct_files) >= self.max_file_amount:
-                    self.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}. Won't process files from {file} to {valid_files[-1]}.")
-                    break
-                self.correct_files.append(file)
-                self.add_file_to_list(file)
-                valid_set.add(file)
-            # Only add invalid files if the directory has valid ones
-            self.invalid_files.extend([os.path.join(directory_path, f) for f in os.listdir(directory_path) if not self.is_valid_format_file(os.path.join(directory_path, f))])
-            self.update_invalid_file_list()
-            self.update_status()
 
-    def add_file_to_list(self, file):
-        """Add a file to the correct files list with a 'remove' button."""
-        item = QListWidgetItem(self.correct_files_list)
+    def add_file_to_list(self, file, valid=True):
+        item = QListWidgetItem(self.step1_widget.correct_files_list if valid else self.step1_widget.invalid_files_list)
 
-        # Create a widget to hold the file path and remove button
+        # Crée un widget pour afficher le chemin du fichier et un bouton pour le retirer
         widget = QWidget()
         layout = QHBoxLayout()
 
-        file_label = QLabel(file)  # Show the file path
-        remove_button = QPushButton("✕")  # A cross button to remove the file
-        remove_button.setStyleSheet("background: none; border: none; color: red; font-weight: bold;")
-        remove_button.setFixedSize(20, 20)
-        remove_button.clicked.connect(lambda: self.remove_file(file, item))
-
-        # Initially hide the remove button
-        remove_button.setVisible(False)
-
-        # Add the file label and remove button to the layout
+        file_label = QLabel(file)
         layout.addWidget(file_label)
-        layout.addWidget(remove_button)
+        if valid:
+            remove_button = QPushButton("✕")
+            remove_button.setStyleSheet("background: none; border: none; color: red; font-weight: bold;")
+            remove_button.setFixedSize(20, 20)
+            remove_button.clicked.connect(lambda: self.remove_file(file, item, valid))
+
+            # Cache le bouton de suppression initialement
+            remove_button.setVisible(False)
+            layout.addWidget(remove_button)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
 
         widget.setLayout(layout)
-
-        # Set up event filter to handle hover
         widget.installEventFilter(self)
 
-        # Add the widget to the QListWidgetItem
         item.setSizeHint(widget.sizeHint())
-        self.correct_files_list.setItemWidget(item, widget)
+        list_widget = self.step1_widget.correct_files_list if valid else self.step1_widget.invalid_files_list
+        list_widget.setItemWidget(item, widget)
 
-    def remove_file(self, file, item):
-        self.correct_files.remove(file)
-        self.correct_files_list.takeItem(self.correct_files_list.row(item))
-        self.update_status()
-
-    def update_invalid_file_list(self):
-        """Updates the invalid files combo."""
-        self.invalid_files_combo.clear()
-        if self.invalid_files:
-            self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ''}:")
-            for file in self.invalid_files:
-                self.invalid_files_combo.add_item(file)
-            self.invalid_files_combo.setVisible(True)
+    def remove_file(self, file, item, valid=True):
+        if valid:
+            self.correct_files.remove(file)
+            self.step1_widget.correct_files_list.takeItem(self.step1_widget.correct_files_list.row(item))
         else:
-            self.invalid_files_combo.setVisible(False)
+            self.invalid_files.remove(file)
+            self.step1_widget.invalid_files_list.takeItem(self.step1_widget.invalid_files_list.row(item))
+        self.step1_widget.update_status()
 
-    def update_status(self, last_file_dropped = None):
-        """Update the status based on the number of correct files."""
-        if self.min_file_amount <= len(self.correct_files) <= self.max_file_amount:
-            self.set_ready_status()
-        else:
-            self.status_label.setStyleSheet("color: white;")
-            self.status_label.setText(f"⚠️ {len(self.correct_files)} file{'s' if len(self.correct_files) > 1 else ''} dropped.")
-            self.show_warning(f"Please drop at least {self.min_file_amount} valid file{'s' if self.min_file_amount==2 else ''}.")
-            self.step1_widget.next_button.setEnabled(False)
-
-    def set_ready_status(self):
-        self.status_label.setText("🗸 Ready to analyze 🗸")
-        self.status_label.setStyleSheet("color: green;")
-        self.step1_widget.next_button.setEnabled(True)
-
-    def show_warning(self, message):
-        self.warning_label.setText(message)
-
-
-    def eventFilter(self, arg__1, arg__2):
-        obj, event = arg__1, arg__2
-        """Handle hover events to show or hide the remove button."""
+    def eventFilter(self, obj, event):
         if event.type() == QEvent.Type.Enter:
-            # Show the remove button when mouse enters the widget
             remove_button = obj.findChild(QPushButton)
             if remove_button:
-                remove_button.setVisible(True) #TODO : find an alternative solution to this
+                remove_button.setVisible(True)
         elif event.type() == QEvent.Type.Leave:
-            # Hide the remove button when mouse leaves the widget
             remove_button = obj.findChild(QPushButton)
             if remove_button:
                 remove_button.setVisible(False)
         return super().eventFilter(obj, event)
+
+    def simplify_path(self, path):
+        return os.path.basename(path)
 
 
 class HelpWindow(QWidget):

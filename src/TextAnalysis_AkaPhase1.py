@@ -11,6 +11,7 @@ from collections import Counter
 from nltk.util import ngrams
 from os import path
 import chardet
+import re
 
 @dataclass
 class Tokenizer:
@@ -22,7 +23,7 @@ class Tokenizer:
     _part_of_speeches: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
 
     def __post_init__(self):
-        sentences = self._raw_data.replace('\n', 'þ').replace('.', 'þ').split('þ')
+        sentences = re.split(r"\n |\.", self._raw_data) #TODO : Should we use replace twice by 'þ'' (AltGr + P) then split instead of using RegEx + split?
         self._tokens_by_sentence = array([sent.strip() for sent in sentences if sent.strip()])
         tokens_by_wordpunct_first_pass = array(wordpunct_tokenize(self._raw_data)) #first pass using the 'automatic' method from the nltk lib, result will be filtered in the following lines
         pos_tags_first_pass = self._lemmatize_and_tag_tokens(tokens_by_wordpunct_first_pass) #-> list[(word, pos_tag)]
@@ -33,8 +34,8 @@ class Tokenizer:
         lemmatizer = WordNetLemmatizer()
         pos_tags = []
         for token, tag in pos_tag(tbwp_first_pass):
-            if not self.is_only_punctuation(token):
-                lemmatized_token = lemmatizer.lemmatize(token, self.get_wordnet_pos(tag))
+            if not self._is_only_punctuation(token):
+                lemmatized_token = lemmatizer.lemmatize(token, self._get_wordnet_pos(tag))
                 pos_tags.append((lemmatized_token, tag))
             else:
                 pos_tags.append((token, "Punct"))
@@ -55,11 +56,11 @@ class Tokenizer:
         current_syntagm = []
 
         for token, pos in pos_tags: #token = either a word or a punctuation sign
-            if token in stop_words or self.is_only_punctuation(token) or token == '': #if this token is a "breaker"
+            if token in stop_words or self._is_only_punctuation(token) or token == '': #if this token is a "breaker"
                 if current_syntagm != []:
                     all_syntagms.append(current_syntagm)
                     current_syntagm = []
-                if self.is_only_punctuation(token):
+                if self._is_only_punctuation(token):
                     filtered_tokens_by_wordpunct.append(token)
                     self._part_of_speeches = append(self._part_of_speeches, pos)
             else:
@@ -74,10 +75,10 @@ class Tokenizer:
         return array(all_syntagms, dtype=object), array(filtered_tokens_by_wordpunct) #TODO : Think about the usage of dtype
 
 
-    def is_only_punctuation(self, token) -> bool:
+    def _is_only_punctuation(self, token) -> bool:
         return all(char in punctuation for char in token)
 
-    def get_wordnet_pos(self, tag):
+    def _get_wordnet_pos(self, tag):
         if tag.startswith('J'):
             return wordnet.ADJ
         elif tag.startswith('V'):
@@ -124,8 +125,10 @@ class Tokenizer:
             print("Warning: raw data is empty")
         return self._raw_data
 
+
+### CUSTOM EXCEPTIONS (placed here because they're used by the Tokenizer class only) ###
+
 class TokenListIsEmpty(Exception):
-    """Exception raised when the token list is empty."""
     def __init__(self, tokens_by="???"):
         self.message = "Warning: empty list of" + tokens_by + ". \nPlease make sure that there's data to work with."
         super().__init__(self.message)
@@ -139,6 +142,8 @@ class UnprocessableTextContent(Exception):
             self.message += "Raw data (e.g the text extracted from a certain source file, wether it is the user's or something scraped from the web) is empty."
         super().__init__(self.message)
 
+#####################################
+
 
 class TokensStatsAndRearrangements: # To be referred as TSAR
     """
@@ -146,10 +151,6 @@ class TokensStatsAndRearrangements: # To be referred as TSAR
     - Provides statistical insights over ONE source (word frequency, text richness, POS...)
         as well as rearrangements for comparison between texts (via bigrams and trigrams)
         and key phrases (to make web scraping possible afterwards)
-
-    Extracting keyphrases from like, a web page would be still useful, as comparing keyphrases from
-    the input and the source would allow us to conjecture (with a certain uncertainty still) if they go over the same subjects.
-    This idea would help us distinguish STRUCTURAL similarities in the text from WORD similarities (since one doesn't imply the other).
     """
 
     def __init__(self, base):
@@ -160,7 +161,7 @@ class TokensStatsAndRearrangements: # To be referred as TSAR
         self.word_freq = FreqDist(self.base.tokens_by_word)
         self.pos_freq = FreqDist(self.base.part_of_speeches)
         self.text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
-        self.sent_lengths = {sent : len(sent.split()) for sent in self.base.tokens_by_sentence}
+        self.sent_lengths = {sent : len(sent.split()) for sent in self.base.tokens_by_sentence} #TODO : get more accurate measurements (e.g consider punctuation to split words using RegExes)
         self.average_sent_length = float(mean(list(self.sent_lengths.values())))
         self.median_sent_length = float(median(list(self.sent_lengths.values())))
         self.evaluate_syntagms_scores()
@@ -305,7 +306,7 @@ class TokensComparisonAlgorithms: # To be referred as TCA
 
 def extract_raw_from_file(file_path: str) -> str:
     if not path.exists(file_path):
-        raise FileNotFoundError("Specified file doesn't exist")
+        raise FileNotFoundError(f"Specified file {file_path} doesn't exist")
 
     with open(file_path, 'rb') as file:  # Detects the encoding of file
         raw_data = file.read()
@@ -314,3 +315,10 @@ def extract_raw_from_file(file_path: str) -> str:
 
     with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
         return f.read().lower()
+
+
+t = "I ate an apple. It felt good, I liked its freshness \n This is nasty."
+
+#tok = Tokenizer(t)
+#print(tok.tokens_by_word)
+#print(tok.tokens_by_sentence)
