@@ -1,10 +1,7 @@
 from TextAnalysis_AkaPhase1 import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
-<<<<<<< Updated upstream
-from src.WebScraper import URLs, HtmlText
-=======
-from phase2 import URLs, HtmlText
+from WebScraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
->>>>>>> Stashed changes
+
 
 @dataclass
 class OneFileComparison:
