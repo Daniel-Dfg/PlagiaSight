@@ -131,7 +131,7 @@ class URLs:
                         print(response)
                         sleep(2)
                         break # if there is internet connection
-                    except (ReadTimeout, ReadTimeout):
+                    except (URLError, ReadTimeout):
                         print("Unreachable website")
                         response.status_code = 0
                         break # if there is internet connection
@@ -222,7 +222,7 @@ class UserStatus:
 
 
 
-#x = URLs("spear", 10)
-#p = x.response_array
-#temp = HtmlText(p[0])
+x = URLs("spear", 10)
+p = x.response_array
+temp = HtmlText(p[0])
 #temp.removeTempText()

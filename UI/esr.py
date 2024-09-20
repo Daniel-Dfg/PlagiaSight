@@ -1,5 +1,5 @@
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QWidget, QToolButton
+from PySide6.QtWidgets import QWidget, QToolButton, QFrame
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtSvg import QSvgRenderer
 
@@ -7,10 +7,9 @@ from PySide6.QtSvg import QSvgRenderer
 width = 135
 height = 35
 iconsize = 35
-class ESR(QToolButton):
+class ESR(QFrame):
     def __init__(self, parent:QWidget= None) -> None:
         super().__init__(parent)
-        self.parent = parent
         self.switch = False
         # Frame
         self.setObjectName("esr")
@@ -38,7 +37,7 @@ class ESR(QToolButton):
         exit.setIcon(QIcon("./icons/close.svg"))
         exit.setIconSize(QSize(iconsize, iconsize))
         exit.move(100, 0)
-        exit.pressed.connect(parent.close)
+        exit.pressed.connect(self.window().close)
         
         #Resize button
         self.windowSize = QToolButton(self)
@@ -56,12 +55,12 @@ class ESR(QToolButton):
         reduce.setIconSize(QSize(iconsize, iconsize))
         reduce.setIcon(QIcon("./icons/reduce.svg"))
         reduce.move(0, 0)
-        reduce.pressed.connect(parent.showMinimized)
+        reduce.pressed.connect(self.window().showMinimized)
         
     def switchSize(self):
         if not self.switch:
-            self.parent.showMaximized()
+            self.window().showMaximized()
             self.switch = True
         else: 
-            self.parent.showNormal()
+            self.window().showNormal()
             self.switch = False
