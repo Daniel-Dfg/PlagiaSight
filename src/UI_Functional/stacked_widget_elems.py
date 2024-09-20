@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
                              QListWidget, QHBoxLayout, QComboBox, QRadioButton,
-                             QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
+                             QButtonGroup, QProgressBar, QHBoxLayout)
 from PySide6.QtCore import Qt, QTimer, Signal
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
@@ -58,7 +58,6 @@ class Step0_WelcomingMessage(QWidget):
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step1_widget)
         self.main_window.help_window.expand_step(1)
 
-
 class Step1_FileDropAndCheck(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -69,100 +68,69 @@ class Step1_FileDropAndCheck(QWidget):
         self.label = QLabel("Drop your files or directories below or click 'Browse':")
         layout.addWidget(self.label)
 
-        # Warning label
+        warning_layout = QVBoxLayout()
         self.warning_label = QLabel("")
-        self.warning_label.setStyleSheet("color: red;")
-        layout.addWidget(self.warning_label)
+        warning_layout.addWidget(self.warning_label)
 
-        # Status label
-        self.status_label = QLabel("Nothing yet dropped.")
-        layout.addWidget(self.status_label)
-
-        # DropArea instance
         self.drop_area = DropArea(self, self.main_window.max_files_amount)
         layout.addWidget(self.drop_area)
 
-        # Browse button
         self.browse_button = QPushButton("Browse")
         self.browse_button.clicked.connect(self.open_file_dialog)
         layout.addWidget(self.browse_button)
 
-        # Correct files list (affiche les fichiers corrects)
+        layout.addWidget(self.drop_area.warning_label)
+        layout.addWidget(self.drop_area.invalid_files_combo)
+
         self.correct_files_list = QListWidget()
+        self.correct_files_list.setVisible(False)
         layout.addWidget(self.correct_files_list)
 
-        # Invalid files list (affiche les fichiers invalides)
-        self.invalid_files_list = QListWidget()
-        layout.addWidget(self.invalid_files_list)
+        layout.addLayout(warning_layout)
 
-        # Back and Next buttons
         back_and_next = QHBoxLayout()
+        back_and_next_widget = QWidget()
+
         self.back_button = QPushButton("Back")
         self.back_button.clicked.connect(self.go_back)
-        back_and_next.addWidget(self.back_button)
+        back_and_next.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
 
         self.next_button = QPushButton("Next")
         self.next_button.setEnabled(False)
         self.next_button.clicked.connect(self.proceed_to_step2)
-        back_and_next.addWidget(self.next_button)
-
-        layout.addLayout(back_and_next)
+        back_and_next.addWidget(self.next_button, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignBottom)
+        back_and_next_widget.setLayout(back_and_next)
+        layout.addWidget(back_and_next_widget)
         self.setLayout(layout)
-
-    def update_ui_after_drop(self):
-        """Update UI elements after a file is dropped."""
-        self.correct_files_list.clear()
-        self.invalid_files_list.clear()
-        for file in self.drop_area.correct_files:
-            self.correct_files_list.addItem(file)
-        for file in self.drop_area.invalid_files:
-            self.invalid_files_list.addItem(file)
-
-    def update_status(self):
-        """Update status based on the number of files dropped."""
-        num_valid_files = len(self.drop_area.correct_files)
-        if num_valid_files >= self.drop_area.min_file_amount:
-            self.next_button.setEnabled(True)
-            self.status_label.setText("🗸 Ready to analyze 🗸")
-            self.status_label.setStyleSheet("color: green;")
-        else:
-            self.next_button.setEnabled(False)
-            self.status_label.setText(f"⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.")
-            self.status_label.setStyleSheet("color: white;")
-            self.show_warning(f"Please drop at least {self.drop_area.min_file_amount} valid file{'s' if self.drop_area.min_file_amount != 1 else ''}.")
-
-    def show_warning(self, message):
-        """Display warning message in the UI."""
-        self.warning_label.setText(message)
 
     def go_back(self):
         self.main_window.stacked_widget.setCurrentIndex(0)
+        self.main_window.help_window.expand_step(0)
 
     def open_file_dialog(self):
-        """Open file dialog for selecting files manually."""
         if self.main_window.max_files_amount == 1:
             file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt file", "", "Text Files (*.txt)")
             if file_name:
                 if self.drop_area.is_valid_format_file(file_name):
+                    self.drop_area.setText(self.drop_area.simplify_path(file_name))
+                    self.drop_area.set_ready_status()
                     self.drop_area.correct_files = [file_name]
-                    self.update_ui_after_drop()
-                    self.update_status()
+                    self.next_button.setEnabled(True)
                 else:
-                    self.show_warning("Please select only .txt files.")
+                    self.drop_area.show_warning("Please select only .txt files.")
+                    self.next_button.setEnabled(False)
         elif self.main_window.max_files_amount == 5:
             directory_path = QFileDialog.getExistingDirectory(self, "Select a directory with .txt files")
             if directory_path:
                 self.drop_area.process_directory(directory_path)
 
     def proceed_to_step2(self):
-        """Proceed to the next step with the files."""
-        #print("Proceeding to step 2 with files:", self.drop_area.correct_files)
+        print("Proceeding to step 2 with files:", self.drop_area.correct_files)
         if not hasattr(self.main_window, "step2_widget"):
             self.main_window.step2_widget = Step2_AnalysisComplexityPick(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step2_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step2_widget)
         self.main_window.help_window.expand_step(2)
-
 
 class Step2_AnalysisComplexityPick(QWidget):
     def __init__(self, main_window):
@@ -215,9 +183,9 @@ class Step2_AnalysisComplexityPick(QWidget):
 
     def launch_analysis(self):
         selected_analysis = "simple" if self.simple_analysis_radio.isChecked() else "complex"
+        print(f"Launching {selected_analysis} Analysis")
 
         #Move on to Step3Widget
-
         self.main_window.step3_widget = Step3_LoadResults(self.main_window, selected_analysis)
         self.main_window.stacked_widget.addWidget(self.main_window.step3_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step3_widget)
@@ -226,6 +194,7 @@ class Step2_AnalysisComplexityPick(QWidget):
 class Step3_LoadResults(QWidget):
     done = Signal()
     def __init__(self, main_window, analysis_complexity):
+
         super().__init__()
         self.main_window = main_window
         self.next_button = QPushButton("Next")
@@ -247,8 +216,7 @@ class Step3_LoadResults(QWidget):
         self.setLayout(layout)
 
         self.comparison_content = None
-        QTimer.singleShot(100, self.process_files)
-        #self.process_files()
+        self.process_files()
 
     def process_files(self):
         content = self.main_window.step1_widget.drop_area.correct_files
@@ -256,17 +224,20 @@ class Step3_LoadResults(QWidget):
         if self.main_window.max_files_amount == 1:
             #web scraping, etc
             ...
-            self.main_window.final_results = OneFileComparison(self.progress_bar, content[0], self.analysis_complexity)
+            print("processing indiv")
+            self.main_window.final_results = OneFileComparison(content[0], self.analysis_complexity)
         else:
             ...
             print("processing a set of FILES")
             #compare files between each other
-            self.main_window.final_results = CrossCompare(self.progress_bar, files_paths=content, comparison_type=self.analysis_complexity)
+            self.main_window.final_results = CrossCompare(files_paths=content, comparison_type=self.analysis_complexity)
 
 
         # Mark all as complete
         self.current_file_processed_label.setText("Processing: Complete")
-        QTimer.singleShot(100, self.done.emit)
+        #TODO : update the progress bar value properly (probably by making it a mainWindow attr)
+        self.progress_bar.setValue(100)
+        self.done.emit()
 
 
     def move_to_step4(self):
@@ -362,6 +333,7 @@ class Step4_DisplayResults(QWidget):
         self.update_results()
 
     def update_results(self):
+        print("updating textual results")
         file1, file2 = self.left_content_title.currentText(), self.right_content_title.currentText()
         results = self.main_window.final_results
         for char_name, char_label in zip(INDIV_CHARACTERISTICS, INDIV_CHARS_ATTRS):
