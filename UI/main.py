@@ -1,5 +1,5 @@
-from PySide6.QtWidgets import QApplication, QMainWindow
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
+from PySide6.QtCore import Qt, QTimer
 from esr import ESR
 from userTools import UserTools
 from sbuttons import SButtons
@@ -14,39 +14,58 @@ class Window(QMainWindow):
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.resize(w, h)
+        self.container = QWidget(self)
+        self.container.setGeometry(20, 20, 800, 600)
+
+        layout = QVBoxLayout(self.container)
         
         # background
         background = Background()
         self.setCentralWidget(background)
 
         #Exit reSize Reduce
-        esr = ESR(self)
-        esr.move(630, 15)
+        self.esr = ESR(self)
+        self.esr.move(630, 15)
+
 
         # User Tools
         user_info = UserTools(self)
         user_info.move(20, 490)
 
         # Special buttons
-        sb1 = SButtons("One file with related online data",self)
-        sb1.move(180, 300)
-        sb2 = SButtons("A set of files between each other",self)
-        sb2.move(180, 380)
+        self.sb1 = SButtons("One file with related online data",self)
+        self.sb1.move(180, 300)
+        self.sb2 = SButtons("A set of files between each other",self)
+        self.sb2.move(180, 380)
 
         #Special Labels
-        sl1 = SLabels("PlagiaEye", self)
+        self.sl1 = SLabels("PlagiaEye", self)
 
-        sl1.setStyleSheet(sl1.styleSheet().replace("font-size: none;", "font-size: 64px;"))
-        sl1.move(230, 50)
-        sl1.setFixedSize(350, 100)
-        sl2 = SLabels("A transparent plagiarism detection tool.", self)
-        sl2.setStyleSheet(sl2.styleSheet().replace("font-size: none;", "font-size: 24px;"))
-        sl2.move(150, 150)
-        sl2.setFixedSize(500, 100)
-        sl3 = SLabels("Compare...", self)
-        sl3.setStyleSheet(sl3.styleSheet().replace("font-size: none;", "font-size: 36px;"))
-        sl3.move(290, 230)
-        sl3.setFixedSize(500, 50)
+        self.sl1.setStyleSheet(self.sl1.styleSheet().replace("font-size: none;", "font-size: 64px;"))
+        self.sl1.move(230, 50)
+        self.sl1.setFixedSize(350, 100)
+        self.sl2 = SLabels("A transparent plagiarism detection tool.", self)
+        self.sl2.setStyleSheet(self.sl2.styleSheet().replace("font-size: none;", "font-size: 24px;"))
+        self.sl2.move(150, 150)
+        self.sl2.setFixedSize(500, 100)
+        self.sl3 = SLabels("Compare...", self)
+        self.sl3.setStyleSheet(self.sl3.styleSheet().replace("font-size: none;", "font-size: 36px;"))
+        self.sl3.move(290, 230)
+        self.sl3.setFixedSize(500, 50)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.AdjustUIWhenMaximized)
+        self.timer.start(100)
+
+        
+    def AdjustUIWhenMaximized(self):
+            if self.esr.switch:
+                self.esr.move(1000, 248)
+                self.sb1.move(580, 700)
+                self.sb2.move(580, 780)
+                print("im here")
+                
+        
 
     # Drag window
     def mousePressEvent(self, event):
@@ -63,6 +82,8 @@ class Window(QMainWindow):
 
     def mouseReleaseEvent(self, event):
         self.drag_start_pos = None
+
+    
 
 if __name__== "__main__":
     app = QApplication()
