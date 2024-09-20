@@ -13,10 +13,7 @@ cryptography==42.0.8
 cssselect==1.2.0
 cycler==0.12.1
 defusedxml==0.7.1
-<<<<<<< HEAD
 duckduckgo_search==6.2.10
-=======
->>>>>>> e28511f895df1dd96600595ddc16b43e727b6d5f
 exceptiongroup==1.2.0
 filelock==3.15.4
 fonttools==4.53.1
