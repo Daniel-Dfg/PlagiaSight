@@ -1,9 +1,9 @@
 from requests import get, RequestException, Response, ReadTimeout, ConnectionError, HTTPError
 from numpy import array, ndarray, append, zeros
 from urllib.robotparser import RobotFileParser
+from urllib.error import URLError
 from http.client import RemoteDisconnected
 from dataclasses import field, dataclass
-from duckduckgo_search import DDGS
 from googlesearch import search
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
@@ -12,7 +12,7 @@ from sys import platform
 from time import sleep
 from os import remove
 
-cooldown = [False]
+
 # Important for safe and sure scraping
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', # name of the app
            'Accept': 'text/html', # wanted file
@@ -22,52 +22,52 @@ headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
            'Upgrade-Insecure-Requests': '1', # Upgrade request https if possible
            'Cache-Control': 'no-cache'}
 
-
-class MegaSearch:
+def stopProcess() -> None:
     """
-    - Assure an errorless search
+    # Loop until the internet connection is back
     """
-    @staticmethod
-    def megaSearch(word_sent, number,cooldown, headers=None, start=0) -> list:
+    while True: 
+        sleep(2)
+        try:
+            get("https://example.com")
+        except (ConnectionError):
+            print("No Internet connection")
+            continue
+        return
+        
+@dataclass
+class SafeSearch:
+    """
+    # Assure an errorless search
+    """
+    phrases:list[str] = field(init=False, repr=False)
+    def __post_init__(self):
+        self.phrases = ["5 min penalty", "Nah...", "You're kidding right?!", "This is search engines a abuse...",
+                    "What are you even searching?", "A Whale?!", "Be patient only one minute"]
+    def givePenalty(self) -> None:
+        """
+        - Timeout when HTTP requests reached the limits of search engines
+        """
+        for phrase in self.phrases:
+            print(phrase)
+            sleep(30)
+            
+    def safeSearch(self, word_sent, number, user=None, start=0) -> list:
         """
          - combination of 2 search engines
         """
         while True:
             try:
-                if not cooldown[0]:
-                    ddgo = DDGS(headers=headers)
-                    results = ddgo.text(word_sent, max_results=number)
-                    urls = [result['href'] for result in results][start:]
-                    sleep(2)
-                    return urls
-            except:
-                print("1 donwn")
-                cooldown[0] = True
-            try:
-                urls = list(search(word_sent, num=number, stop=number, start=start, pause=2, user_agent=headers["User-Agent"]))
+                urls = list(search(word_sent, num=number, stop=number, start=start, user_agent=user))
                 return urls
-            except:
-                givePenalty()
-                cooldown[0] = False
-    @staticmethod
-    def givePenalty():
-        """
-        - Timeout when HTTP requests reached the limits of search engines
-        """
-        print("5 min penalty")
-        sleep(20)
-        print("Nah...")
-        sleep(20)
-        print("You're kidding right?!")
-        sleep(20)
-        print("This is search engines a abuse...")
-        sleep(60)
-        print("What are you even searching?")
-        sleep(60)
-        print("A Whale?!")
-        sleep(60)
-        print("Be patient only one minute")
-        sleep(60)
+            except HTTPError: # Stop the process if the http requests limit exceeded
+                self.givePenalty()
+                continue
+            except URLError:
+                stopProcess() # Stop the process until the internet connection is back
+                continue
+            
+ss = SafeSearch() # init SafeSearch onetime
 
 @dataclass
 class URLs:
@@ -91,10 +91,8 @@ class URLs:
     def makeUrls(word_sent:str, number:int, start:int =0) -> ndarray:
         """
             # google: Avoid error 429 (Too many requests) and ddgo: Avoid error 202 Ratelimit
-            # Solution using multi proxy ports and multi search engines (megaSearch)
-            # And search limit search per word_sent max 10
         """
-        urls = MegaSearch.megaSearch(word_sent, number,cooldown, headers, start)
+        urls = ss.safeSearch(word_sent, number, headers["User-Agent"], start)
         return array(urls, dtype="U130")
 
     @staticmethod
@@ -106,11 +104,15 @@ class URLs:
         robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
         rfp = RobotFileParser()
         rfp.set_url(robots_url)
-        try:
-            rfp.read() # Read robots.txt
-        except (UnicodeDecodeError, RemoteDisconnected, RequestException): # No robots.txt
-            return True
-        return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
+        while True:
+            try:
+                rfp.read() # Read robots.txt
+            except (UnicodeDecodeError, RemoteDisconnected, RequestException): # No robots.txt
+                return True
+            except URLError:
+                stopProcess()
+                continue
+            return rfp.can_fetch(headers["User-Agent"], url)  # Check if "plaigaLand" is allowed to scrap the url
 
     def recycleUrls(self) -> None:
         """
@@ -122,14 +124,20 @@ class URLs:
         count = 0
         while self.number:
             for url in self._url_array[cut_at-self.number:]:
-                try:
-                    response = get(url, headers=headers, timeout=2)
-                    print(url)
-                    print(response)
-                    sleep(2)
-                except (ReadTimeout, ConnectionError, HTTPError):
-                    print("Unreachable website")
-                    response.status_code = 0
+                while True: # To stop the process if there is no internet connection
+                    try:
+                        response = get(url, headers=headers, timeout=2)
+                        print(url)
+                        print(response)
+                        sleep(2)
+                        break # if there is internet connection
+                    except (ReadTimeout, ReadTimeout):
+                        print("Unreachable website")
+                        response.status_code = 0
+                        break # if there is internet connection
+                    except ConnectionError:
+                        stopProcess()
+                        continue
                 if response.status_code == 200 and self.manageRobotsDotTxt(url): # Checks for vaild website
                     self._response_array[count] = response
                     count +=1
@@ -170,19 +178,14 @@ class HtmlText:
         """
             TODO (or not): How to manage sites with multilayer/pages
         """
-        try:
-            self.response.raise_for_status()
-            bs = BeautifulSoup(self.response.text, "html.parser")
-            html_tags_list = bs.find_all(["h1", "h2", "h3", "p", "pre"]) # Get good part of any info site (ideal of an info site)
-            with open("temp.txt", "w", encoding="utf-8-sig") as t:
-                for html_tag in html_tags_list:
-                    t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
-        except RequestException:
-            print("Response error")
+        bs = BeautifulSoup(self.response.text, "html.parser")
+        html_tags_list = bs.find_all(["h1", "h2", "h3", "p", "pre"]) # Get good part of any info site (ideal of an info site)
+        with open("temp.txt", "w", encoding="utf-8-sig") as t:
+            for html_tag in html_tags_list:
+                t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
 
     def removeTempText(self): # To discuss (whether temp file or straight up str)
         remove("temp.txt")
-
 
 
 class UserStatus:
@@ -218,12 +221,6 @@ class UserStatus:
             print(f"An error occurred: {e}")
 
 
-    @staticmethod
-    def save_changes(): # To discuss
-        """
-            # Create/change file json, if user changes the settings, perfrence, etc...
-        """
-        pass
 
 #x = URLs("spear", 10)
 #p = x.response_array

@@ -1,6 +1,4 @@
-from PySide6.QtGui import QColor, QIcon
-from PySide6.QtWidgets import QFrame, QPushButton, QWidget
-from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QPushButton, QWidget
 
 w = 410
 h = 60

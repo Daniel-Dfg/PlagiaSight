@@ -1,7 +1,6 @@
 attrs==23.2.0
 Automat==22.10.0
 beautifulsoup4==4.12.3
-BlurWindow==1.2.1
 bs4==0.0.2
 certifi==2024.7.4
 cffi==1.16.0
@@ -14,7 +13,10 @@ cryptography==42.0.8
 cssselect==1.2.0
 cycler==0.12.1
 defusedxml==0.7.1
+<<<<<<< HEAD
 duckduckgo_search==6.2.10
+=======
+>>>>>>> e28511f895df1dd96600595ddc16b43e727b6d5f
 exceptiongroup==1.2.0
 filelock==3.15.4
 fonttools==4.53.1
