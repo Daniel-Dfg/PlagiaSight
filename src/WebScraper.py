@@ -26,7 +26,7 @@ def stopProcess() -> None:
     """
     # Loop until the internet connection is back
     """
-    while True: 
+    while True:
         sleep(2)
         try:
             get("https://example.com")
@@ -34,7 +34,7 @@ def stopProcess() -> None:
             print("No Internet connection")
             continue
         return
-        
+
 @dataclass
 class SafeSearch:
     """
@@ -51,7 +51,7 @@ class SafeSearch:
         for phrase in self.phrases:
             print(phrase)
             sleep(30)
-            
+
     def safeSearch(self, word_sent, number, user=None, start=0) -> list:
         """
          - combination of 2 search engines
@@ -66,7 +66,7 @@ class SafeSearch:
             except URLError:
                 stopProcess() # Stop the process until the internet connection is back
                 continue
-            
+
 ss = SafeSearch() # init SafeSearch onetime
 
 @dataclass
