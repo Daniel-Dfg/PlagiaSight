@@ -32,7 +32,7 @@ class UserTools(QFrame):
                            """)
 
         #Contact button
-        contact = QToolButton(self)
+        contact = new QToolButton(self)
         contact.setObjectName("contact")
         contact.setFixedSize(iconsize, iconsize)
         contact.setIconSize(QSize(iconsize, iconsize))
@@ -63,3 +63,5 @@ class UserTools(QFrame):
         wifi.setIcon(QIcon("./icons/wifi.svg"))
         wifi.setIconSize(QSize(iconsize, iconsize))
         wifi.move(670, 0)
+        
+        
