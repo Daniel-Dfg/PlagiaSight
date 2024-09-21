@@ -2,6 +2,7 @@ from TextAnalysis_AkaPhase1 import Tokenizer, TokensComparisonAlgorithms, Tokens
 from WebScraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
 
+
 @dataclass
 class OneFileComparison:
     """
