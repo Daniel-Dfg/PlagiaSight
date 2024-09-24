@@ -1,7 +1,7 @@
 from nltk.tokenize.api import overridden
 from typing_extensions import override
 from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
-from PySide6.QtCore import Qt, QTimer, QEvent, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QStandardItem, QStandardItemModel, QAction
 import os
 import webbrowser
@@ -50,7 +50,7 @@ class DropArea(QTextEdit):
             if os.path.isfile(file) and self.is_valid_format_file(file) and file not in valid_set:
                 if len(self.correct_files) < self.max_file_amount:
                     self.correct_files.append(file)
-                    self.add_file_to_list(file, valid=True)
+                    self.step1_widget.add_file_to_list_viz(file, valid=True)
                     valid_set.add(file)
                 else:
                     self.step1_widget.show_warning("⚠️ Maximum file limit reached!")
@@ -65,6 +65,7 @@ class DropArea(QTextEdit):
         return file_path.endswith('.txt')
 
     def process_directory(self, directory_path):
+        print("processing directory...")
         valid_set = set(self.correct_files)
         for f in os.listdir(directory_path):
             full_path = os.path.join(directory_path, f)  # Chemin complet du fichier
@@ -74,61 +75,13 @@ class DropArea(QTextEdit):
                         self.step1_widget.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}.")
                         break
                     self.correct_files.append(full_path)  # Ajouter le chemin complet
-                    self.add_file_to_list(full_path, valid=True)
+                    self.step1_widget.add_file_to_list_viz(full_path, valid=True)
                     valid_set.add(full_path)
             else:
                 if full_path not in self.invalid_files:
                     self.invalid_files.append(full_path)  # Ajouter le chemin complet pour les fichiers invalides aussi
-                    self.add_file_to_list(full_path, valid=False)
+                    self.step1_widget.add_file_to_list_viz(full_path, valid=False)
 
-
-    def add_file_to_list(self, file, valid=True):
-        item = QListWidgetItem(self.step1_widget.correct_files_list if valid else self.step1_widget.invalid_files_list)
-
-        # Crée un widget pour afficher le chemin du fichier et un bouton pour le retirer
-        widget = QWidget()
-        layout = QHBoxLayout()
-
-        file_label = QLabel(file)
-        layout.addWidget(file_label)
-        if valid:
-            remove_button = QPushButton("✕")
-            remove_button.setStyleSheet("background: none; border: none; color: red; font-weight: bold;")
-            remove_button.setFixedSize(20, 20)
-            remove_button.clicked.connect(lambda: self.remove_file(file, item, valid))
-
-            # Cache le bouton de suppression initialement
-            remove_button.setVisible(False)
-            layout.addWidget(remove_button)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(5)
-
-        widget.setLayout(layout)
-        widget.installEventFilter(self)
-
-        item.setSizeHint(widget.sizeHint())
-        list_widget = self.step1_widget.correct_files_list if valid else self.step1_widget.invalid_files_list
-        list_widget.setItemWidget(item, widget)
-
-    def remove_file(self, file, item, valid=True):
-        if valid:
-            self.correct_files.remove(file)
-            self.step1_widget.correct_files_list.takeItem(self.step1_widget.correct_files_list.row(item))
-        else:
-            self.invalid_files.remove(file)
-            self.step1_widget.invalid_files_list.takeItem(self.step1_widget.invalid_files_list.row(item))
-        self.step1_widget.update_status()
-
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.Type.Enter:
-            remove_button = obj.findChild(QPushButton)
-            if remove_button:
-                remove_button.setVisible(True)
-        elif event.type() == QEvent.Type.Leave:
-            remove_button = obj.findChild(QPushButton)
-            if remove_button:
-                remove_button.setVisible(False)
-        return super().eventFilter(obj, event)
 
     def simplify_path(self, path):
         return os.path.basename(path)
@@ -279,14 +232,12 @@ class GraphWindow(QWidget):
         self.graph_names = []
         self.current_graph_index = 0
 
-    def add_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
+    def add_FreqDist_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
         """
         Generic method to add a comparison graph from a FreqDist distribution.
         """
         all_keys = set(freq_dist1.keys()).union(set(freq_dist2.keys()))
-
         total_frequencies = {key: freq_dist1.get(key, 0) + freq_dist2.get(key, 0) for key in all_keys}
-
         sorted_keys = sorted(total_frequencies.keys(), key=lambda k: total_frequencies[k], reverse=True)
 
         threshold_percentage = 0.1  # 10% of terms kept if...
@@ -304,7 +255,30 @@ class GraphWindow(QWidget):
         self.current_graph_index = len(self.graph_names) - 1
         self.show_graph(name)
 
-    def update_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
+    def add_LengthPlot_graph(self, name, lengths1, lengths2, x_label, y_label, title):
+        """
+        Generic method to add a comparison graph from a list of lengths.
+        """
+        # Ajoute des zéros à la liste la plus courte pour égaliser les tailles
+        max_length = max(len(lengths1), len(lengths2))
+        lengths1 += [0] * (max_length - len(lengths1))
+        lengths2 += [0] * (max_length - len(lengths2))
+
+        x_data = [f"{n}" for n in range(max_length)]
+
+        # Préparation des données du graphe
+        graph_data = (x_data, lengths1, lengths2, x_label, y_label, title)
+
+        # Stockage des données du graphe
+        setattr(self, name, graph_data)
+        self.graph_names.append(name)
+        self.current_graph_index = len(self.graph_names) - 1
+
+        # Affichage immédiat du graphe ajouté
+        self.show_graph(name)
+
+
+    def update_FreqDist_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
         if hasattr(self, name):
             common_keys = list(set(freq_dist1.keys()).intersection(set(freq_dist2.keys())))
             common_keys.sort()
@@ -319,16 +293,40 @@ class GraphWindow(QWidget):
         else:
             raise AttributeError(f"No graph named '{name}' found.")
 
+    def update_LengthPlot_graph(self, name, lengths1, lengths2, x_label, y_label, title):
+        if hasattr(self, name):
+            graph_data = ([f"{n}" for n in range(max(len(lengths1), len(lengths2)))],lengths1, lengths2, x_label, y_label, title)
+            setattr(self, name, graph_data)
+            if self.graph_names[self.current_graph_index] == name:
+                self.show_graph(name)
+        else:
+            raise AttributeError(f"No graph named '{name}' found.")
+
     def show_graph(self, name):
-        #TODO : document this
         if hasattr(self, name):
             self._static_ax.clear()
             x_data, y_data1, y_data2, x_label, y_label, title = getattr(self, name)
-            bar_width = 0.35
-            index = arange(len(x_data))
-            self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
-            self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
 
+            # Si c'est un graphe de longueur de phrases, on utilise un graphe en bâtons
+            if "length" in name:
+                # Création d'un histogramme avec des barres côte à côte
+                bar_width = 0.35
+                index = arange(len(x_data))
+
+                # Affichage des barres concurrentes
+                self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
+                self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
+
+            else:
+                # Graphe de fréquence (ou autre type de graphe)
+                bar_width = 0.35
+                index = arange(len(x_data))
+
+                # Affichage des barres concurrentes pour les distributions de fréquence
+                self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
+                self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
+
+            # Configuration commune aux deux types de graphes
             self._static_ax.set_xlabel(x_label)
             self._static_ax.set_ylabel(y_label)
             self._static_ax.set_title(title)

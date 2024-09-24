@@ -3,11 +3,6 @@ from WebScraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
 
 
-from src.WebScraper import URLs, HtmlText
-from phase2 import URLs, HtmlText
-from PySide6.QtWidgets import QProgressBar
-
-
 @dataclass
 class OneFileComparison:
     """
@@ -68,11 +63,10 @@ class CrossCompare:
             raise ValueError(f"Invalid comparison type. Must be either 'simple' or 'complex'. It is currently {self.comparison_type}.")
 
         # Générer les statistiques pour chaque fichier
-        print(self.files_paths, "FILES PATHS")
-        self.progress_bar.setValue(8)
+        #print(self.files_paths, "FILES PATHS")
+        self.progress_bar.setValue(0)
         for file in self.files_paths:
             self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file)))
-            print("increment by", progress_bar_small_increment)
             self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
 
         # Comparer chaque fichier avec les autres
@@ -88,7 +82,7 @@ class CrossCompare:
                     elif self.comparison_type == "complex":
                         self.complex_analysis_two_files(file1, file2)
                         #self.comparisons[(file1, file2)].display_complex_results()
-                    print("increment by", progress_bar_big_increment)
+                    #print("increment by", progress_bar_big_increment)
                     self.progress_bar.setValue(self.progress_bar.value() + progress_bar_big_increment)
         self.progress_bar.setValue(100)
 

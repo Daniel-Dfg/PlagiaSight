@@ -1,21 +1,30 @@
-from string import punctuation # helps to check if a string is made of punctuation only here
-from math import sqrt
-import nltk
-from numpy import array, append, flexible, ndarray, mean, median
+######
+#ALL EXPLAINATIONS ARE IN OUR MANIFESTO :
+# https://github.com/LUCKYINS/PlagiarismDetectionProject
+######
+
+#Language processing related ↴
+from nltk import FreqDist, data, pos_tag
 from nltk.tokenize import simple, wordpunct_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
-from nltk import FreqDist, pos_tag
-from dataclasses import dataclass, field
-from collections import Counter
 from nltk.util import ngrams
+import re
+from string import punctuation # helps to check if a string is made of punctuation only
+#Containers ↴
+from collections import Counter
+from numpy import array, append, flexible, ndarray
+from dataclasses import dataclass, field
+#Misc ↴
+from math import sqrt
+from numpy import mean, median
 from os import path
 import chardet
-import re
+
 
 @dataclass
 class Tokenizer:
-    _raw_data: str
+    _raw_data: str #init = True (given as parameter)
     _tokens_by_sentence: ndarray = field(init=False, repr=False)
     _tokens_by_wordpunct: ndarray = field(init=False, repr=False)
     _tokens_by_word: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
@@ -23,10 +32,10 @@ class Tokenizer:
     _part_of_speeches: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
 
     def __post_init__(self):
-        sentences = re.split(r"\n |\.", self._raw_data) #TODO : Should we use replace twice by 'þ'' (AltGr + P) then split instead of using RegEx + split?
+        sentences = re.split(r"(?<!\w\.\w.)(?<!\b[A-Z][a-z]\.)(?<![A-Z]\.)(?<=\.|\?)\s|\n", self._raw_data)
         self._tokens_by_sentence = array([sent.strip() for sent in sentences if sent.strip()])
-        tokens_by_wordpunct_first_pass = array(wordpunct_tokenize(self._raw_data)) #first pass using the 'automatic' method from the nltk lib, result will be filtered in the following lines
-        pos_tags_first_pass = self._lemmatize_and_tag_tokens(tokens_by_wordpunct_first_pass) #-> list[(word, pos_tag)]
+        tokens_by_wordpunct_first_pass = array(wordpunct_tokenize(self._raw_data)) #first pass, will be filtered in the next lines
+        pos_tags_first_pass = self._lemmatize_and_tag_tokens(tokens_by_wordpunct_first_pass) # → list[(word, pos_tag)]
         self._tokens_by_syntagm, self._tokens_by_wordpunct = self._filter_and_group_tokens(pos_tags_first_pass)
 
 
@@ -45,8 +54,8 @@ class Tokenizer:
         """
         3 responsibilities:
         1) Filtering : remove stopwords, punctuation, empty strings
-        2) Building the tokens by word with the filtered tokens (those that have been lemmatized and tagged with POS tags in the lemmatize_and_tag_tokens method)
-        3) Grouping : group tokens by syntagm (syntagm = sequence of words that are not stopwords, punctuation or empty strings)
+        2) Building the tokens by word with the filtered tokens (those that have been lemmatized and POS tagged earlier)
+        3) Grouping : group tokens by syntagm
 
         These 3 responsibilities were grouped to be done in one only loop, at the cost of readability.
         """
@@ -54,24 +63,21 @@ class Tokenizer:
         filtered_tokens_by_wordpunct = []
         all_syntagms = []
         current_syntagm = []
-
-        for token, pos in pos_tags: #token = either a word or a punctuation sign
-            if token in stop_words or self._is_only_punctuation(token) or token == '': #if this token is a "breaker"
+        for term, pos in pos_tags: #term = either a word or a punctuation sign
+            if term in stop_words or self._is_only_punctuation(term) or term == '': #if this token is a "syntagm breaker"
                 if current_syntagm != []:
                     all_syntagms.append(current_syntagm)
                     current_syntagm = []
-                if self._is_only_punctuation(token):
-                    filtered_tokens_by_wordpunct.append(token)
+                if self._is_only_punctuation(term):
+                    filtered_tokens_by_wordpunct.append(term)
                     self._part_of_speeches = append(self._part_of_speeches, pos)
             else:
-                current_syntagm.append(token)
-                filtered_tokens_by_wordpunct.append(token)
+                current_syntagm.append(term)
+                filtered_tokens_by_wordpunct.append(term)
                 self._part_of_speeches = append(self._part_of_speeches, pos)
-                self._tokens_by_word = append(self._tokens_by_word, token)
-
+                self._tokens_by_word = append(self._tokens_by_word, term)
         if current_syntagm:
             all_syntagms.append(current_syntagm)
-
         return array(all_syntagms, dtype=object), array(filtered_tokens_by_wordpunct) #TODO : Think about the usage of dtype
 
 
@@ -126,51 +132,46 @@ class Tokenizer:
         return self._raw_data
 
 
-### CUSTOM EXCEPTIONS (placed here because they're used by the Tokenizer class only) ###
-
+#Custom exceptions (used in Tokenizer only)
 class TokenListIsEmpty(Exception):
-    def __init__(self, tokens_by="???"):
-        self.message = "Warning: empty list of" + tokens_by + ". \nPlease make sure that there's data to work with."
+    def __init__(self, tokens_by):
+        self.message = "Warning: empty list of " + tokens_by + ". \nPlease make sure that there's data to work with."
         super().__init__(self.message)
 
 class UnprocessableTextContent(Exception):
-    def __init__(self, attribute="???") -> None:
-        self.message = "Warning: the text is senseless because :"
+    def __init__(self, attribute) -> None:
+        self.message = "Warning: the text can't be processed properly because : "
         if attribute == "tokens by syntagm":
-            self.message += "Tokens by syntagm list is empty, showing that the text is either not in English or only made of stop words/punctuation."
+            self.message += "tokens by syntagm list is empty, showing that the text is either not in English or only made of stop words/punctuation."
         elif attribute == "raw data":
-            self.message += "Raw data (e.g the text extracted from a certain source file, wether it is the user's or something scraped from the web) is empty."
-        super().__init__(self.message)
+            self.message += "raw data (e.g the text extracted from a certain source file, wether it is the user's or something scraped from the web) is empty."
+        elif attribute == "text richness":
+            self.message += "Warning: text richness is 1, meaning that the text is either not in English or made of words all different to one another (so it's probably too short to be analyzed)."
 
-#####################################
+        super().__init__(self.message)
 
 
 class TokensStatsAndRearrangements: # To be referred as TSAR
-    """
-    MUST be used with ONE set of Tokens.
-    - Provides statistical insights over ONE source (word frequency, text richness, POS...)
-        as well as rearrangements for comparison between texts (via bigrams and trigrams)
-        and key phrases (to make web scraping possible afterwards)
-    """
-
     def __init__(self, base):
         self.base : Tokenizer = base
-        self.syntagms_scores = {} #syntagm : score
-        self.bigrams = Counter(ngrams(self.base.tokens_by_word, 2))
-        self.trigrams = Counter(ngrams(self.base.tokens_by_word, 3))
-        self.word_freq = FreqDist(self.base.tokens_by_word)
-        self.pos_freq = FreqDist(self.base.part_of_speeches)
-        self.text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
-        self.sent_lengths = {sent : len(sent.split()) for sent in self.base.tokens_by_sentence} #TODO : get more accurate measurements (e.g consider punctuation to split words using RegExes)
-        self.average_sent_length = float(mean(list(self.sent_lengths.values())))
-        self.median_sent_length = float(median(list(self.sent_lengths.values())))
+        self._bigrams = Counter(ngrams(self.base.tokens_by_word, 2))
+        self._trigrams = Counter(ngrams(self.base.tokens_by_word, 3))
+        self._word_freq = FreqDist(self.base.tokens_by_word)
+        self._pos_freq = FreqDist(self.base.part_of_speeches)
+        self._text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
+        sum_of_sent_lengths = 0
+        self._sent_lengths = []
+        for sent in self.base.tokens_by_sentence:
+            sent_length = len(sent.split())
+            sum_of_sent_lengths += sent_length  #TODO : get more accurate measurements (e.g consider punctuation to split words using RegExes)
+            self._sent_lengths.append(sent_length)
+        self._average_sent_length = sum_of_sent_lengths / len(self.base.tokens_by_sentence)
+        self._median_sent_length = median(self._sent_lengths)
+        self._syntagms_scores = {} #syntagm : score
         self.evaluate_syntagms_scores()
 
     def evaluate_syntagms_scores(self):
-        """
-        Helper to evaluate the syntagms scores based on the RAKE algorithm.
-        Documentation : Resources/Learning Material/ResearchResources.md -> Ctrl+F "RAKE"
-        """
+        #Helper to evaluate the syntagms scores based on the RAKE algorithm.
         word_degrees = {}
         for s in self.base.tokens_by_syntagm:
             degree = len(s) - 1
@@ -179,22 +180,54 @@ class TokensStatsAndRearrangements: # To be referred as TSAR
                     word_degrees[word] = degree
                 else:
                     word_degrees[word] += degree
-        words_scores = {word: word_degrees[word] / self.word_freq[word] for word in self.word_freq}
+        words_scores = {word: word_degrees[word] / self._word_freq[word] for word in self._word_freq}
         for s in self.base.tokens_by_syntagm:
             phrase_score = sum(words_scores[word] for word in s)
-            self.syntagms_scores[' '.join(s)] = phrase_score
+            self._syntagms_scores[' '.join(s)] = phrase_score
+
+    #TODO : refine the usage off these properties when needed.
+    @property
+    def bigrams(self):
+        return self._bigrams
+
+    @property
+    def trigrams(self):
+        return self._trigrams
+
+    @property
+    def word_freq(self):
+        return self._word_freq
+
+    @property
+    def pos_freq(self):
+        return self._pos_freq
+
+    @property
+    def text_richness(self):
+        if self._text_richness == 1:
+            raise UnprocessableTextContent("text richness")
+        return self._text_richness
+
+    @property
+    def sent_lengths(self):
+        return self._sent_lengths
+
+    @property
+    def average_sent_length(self):
+        return self._average_sent_length
+
+    @property
+    def median_sent_length(self):
+        return self._median_sent_length
+
+    @property
+    def syntagms_scores(self):
+        return self._syntagms_scores
 
 
 @dataclass
 class TokensComparisonAlgorithms: # To be referred as TCA
-    """
-    MUST be used with TWO sets of Tokens.
-
-    Applies fundamental algorithms to evaluate similarity between TWO sources
-    (like cosine similarity, n-grams similarity...) and stores the results.
-
-    Works as a "on-demand" class (meaning that the results are computed only when needed) for modularity purposes.
-    """
+    #Works as a "on-demand" class (meaning that the results are computed only when needed) for modularity purposes.
     input_tokens_sets : TokensStatsAndRearrangements
     source_tokens_sets : TokensStatsAndRearrangements
     _cosine_sim_words : float = field(init=False, default=-1) # -1 is a sentinel value
@@ -214,8 +247,8 @@ class TokensComparisonAlgorithms: # To be referred as TCA
     @property
     def all_term_frequencies(self):
         if not self._all_term_frequencies:
-            all_terms = set(self.input_tokens_sets.word_freq.keys()).union(set(self.source_tokens_sets.word_freq.keys()))
-            self._all_term_frequencies = {term : self.input_tokens_sets.word_freq.get(term, 0) + self.source_tokens_sets.word_freq.get(term, 0) for term in all_terms}
+            all_terms = set(self.input_tokens_sets._word_freq.keys()).union(set(self.source_tokens_sets._word_freq.keys()))
+            self._all_term_frequencies = {term : self.input_tokens_sets._word_freq.get(term, 0) + self.source_tokens_sets._word_freq.get(term, 0) for term in all_terms}
         return self._all_term_frequencies
 
     def cosine_similarity_computation(self, source_terms : FreqDist, input_terms : FreqDist) -> float: #both args are WordFreqs (from pos or words)
@@ -235,28 +268,28 @@ class TokensComparisonAlgorithms: # To be referred as TCA
 
     @property
     def cosine_sim_words(self):
-        return self.cosine_similarity_computation(self.source_tokens_sets.word_freq, self.input_tokens_sets.word_freq) if self._cosine_sim_words == -1 \
+        return self.cosine_similarity_computation(self.source_tokens_sets._word_freq, self.input_tokens_sets._word_freq) if self._cosine_sim_words == -1 \
         else self._cosine_sim_words
 
     @property
     def jaccard_sim_words(self):
-        return self.jaccard_similarity_computation(set(self.source_tokens_sets.word_freq.keys()), set(self.input_tokens_sets.word_freq.keys())) if self._jaccard_sim_words == -1 \
+        return self.jaccard_similarity_computation(set(self.source_tokens_sets._word_freq.keys()), set(self.input_tokens_sets._word_freq.keys())) if self._jaccard_sim_words == -1 \
         else self._jaccard_sim_words
 
     @property
     def cosine_sim_pos(self):
-        return self.cosine_similarity_computation(self.source_tokens_sets.pos_freq, self.input_tokens_sets.pos_freq) if self._cosine_sim_pos == -1 \
+        return self.cosine_similarity_computation(self.source_tokens_sets._pos_freq, self.input_tokens_sets._pos_freq) if self._cosine_sim_pos == -1 \
         else self._cosine_sim_pos
 
     @property
     def jaccard_sim_pos(self):
-        return self.jaccard_similarity_computation(set(self.source_tokens_sets.pos_freq.keys()), set(self.input_tokens_sets.pos_freq.keys())) if self._jaccard_sim_pos == -1 \
+        return self.jaccard_similarity_computation(set(self.source_tokens_sets._pos_freq.keys()), set(self.input_tokens_sets._pos_freq.keys())) if self._jaccard_sim_pos == -1 \
         else self._jaccard_sim_pos
 
     def jaccard_sim(self):
         if self._jaccard_sim_words == -1:
-            input_words = set(self.input_tokens_sets.word_freq.keys())
-            source_words = set(self.source_tokens_sets.word_freq.keys())
+            input_words = set(self.input_tokens_sets._word_freq.keys())
+            source_words = set(self.source_tokens_sets._word_freq.keys())
             union_length = len(input_words.union(source_words))
             intersection_length = len(input_words.intersection(source_words))
             self._jaccard_sim_words = intersection_length / union_length
@@ -274,20 +307,21 @@ class TokensComparisonAlgorithms: # To be referred as TCA
     @property
     def similar_bigrams(self):
         if self._identical_bigrams == {}:
-            input_bigrams = self.input_tokens_sets.bigrams
-            source_bigrams = self.source_tokens_sets.bigrams
+            input_bigrams = self.input_tokens_sets._bigrams
+            source_bigrams = self.source_tokens_sets._bigrams
             self._identical_bigrams = self.find_similar_ngrams(input_bigrams, source_bigrams)
         return self._identical_bigrams
 
     @property
     def similar_trigrams(self):
         if self._identical_trigrams == {}:
-            input_trigrams = self.input_tokens_sets.trigrams
-            source_trigrams = self.source_tokens_sets.trigrams
+            input_trigrams = self.input_tokens_sets._trigrams
+            source_trigrams = self.source_tokens_sets._trigrams
             self._identical_trigrams = self.find_similar_ngrams(input_trigrams, source_trigrams)
         return self._identical_trigrams
+
     """
-    #FOR TESTING PURPOSES
+    #FOR TESTING PURPOSES (feel free to uncomment and play around with this)
     def display_simple_results(self):
         print(f"Simple results:")
         print(f"Text1 richness: {self.source_tokens_sets.text_richness}, Text2 richness: {self.input_tokens_sets.text_richness}")
@@ -304,9 +338,10 @@ class TokensComparisonAlgorithms: # To be referred as TCA
         print(f"Similar trigrams: {self.similar_trigrams}")
     """
 
+
 def extract_raw_from_file(file_path: str) -> str:
     if not path.exists(file_path):
-        raise FileNotFoundError(f"Specified file {file_path} doesn't exist")
+        raise FileNotFoundError(f"{file_path} doesn't exist")
 
     with open(file_path, 'rb') as file:  # Detects the encoding of file
         raw_data = file.read()
@@ -315,10 +350,3 @@ def extract_raw_from_file(file_path: str) -> str:
 
     with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
         return f.read().lower()
-
-
-t = "I ate an apple. It felt good, I liked its freshness \n This is nasty."
-
-#tok = Tokenizer(t)
-#print(tok.tokens_by_word)
-#print(tok.tokens_by_sentence)
