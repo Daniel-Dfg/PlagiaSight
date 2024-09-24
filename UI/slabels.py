@@ -18,7 +18,7 @@ class SLabels(QLabel):
                            }
                            """)
         # Set the font path on the OS
-        font_dir = os.path.join(os.path.dirname(__file__), 'font')
+        font_dir = 'fonts'
         font_path = os.path.join(font_dir, 'AllertaStencil-Regular.ttf')
 
         if not os.path.exists(font_path):

@@ -1,16 +1,19 @@
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QToolButton, QFrame
-from PySide6.QtCore import QSize
+from PySide6.QtWidgets import QToolButton, QWidget, QHBoxLayout
+from PySide6.QtCore import QSize, Qt
 from PySide6.QtSvg import QSvgRenderer
 
-w = 722
-h = 53
+w = 70*3
+h = 70
 iconsize = 55
-class UserTools(QFrame):
-    def __init__(self, parent) -> None:
+class UserTools(QWidget):
+    def __init__(self, parent= None) -> None:
         super().__init__(parent)
-        #UserInfo
-        self.resize(w, h)
+        #Main Layout
+        self.main_layout = QHBoxLayout(self)
+        
+        #User Info
+        self.setFixedSize(w, h)
         self.setStyleSheet("""
                            *{
                                background-color:none;
@@ -19,49 +22,24 @@ class UserTools(QFrame):
                            QToolButton{
                                border-radius:20px;
                            }
-
-                           QToolButton#setting:hover{
-                            }
-                           QToolButton#help:hover{
-                            }
-                            QToolButton#contact:hover{
-
-                            }
-                            QToolButton#dark_mode:hover{
-                            }
                            """)
-
-        #Contact button
-        contact = new QToolButton(self)
-        contact.setObjectName("contact")
-        contact.setFixedSize(iconsize, iconsize)
-        contact.setIconSize(QSize(iconsize, iconsize))
-        contact.setIcon(QIcon("./icons/contact.svg"))
-        contact.move(0,0)
-
-        #Help button
-        help = QToolButton(self)
-        help.setObjectName("help")
-        help.setFixedSize(iconsize, iconsize)
-        help.setIcon(QIcon("./icons/help.svg"))
-        help.setIconSize(QSize(iconsize, iconsize))
-        help.move(80, 0)
-
-        #Setting
-        setting = QToolButton(self)
-        setting.setObjectName("setting")
-        setting.setFixedSize(iconsize+10, iconsize+10)
-        setting.setIcon(QIcon("./icons/setting.svg"))
-        setting.setIconSize(QSize(iconsize+10, iconsize+10))
-        setting.move(150, 0)
+        #Contact, Help, Setting,  button
+        self.contact = QToolButton(self)
+        self.help = QToolButton(self)
+        self.setting = QToolButton(self)
+        
+        names = ["contact", "help", "setting"]
+        buttons = [self.contact, self.help, self.setting]
+        
+        for i in range(3):
+            buttons[i].setObjectName("setting")
+            buttons[i].setFixedSize(iconsize, iconsize)
+            buttons[i].setIconSize(QSize(iconsize, iconsize))
+            buttons[i].setIcon(QIcon(f"./icons/{names[i]}"))
+            self.main_layout.addWidget(buttons[i])
+        
+        self.setLayout(self.main_layout)
 
 
-        #Wifi
-        wifi = QToolButton(self)
-        wifi.setObjectName("wifi")
-        wifi.setFixedSize(iconsize, iconsize)
-        wifi.setIcon(QIcon("./icons/wifi.svg"))
-        wifi.setIconSize(QSize(iconsize, iconsize))
-        wifi.move(670, 0)
         
         

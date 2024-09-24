@@ -1,28 +1,26 @@
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout
 from PySide6.QtCore import Qt
-from esr import ESR
+from stitlebar import STitleBar
 from userTools import UserTools
 from sbuttons import SButtons
 from slabels import SLabels
-from background import Background
+from smainwindow import SMainWindow
 
 w = 790
 h = 560
-class Window(QMainWindow):
+class Window(SMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.resize(w, h)
         
-        # background
-        background = Background()
         
         # Layout
         vbox = QVBoxLayout()
         
         #Exit reSize Reduce
-        esr = ESR(self)
+        esr = STitleBar(self)
         
         # User Tools
         user_info = UserTools(self)
@@ -45,8 +43,7 @@ class Window(QMainWindow):
         
         for i in [esr, user_info, sb1, sb2, sl1, sl2, sl3]:
             vbox.addWidget(i)
-        background.setLayout(vbox)
-        self.setCentralWidget(background)
+        self.centralWidget().setLayout(vbox)
 
     # Drag window
     def mousePressEvent(self, event):

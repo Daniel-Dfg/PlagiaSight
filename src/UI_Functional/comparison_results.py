@@ -1,4 +1,4 @@
-from TextAnalysis_AkaPhase1 import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
+from TextAnalysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
 from WebScraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
 

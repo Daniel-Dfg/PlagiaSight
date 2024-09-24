@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QFileD
                              QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
 
-from TextAnalysis_AkaPhase1 import UnprocessableTextContent
+from TextAnalysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
 from .utilities import DropArea, GraphWindow
