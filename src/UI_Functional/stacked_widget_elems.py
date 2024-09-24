@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
                              QListWidget, QHBoxLayout, QComboBox, QRadioButton,
                              QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
-from PySide6.QtCore import Qt, QTimer, Signal
+from PySide6.QtCore import Qt, QTimer, Signal, QEvent
+
+from TextAnalysis_AkaPhase1 import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
 from .utilities import DropArea, GraphWindow
@@ -63,39 +65,43 @@ class Step1_FileDropAndCheck(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
-
         layout = QVBoxLayout()
-
         self.label = QLabel("Drop your files or directories below or click 'Browse':")
         layout.addWidget(self.label)
+        self.drop_area = DropArea(self, self.main_window.max_files_amount)
+        layout.addWidget(self.drop_area)
 
-        # Warning label
+        browse_buttons_layout = QHBoxLayout()
+
+
+        if self.main_window.max_files_amount == MAX_FILES_AMOUNT:
+            self.browse_dirs_button = QPushButton("Browse directory")
+            self.browse_dirs_button.clicked.connect(self.open_directory_dialog)
+            layout.addWidget(self.browse_dirs_button)
+
+        self.browse_files_button = QPushButton("Browse files")
+        self.browse_files_button.clicked.connect(self.open_file_dialog)
+        browse_buttons_layout.addWidget(self.browse_files_button)
+
+
+        layout.addLayout(browse_buttons_layout)
+        self.status_label = QLabel("Nothing yet dropped.")
+        layout.addWidget(self.status_label)
+
         self.warning_label = QLabel("")
         self.warning_label.setStyleSheet("color: red;")
         layout.addWidget(self.warning_label)
 
-        # Status label
-        self.status_label = QLabel("Nothing yet dropped.")
-        layout.addWidget(self.status_label)
-
-        # DropArea instance
-        self.drop_area = DropArea(self, self.main_window.max_files_amount)
-        layout.addWidget(self.drop_area)
-
-        # Browse button
-        self.browse_button = QPushButton("Browse")
-        self.browse_button.clicked.connect(self.open_file_dialog)
-        layout.addWidget(self.browse_button)
-
-        # Correct files list (affiche les fichiers corrects)
+        self.correct_files_label = QLabel("Valid files:")
+        layout.addWidget(self.correct_files_label)
         self.correct_files_list = QListWidget()
         layout.addWidget(self.correct_files_list)
 
-        # Invalid files list (affiche les fichiers invalides)
+        self.invalid_files_label = QLabel("Invalid files:")
+        layout.addWidget(self.invalid_files_label)
         self.invalid_files_list = QListWidget()
         layout.addWidget(self.invalid_files_list)
 
-        # Back and Next buttons
         back_and_next = QHBoxLayout()
         self.back_button = QPushButton("Back")
         self.back_button.clicked.connect(self.go_back)
@@ -110,11 +116,10 @@ class Step1_FileDropAndCheck(QWidget):
         self.setLayout(layout)
 
     def update_ui_after_drop(self):
-        """Update UI elements after a file is dropped."""
         self.correct_files_list.clear()
         self.invalid_files_list.clear()
         for file in self.drop_area.correct_files:
-            self.correct_files_list.addItem(file)
+            self.add_file_to_list_viz(file, valid=True)
         for file in self.drop_area.invalid_files:
             self.invalid_files_list.addItem(file)
 
@@ -137,32 +142,87 @@ class Step1_FileDropAndCheck(QWidget):
 
     def go_back(self):
         self.main_window.stacked_widget.setCurrentIndex(0)
+        self.main_window.help_window.expand_step(0)
 
+    def open_directory_dialog(self):
+        """Open dialog for selecting a directory."""
+        options = QFileDialog.Options()
+        directory_path = QFileDialog.getExistingDirectory(self, "Select a directory with .txt files", options=options)
+        if directory_path:
+            self.drop_area.process_directory(directory_path)
+            self.update_ui_after_drop()
+            self.update_status()
     def open_file_dialog(self):
         """Open file dialog for selecting files manually."""
-        if self.main_window.max_files_amount == 1:
-            file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt file", "", "Text Files (*.txt)")
-            if file_name:
-                if self.drop_area.is_valid_format_file(file_name):
-                    self.drop_area.correct_files = [file_name]
-                    self.update_ui_after_drop()
-                    self.update_status()
-                else:
-                    self.show_warning("Please select only .txt files.")
-        elif self.main_window.max_files_amount == 5:
-            directory_path = QFileDialog.getExistingDirectory(self, "Select a directory with .txt files")
-            if directory_path:
-                self.drop_area.process_directory(directory_path)
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt file or a directory", "", "Text Files (*.txt)")
+        if file_name:
+            print("Selected file:", file_name)
+            if self.drop_area.is_valid_format_file(file_name):
+                self.drop_area.correct_files.append(file_name)
+                self.add_file_to_list_viz(file_name, valid=True)
+                self.update_status()
+            else:
+                self.show_warning("Please select only .txt files.")
+    def add_file_to_list_viz(self, file, valid=True):
+        """
+        TODO (top priority) : change the logic of file addition
+        (e.g make an alternative to addItem without overriding to add an item with an hover + delete method,
+        put that in step1 widget)
+        """
+        item = QListWidgetItem(self.correct_files_list if valid else self.invalid_files_list)
+
+        # Crée un widget pour afficher le chemin du fichier et un bouton pour le retirer
+        widget = QWidget()
+        layout = QHBoxLayout()
+
+        file_label = QLabel(file)
+        layout.addWidget(file_label)
+        if valid:
+            remove_button = QPushButton("✕")
+            remove_button.setStyleSheet("background: none; border: none; color: red; font-weight: bold;")
+            remove_button.setFixedSize(20, 20)
+            remove_button.clicked.connect(lambda: self.remove_file(file, item, valid))
+
+            # Cache le bouton de suppression initialement
+            remove_button.setVisible(True)
+            layout.addWidget(remove_button)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        widget.setLayout(layout)
+        widget.installEventFilter(self)
+
+        item.setSizeHint(widget.sizeHint())
+        list_widget = self.correct_files_list if valid else self.invalid_files_list
+        list_widget.setItemWidget(item, widget)
+
+    def remove_file(self, file, item, valid=True):
+        if valid:
+            self.drop_area.correct_files.remove(file)
+            self.correct_files_list.takeItem(self.correct_files_list.row(item))
+        else:
+            self.drop_area.invalid_files.remove(file)
+            self.invalid_files_list.takeItem(self.invalid_files_list.row(item))
+        self.update_status()
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.Type.Enter:
+            remove_button = obj.findChild(QPushButton)
+            if remove_button:
+                remove_button.setVisible(True)
+        elif event.type() == QEvent.Type.Leave:
+            remove_button = obj.findChild(QPushButton)
+            if remove_button:
+                remove_button.setVisible(False)
+        return super().eventFilter(obj, event)
 
     def proceed_to_step2(self):
         """Proceed to the next step with the files."""
         #print("Proceeding to step 2 with files:", self.drop_area.correct_files)
-        if not hasattr(self.main_window, "step2_widget"):
-            self.main_window.step2_widget = Step2_AnalysisComplexityPick(self.main_window)
+        self.main_window.step2_widget = Step2_AnalysisComplexityPick(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step2_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step2_widget)
         self.main_window.help_window.expand_step(2)
-
 
 class Step2_AnalysisComplexityPick(QWidget):
     def __init__(self, main_window):
@@ -215,9 +275,7 @@ class Step2_AnalysisComplexityPick(QWidget):
 
     def launch_analysis(self):
         selected_analysis = "simple" if self.simple_analysis_radio.isChecked() else "complex"
-
         #Move on to Step3Widget
-
         self.main_window.step3_widget = Step3_LoadResults(self.main_window, selected_analysis)
         self.main_window.stacked_widget.addWidget(self.main_window.step3_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step3_widget)
@@ -256,13 +314,13 @@ class Step3_LoadResults(QWidget):
         if self.main_window.max_files_amount == 1:
             #web scraping, etc
             ...
+            print("processing a SINGLE FILE")
             self.main_window.final_results = OneFileComparison(self.progress_bar, content[0], self.analysis_complexity)
         else:
             ...
-            print("processing a set of FILES")
+            print("processing a SET of FILES")
             #compare files between each other
             self.main_window.final_results = CrossCompare(self.progress_bar, files_paths=content, comparison_type=self.analysis_complexity)
-
 
         # Mark all as complete
         self.current_file_processed_label.setText("Processing: Complete")
@@ -270,8 +328,7 @@ class Step3_LoadResults(QWidget):
 
 
     def move_to_step4(self):
-        if not hasattr(self.main_window, 'step4_widget'):
-            self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
+        self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step4_widget)
         self.main_window.help_window.expand_step(4)
@@ -349,7 +406,7 @@ class Step4_DisplayResults(QWidget):
             line_layout = QHBoxLayout()
 
             char_label = QLabel(common_char)
-            common_result_label = QLabel("C")
+            common_result_label = QLabel("-")
 
             line_layout.addWidget(char_label)
             line_layout.addWidget(common_result_label)
@@ -357,16 +414,31 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(line_layout)
 
+        self.reset_button = QPushButton("Reset")
+        self.reset_button.clicked.connect(self.reset_process)
+        layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.setLayout(layout)
         self.right_content_title.currentIndexChanged.connect(self.update_results)
         self.update_results()
+
+    def reset_process(self):
+        #TODO : make it work (like, reset EVERYTHING because it doesn't work right now)
+        #TODO : add a warning window with extra options (like exporting results to JSON)
+        self.main_window.final_results = None
+        self.main_window.stacked_widget.setCurrentWidget(self.main_window.step0_widget)
 
     def update_results(self):
         file1, file2 = self.left_content_title.currentText(), self.right_content_title.currentText()
         results = self.main_window.final_results
         for char_name, char_label in zip(INDIV_CHARACTERISTICS, INDIV_CHARS_ATTRS):
-            res_file1 = getattr(results.content_stats[file1], char_label)
-            res_file2 = getattr(results.content_stats[file2], char_label)
+            try:
+                res_file1 = getattr(results.content_stats[file1], char_label)
+                res_file2 = getattr(results.content_stats[file2], char_label)
+            except UnprocessableTextContent:
+                pass #TODO : handle this case
+                res_file1 = "N/A"
+                res_file2 = "N/A"
+
             # Mettre à jour les labels directement
             self.file1_result_labels[char_name].setText(str(res_file1))
             self.file2_result_labels[char_name].setText(str(res_file2))
@@ -399,29 +471,21 @@ class Step4_DisplayResults(QWidget):
         self.graph_window = GraphWindow(self.main_window)
 
         for graph_name, res_file1, res_file2 in graphs_data:
-            freq_dist1 = res_file1
-            freq_dist2 = res_file2
-            self.graph_window.add_graph(
-                name=graph_name,
-                freq_dist1=freq_dist1,
-                freq_dist2=freq_dist2,
-                x_label="Items",
-                y_label="Frequency",
-                title=f"{graph_name} Comparison"
-            )
-
-        self.graph_window.show()
-        #TODO : fix the logic of this
-        self.left_content_title.currentIndexChanged.connect(self.update_graph_window)
-        self.right_content_title.currentIndexChanged.connect(self.update_graph_window)
-
-    def update_graph_window(self):
-        if self.graph_window:  # Vérifiez si la fenêtre du graphique est déjà ouverte
-            new_graphs_data = self.prepare_graphs_data()
-            for graph_name, res_file1, res_file2 in new_graphs_data:
-                freq_dist1 = FreqDist(dict(res_file1))
-                freq_dist2 = FreqDist(dict(res_file2))
-                self.graph_window.update_graph(
+            if "length" in graph_name:
+                freq_dist1 = res_file1
+                freq_dist2 = res_file2
+                self.graph_window.add_LengthPlot_graph(
+                    name=graph_name,
+                    lengths1=freq_dist1,
+                    lengths2=freq_dist2,
+                    x_label="Sentence index",
+                    y_label="Length",
+                    title=f"{graph_name} Comparison"
+                )
+            else:
+                freq_dist1 = res_file1
+                freq_dist2 = res_file2
+                self.graph_window.add_FreqDist_graph(
                     name=graph_name,
                     freq_dist1=freq_dist1,
                     freq_dist2=freq_dist2,
@@ -429,3 +493,25 @@ class Step4_DisplayResults(QWidget):
                     y_label="Frequency",
                     title=f"{graph_name} Comparison"
                 )
+
+        self.graph_window.show()
+        #TODO : fix the logic of this
+        #self.left_content_title.currentIndexChanged.connect(self.update_graph_window)
+        #self.right_content_title.currentIndexChanged.connect(self.update_graph_window)
+
+    """
+    def update_graph_window(self):
+        if self.graph_window:  # Vérifiez si la fenêtre du graphique est déjà ouverte
+            new_graphs_data = self.prepare_graphs_data()
+            for graph_name, res_file1, res_file2 in new_graphs_data:
+                freq_dist1 = FreqDist(dict(res_file1))
+                freq_dist2 = FreqDist(dict(res_file2))
+                self.graph_window.update_FreqDist_graph(
+                    name=graph_name,
+                    freq_dist1=freq_dist1,
+                    freq_dist2=freq_dist2,
+                    x_label="Items",
+                    y_label="Frequency",
+                    title=f"{graph_name} Comparison"
+                )
+    """
