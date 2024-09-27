@@ -1,59 +1,48 @@
-from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QStackedWidget, QPushButton, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy, QApplication
-from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QStackedWidget, QVBoxLayout
 from .stacked_widget_elems import Step0_WelcomingMessage
 from .utilities import GetInTouchWindow, HelpWindow
+from PySide6.QtCore import Qt
 import webbrowser
+from UI_Styling import smainwindow, stitlebar, userTools
 
-class MainWindow(QMainWindow):
+
+class MainWindow(smainwindow.SMainWindow):
     def __init__(self):
         super().__init__()
-
+        #Main Layout
         self.setWindowTitle("PlagiaSnipe")
-
         self.main_layout = QVBoxLayout()
 
-        self.stacked_widget = QStackedWidget()
+        #TitleBar
+        self.titleBar = stitlebar.STitleBar(self)
+        self.main_layout.addWidget(self.titleBar, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
 
+        #Stacked Widget
+        self.stacked_widget = QStackedWidget()
         self.step0_widget = Step0_WelcomingMessage(self)
         self.stacked_widget.addWidget(self.step0_widget)
-
         self.main_layout.addWidget(self.stacked_widget)
 
+
+        # UserTools
         self.get_in_touch_window = GetInTouchWindow(self)
         self.help_window = HelpWindow(self)
+        self.usertools = userTools.UserTools(self)
 
-        bottom_bar_layout = QHBoxLayout()
-        action_contact_dev = QPushButton()
-        action_contact_dev.setToolTip("Get in touch")
-        action_contact_dev.setIcon(QIcon("Resources/Excess Files/UI_elements/contact_dev_icon-34.png"))
-        action_contact_dev.clicked.connect(self.toggle_GetInTouchWindow)
+        # Buttons tooltip + functions
+        buttons = {self.usertools.contact: ("Get in touch",self.toggle_GetInTouchWindow),
+            self.usertools.help:("Help", self.toggle_HelpWindow),
+            self.usertools.setting: ("View project on GitHub", lambda: webbrowser.open("https://github.com/LUCKYINS/PlagiarismDetectionProject"))}
 
-        action_view_github = QPushButton()
-        action_view_github.setToolTip("View project on GitHub")
-        action_view_github.setIcon(QIcon("Resources/Excess Files/UI_elements/github-icon-34.png"))
-        action_view_github.clicked.connect(lambda: webbrowser.open("https://github.com/Luckyyyin/Plagialand"))
+        # Set Buttons
+        for button,func in buttons.items():
+            button.setToolTip(func[0])
+            button.clicked.connect(func[1])
+        del buttons
 
-        action_help = QPushButton()
-        action_help.setToolTip("Help")
-        action_help.setIcon(QIcon("Resources/Excess Files/UI_elements/help-icon-34.png"))
-        action_help.clicked.connect(self.toggle_HelpWindow)
 
-        bottom_bar_layout.addWidget(action_contact_dev)
-        bottom_bar_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
-        bottom_bar_layout.addWidget(action_view_github)
-        bottom_bar_layout.addItem(QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
-        bottom_bar_layout.addWidget(action_help)
-
-        bottom_bar = QWidget()
-        bottom_bar.setLayout(bottom_bar_layout)
-
-        self.main_layout.addWidget(bottom_bar)
-        self.main_layout.addStretch(1)
-
-        widget = QWidget()
-        widget.setLayout(self.main_layout)
-        self.setCentralWidget(widget)
-
+        self.main_layout.addWidget(self.usertools, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)
+        self.centralWidget().setLayout(self.main_layout)
 
     def toggle_GetInTouchWindow(self):
         if self.get_in_touch_window.isVisible():

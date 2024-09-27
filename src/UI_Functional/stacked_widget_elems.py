@@ -1,12 +1,13 @@
+from typing import Generic
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
                              QListWidget, QHBoxLayout, QComboBox, QRadioButton,
                              QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
-
 from TextAnalysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
 from .utilities import DropArea, GraphWindow
+from UI_Styling import slabels, sbuttons
 
 #GLOBAL CONSTANTS : characteristics with their attributes equivalents (to get them via the getattr() built-in Python method later on)
 #Characteristics independent to each text (found in the TokenStatsAndRearrangements instance each text is in)
@@ -36,20 +37,34 @@ class Step0_WelcomingMessage(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
-
         layout = QVBoxLayout()
 
-        welcome_label = QLabel("#0: Welcoming message\nI want to compare...")
-        layout.addWidget(welcome_label)
+        #Labels
+        sl1 = slabels.SLabels("PlagiaEye", self)
+        sl2 = slabels.SLabels("A transparent plagiarism detection tool.", self)
+        sl3 = slabels.SLabels("Compare...", self)
 
-        button1 = QPushButton("One file with related online data")
-        button1.clicked.connect(lambda: self.proceed_to_step1(1))
-        layout.addWidget(button1)
+        #Labels fonts
+        labels = {sl1:"64", sl2:"24", sl3:"32"}
 
-        button2 = QPushButton("Several files between each other")
-        button2.setToolTip("Useful for a high school class, for instance (max N files)")
-        button2.clicked.connect(lambda: self.proceed_to_step1(MAX_FILES_AMOUNT))
-        layout.addWidget(button2)
+        #Set Labels
+        for label,font_size in labels.items():
+            label.setStyleSheet(label.styleSheet().replace("font-size: none;", f"font-size: {font_size}px;"))
+            layout.addWidget(label, alignment=Qt.AlignmentFlag.AlignCenter)
+        del labels
+        # Buttons
+        button1 = sbuttons.SButtons("One file with related online data")
+        button2 = sbuttons.SButtons("A set of files between each other")
+
+        # Buttons Functionalities
+        buttons = {button1: (lambda: self.proceed_to_step1(1)), button2: (lambda: self.proceed_to_step1(MAX_FILES_AMOUNT))}
+
+        # Set Buttons
+        for button, func in buttons.items():
+            button.clicked.connect(func)
+            button.setFixedSize(400, 60)
+            layout.addWidget(button, alignment=Qt.AlignmentFlag.AlignCenter)
+        del buttons
 
         self.setLayout(layout)
 

@@ -24,20 +24,23 @@ class UserTools(QWidget):
                                border-radius:20px;
                            }
                            """)
+        #icons folder path
         icons_dir = os.path.join(os.path.dirname(__file__), 'icons')
+
         #Contact, Help, Setting,  button
         self.contact = QToolButton(self)
         self.help = QToolButton(self)
         self.setting = QToolButton(self)
 
-        names = ["contact", "help", "setting"]
-        buttons = [self.contact, self.help, self.setting]
+        # Buttons names
+        buttons = {self.contact:"contact", self.help:"help", self.setting:"setting"}
 
-        for i in range(3):
-            buttons[i].setObjectName("setting")
-            buttons[i].setFixedSize(iconsize, iconsize)
-            buttons[i].setIconSize(QSize(iconsize, iconsize))
-            buttons[i].setIcon(QIcon(f"{icons_dir}/{names[i]}"))
-            self.main_layout.addWidget(buttons[i])
-
+        # Set buttons
+        for button, name in buttons.items():
+            button.setObjectName("setting")
+            button.setFixedSize(iconsize, iconsize)
+            button.setIconSize(QSize(iconsize, iconsize))
+            button.setIcon(QIcon(f"{icons_dir}/{name}"))
+            self.main_layout.addWidget(button)
+        del buttons
         self.setLayout(self.main_layout)
