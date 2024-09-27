@@ -38,7 +38,7 @@ class MainWindow(smainwindow.SMainWindow):
         for button,func in buttons.items():
             button.setToolTip(func[0])
             button.clicked.connect(func[1])
-        del buttons
+
 
 
         self.main_layout.addWidget(self.usertools, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)

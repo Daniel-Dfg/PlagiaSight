@@ -1,4 +1,4 @@
-__all__ = ("TextAnalysis_AkaPhase1",)
+__all__ = ("TextAnalysis",)
 
-from .TextAnalysis_AkaPhase1 import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements
+from .TextAnalysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements
 from .WebScraper import URLs, HtmlText

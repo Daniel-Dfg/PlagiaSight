@@ -51,7 +51,7 @@ class Step0_WelcomingMessage(QWidget):
         for label,font_size in labels.items():
             label.setStyleSheet(label.styleSheet().replace("font-size: none;", f"font-size: {font_size}px;"))
             layout.addWidget(label, alignment=Qt.AlignmentFlag.AlignCenter)
-        del labels
+
         # Buttons
         button1 = sbuttons.SButtons("One file with related online data")
         button2 = sbuttons.SButtons("A set of files between each other")
@@ -64,7 +64,7 @@ class Step0_WelcomingMessage(QWidget):
             button.clicked.connect(func)
             button.setFixedSize(400, 60)
             layout.addWidget(button, alignment=Qt.AlignmentFlag.AlignCenter)
-        del buttons
+
 
         self.setLayout(layout)
 
