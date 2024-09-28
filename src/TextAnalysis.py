@@ -5,6 +5,7 @@
 
 #Language processing related ↴
 from nltk import FreqDist, data, pos_tag
+from nltk.corpus.reader.tagged import word_tokenize
 from nltk.tokenize import simple, wordpunct_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
@@ -13,14 +14,20 @@ import re
 from string import punctuation # helps to check if a string is made of punctuation only
 #Containers ↴
 from collections import Counter
-from numpy import array, append, flexible, ndarray
+from numpy import array, append, ndarray
 from dataclasses import dataclass, field
 #Misc ↴
 from math import sqrt
 from numpy import mean, median
 from os import path
-import chardet
+import chardet #detects file encoding
 
+#Global constants ↴
+VALID_FILE_EXTENSIONS = [".txt"]
+REGEX_SPLIT_SENTENCES = r"(?<!\w\.\w.)(?<!\b[A-Z][a-z]\.)(?<![A-Z]\.)(?<=\.|\?)\s|\n"
+TEXT_TOO_SHORT_LIMIT = 5 #sentences
+SENTENCES_TOO_SHORT_LIMIT = 3
+#TODO : think about optimizations (to pass on the text less times, to use data structures like ndarrays more effeciently, etc.)
 
 @dataclass
 class Tokenizer:
@@ -32,9 +39,11 @@ class Tokenizer:
     _part_of_speeches: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
 
     def __post_init__(self):
-        sentences = re.split(r"(?<!\w\.\w.)(?<!\b[A-Z][a-z]\.)(?<![A-Z]\.)(?<=\.|\?)\s|\n", self._raw_data)
+        sentences = re.split(REGEX_SPLIT_SENTENCES, self._raw_data)
         self._tokens_by_sentence = array([sent.strip() for sent in sentences if sent.strip()])
-        tokens_by_wordpunct_first_pass = array(wordpunct_tokenize(self._raw_data)) #first pass, will be filtered in the next lines
+        if len(self._tokens_by_sentence) < TEXT_TOO_SHORT_LIMIT:
+            raise UnprocessableTextContent("Text is too short")
+        tokens_by_wordpunct_first_pass = array([wordpunct_tokenize(self._raw_data)]) #first pass, will be filtered in the next lines
         pos_tags_first_pass = self._lemmatize_and_tag_tokens(tokens_by_wordpunct_first_pass) # → list[(word, pos_tag)]
         self._tokens_by_syntagm, self._tokens_by_wordpunct = self._filter_and_group_tokens(pos_tags_first_pass)
 
@@ -47,7 +56,7 @@ class Tokenizer:
                 lemmatized_token = lemmatizer.lemmatize(token, self._get_wordnet_pos(tag))
                 pos_tags.append((lemmatized_token, tag))
             else:
-                pos_tags.append((token, "Punct"))
+                pos_tags.append((token, "Punct")) #fix mistakes made by the automatic POS tagger
         return pos_tags
 
     def _filter_and_group_tokens(self, pos_tags) -> tuple[ndarray, ndarray]:
@@ -128,52 +137,33 @@ class Tokenizer:
     def raw_data(self):
         if not self._raw_data:
             raise UnprocessableTextContent("raw data")
-            print("Warning: raw data is empty")
         return self._raw_data
-
-
-#Custom exceptions (used in Tokenizer only)
-class TokenListIsEmpty(Exception):
-    def __init__(self, tokens_by):
-        self.message = "Warning: empty list of " + tokens_by + ". \nPlease make sure that there's data to work with."
-        super().__init__(self.message)
-
-class UnprocessableTextContent(Exception):
-    def __init__(self, attribute) -> None:
-        self.message = "Warning: the text can't be processed properly because : "
-        if attribute == "tokens by syntagm":
-            self.message += "tokens by syntagm list is empty, showing that the text is either not in English or only made of stop words/punctuation."
-        elif attribute == "raw data":
-            self.message += "raw data (e.g the text extracted from a certain source file, wether it is the user's or something scraped from the web) is empty."
-        elif attribute == "text richness":
-            self.message += "Warning: text richness is 1, meaning that the text is either not in English or made of words all different to one another (so it's probably too short to be analyzed)."
-
-        super().__init__(self.message)
 
 
 class TokensStatsAndRearrangements: # To be referred as TSAR
     def __init__(self, base):
-        self.base : Tokenizer = base
-        self._bigrams = Counter(ngrams(self.base.tokens_by_word, 2))
-        self._trigrams = Counter(ngrams(self.base.tokens_by_word, 3))
-        self._word_freq = FreqDist(self.base.tokens_by_word)
-        self._pos_freq = FreqDist(self.base.part_of_speeches)
-        self._text_richness = len(self.base.tokens_by_word) / len(set(self.base.tokens_by_word))
+        self._base : Tokenizer = base #TODO : think if I should access protected attributes from within the class
+        self._bigrams = Counter(ngrams(self._base.tokens_by_word, 2))
+        self._trigrams = Counter(ngrams(self._base.tokens_by_word, 3))
+        self._word_freq = FreqDist(self._base.tokens_by_word)
+        self._pos_freq = FreqDist(self._base.part_of_speeches)
+        self._text_richness = len(self._base.tokens_by_word) / len(set(self._base.tokens_by_word))
         sum_of_sent_lengths = 0
         self._sent_lengths = []
-        for sent in self.base.tokens_by_sentence:
-            sent_length = len(sent.split())
+        for sent in self._base.tokens_by_sentence:
+            #sent_length = len(sent.split())
+            sent_length = len(word_tokenize(sent)) #THINK ABOUT AN OPTIMIZATION HERE
             sum_of_sent_lengths += sent_length  #TODO : get more accurate measurements (e.g consider punctuation to split words using RegExes)
             self._sent_lengths.append(sent_length)
-        self._average_sent_length = sum_of_sent_lengths / len(self.base.tokens_by_sentence)
+        self._average_sent_length = sum_of_sent_lengths / len(self._base.tokens_by_sentence)
         self._median_sent_length = median(self._sent_lengths)
-        self._syntagms_scores = {} #syntagm : score
+        self._syntagms_scores = {} # {syntagm : score}
         self.evaluate_syntagms_scores()
 
     def evaluate_syntagms_scores(self):
         #Helper to evaluate the syntagms scores based on the RAKE algorithm.
         word_degrees = {}
-        for s in self.base.tokens_by_syntagm:
+        for s in self._base.tokens_by_syntagm:
             degree = len(s) - 1
             for word in s:
                 if word not in word_degrees:
@@ -181,11 +171,15 @@ class TokensStatsAndRearrangements: # To be referred as TSAR
                 else:
                     word_degrees[word] += degree
         words_scores = {word: word_degrees[word] / self._word_freq[word] for word in self._word_freq}
-        for s in self.base.tokens_by_syntagm:
+        for s in self._base.tokens_by_syntagm:
             phrase_score = sum(words_scores[word] for word in s)
             self._syntagms_scores[' '.join(s)] = phrase_score
 
     #TODO : refine the usage off these properties when needed.
+    @property
+    def base(self):
+        return self._base
+
     @property
     def bigrams(self):
         return self._bigrams
@@ -214,6 +208,8 @@ class TokensStatsAndRearrangements: # To be referred as TSAR
 
     @property
     def average_sent_length(self):
+        if self._average_sent_length < SENTENCES_TOO_SHORT_LIMIT:
+            print("warning : sentences are too short on average to be considered as valid sentences.") #TODO : think about an actionable trigger regarding this
         return self._average_sent_length
 
     @property
@@ -337,6 +333,24 @@ class TokensComparisonAlgorithms: # To be referred as TCA
         print(f"Similar bigrams: {self.similar_bigrams}")
         print(f"Similar trigrams: {self.similar_trigrams}")
     """
+
+#Custom exceptions
+class TokenListIsEmpty(Exception):
+    def __init__(self, tokens_by):
+        self.message = "Warning: empty list of " + tokens_by + ". \nPlease make sure that there's data to work with."
+        super().__init__(self.message)
+
+class UnprocessableTextContent(Exception):
+    def __init__(self, attribute) -> None:
+        self.message = "Warning: the text can't be processed properly because : "
+        if attribute == "tokens by syntagm":
+            self.message += "tokens by syntagm list is empty, showing that the text is either not in English or only made of stop words/punctuation."
+        elif attribute == "raw data":
+            self.message += "raw data (e.g the text extracted from a certain source file, wether it is the user's or something scraped from the web) is empty."
+        elif attribute == "text richness":
+            self.message += "Warning: text richness is 1, meaning that the text is either not in English or made of words all different to one another (so it's probably too short to be analyzed)."
+
+        super().__init__(self.message)
 
 
 def extract_raw_from_file(file_path: str) -> str:

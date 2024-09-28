@@ -8,7 +8,7 @@ import pytest
 import unittest
 import nltk
 import chardet
-from src import Tokenizer, TokensStatsAndRearrangements, TokensComparisonAlgorithms
+from src.TextAnalysis import Tokenizer, TokensStatsAndRearrangements, TokensComparisonAlgorithms
 from random import choice
 from os import path
 
