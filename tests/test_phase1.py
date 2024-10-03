@@ -51,7 +51,7 @@ class TestTextAnalysis(unittest.TestCase):
             self.source_tokens)
 
         self.tpa = TokensComparisonAlgorithms(
-            input_tokens_sets=self.poem_TSAR, source_tokens_sets=self.source_TSAR)
+            _input_tokens_sets=self.poem_TSAR, _source_tokens_sets=self.source_TSAR)
 
     def test_word_tokenization(self):
         expected_tokens = [
