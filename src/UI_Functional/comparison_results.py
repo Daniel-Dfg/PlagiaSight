@@ -1,7 +1,8 @@
-from TextAnalysis_AkaPhase1 import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
+from TextAnalysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
 from WebScraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
 
+GATHERED_URLS = 2
 
 @dataclass
 class OneFileComparison:
@@ -9,6 +10,7 @@ class OneFileComparison:
     - Used when 1 file is provided (step 0)
     - In charge of web scraping and analysis with the resulting texts.
     """
+    progress_bar : QProgressBar
     source_file : str # file path
     comparison_type : str # either "simple" or "complex"
     content_stats : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TSAR]
@@ -16,18 +18,19 @@ class OneFileComparison:
 
     def __post_init__(self):
         #TODO : make this more explicit
+
         self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file)))
         source_file_keywords = {k: v for k, v in sorted(self.content_stats[self.source_file].syntagms_scores.items(), key=lambda item: item[1], reverse=True)[:1]}
         print(source_file_keywords.keys())
         for keyword in source_file_keywords.keys():
-            u = URLs(keyword, 1)
+            u = URLs(keyword, GATHERED_URLS)
             associated_urls = u.response_array
             for response in associated_urls:
                 site_name = response.url
                 text = HtmlText(response)
                 self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file("temp.txt")))
                 self.comparison_with[site_name] = TokensComparisonAlgorithms(self.content_stats[self.source_file], self.content_stats[site_name])
-                text.removeTempText()
+                #text.removeTempText()
         #links = get_links_from_keywords(self.source_data.base.find_keywords()) (pseudocode)
         #for link in links:
             #self.online_data[link] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_link(text)))
@@ -46,20 +49,26 @@ class CrossCompare:
     Used when a directory is provided (step 0).
     Compares the given files between eachother.
     """
+    progress_bar : QProgressBar
     files_paths: list[str]
     comparison_type: str  # either "simple" or "complex"
     content_stats: dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False)  # Statistiques individuelles par fichier
     comparisons: dict[tuple[str, str], TokensComparisonAlgorithms] = field(init=False, repr=False)  # Comparaisons entre les fichiers
 
     def __post_init__(self):
+        progress_bar_small_increment = int(30 / (len(self.files_paths)) - 4)
+        progress_bar_big_increment = int(70 / (len(self.files_paths)) - 4)
         self.content_stats = {}
         self.comparisons = {}
         if self.comparison_type not in ["simple", "complex"]:
             raise ValueError(f"Invalid comparison type. Must be either 'simple' or 'complex'. It is currently {self.comparison_type}.")
 
         # Générer les statistiques pour chaque fichier
+        #print(self.files_paths, "FILES PATHS")
+        self.progress_bar.setValue(0)
         for file in self.files_paths:
             self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file)))
+            self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
 
         # Comparer chaque fichier avec les autres
         for i, file1 in enumerate(self.files_paths):
@@ -74,6 +83,9 @@ class CrossCompare:
                     elif self.comparison_type == "complex":
                         self.complex_analysis_two_files(file1, file2)
                         #self.comparisons[(file1, file2)].display_complex_results()
+                    #print("increment by", progress_bar_big_increment)
+                    self.progress_bar.setValue(self.progress_bar.value() + progress_bar_big_increment)
+        self.progress_bar.setValue(100)
 
 
     def simple_analysis_two_files(self, file1, file2) -> None:

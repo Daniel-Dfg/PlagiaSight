@@ -1,7 +1,7 @@
 from nltk.tokenize.api import overridden
 from typing_extensions import override
 from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
-from PySide6.QtCore import Qt, QTimer, QEvent
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QStandardItem, QStandardItemModel, QAction
 import os
 import webbrowser
@@ -25,165 +25,66 @@ class NonSelectableComboBox(QComboBox):
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsEnabled)
         self.standard_model.appendRow(item)
 
+
 class DropArea(QTextEdit):
-    def __init__(self, step1_widget, max_file_amount=MAX_FILES_AMOUNT):
+    def __init__(self, step1_widget, max_file_amount=5):
         super().__init__()
         self.setAcceptDrops(True)
         self.max_file_amount = max_file_amount
         self.step1_widget = step1_widget
-        if self.max_file_amount == 1:
-            self.min_file_amount = 1
-        elif self.max_file_amount == MAX_FILES_AMOUNT:
-            self.min_file_amount = 2
-        else:
-            raise ValueError("Invalid max_file_amount value (not 1 or MAX_FILES_AMOUNT)")
+
+        # Limite minimum de fichiers
+        self.min_file_amount = 1 if max_file_amount == 1 else 2
 
         self.correct_files = []
         self.invalid_files = []
-
-        self.instructions_label = QLabel("Drop your content here...")
-        self.status_label = QLabel("Nothing yet dropped.")
-        self.warning_label = QLabel("Warning will show up here.")
-        self.warning_label.setStyleSheet("color: red;")
-
-        self.correct_files_list = QListWidget()
-        self.invalid_files_combo = NonSelectableComboBox()
-
-        # Layout
-        layout = QVBoxLayout(self)
-        layout.addWidget(self.instructions_label)
-        layout.addWidget(self.warning_label)
-        layout.addWidget(self.correct_files_list)  # To display correct files
-        layout.addWidget(self.invalid_files_combo)  # To display invalid files
-        layout.addWidget(self.status_label)
-        self.setLayout(layout)
 
     def dragEnterEvent(self, e):
         if e.mimeData().hasUrls():
             e.acceptProposedAction()
 
     def dropEvent(self, e):
-        #TODO : make this function cleaner
         files = [url.toLocalFile() for url in e.mimeData().urls()]
-        valid_set = set(self.correct_files) #for faster lookups and no duplicates
+        valid_set = set(self.correct_files)
         for file in files:
             if os.path.isfile(file) and self.is_valid_format_file(file) and file not in valid_set:
                 if len(self.correct_files) < self.max_file_amount:
                     self.correct_files.append(file)
-                    self.add_file_to_list(file)
+                    self.step1_widget.add_file_to_list_viz(file, valid=True)
                     valid_set.add(file)
                 else:
-                    self.show_warning("⚠️ Maximum file limit reached!")
+                    self.step1_widget.show_warning("⚠️ Maximum file limit reached!")
             elif os.path.isdir(file):
                 self.process_directory(file)
             else:
                 if file not in valid_set:
-                    self.show_warning(f"⚠️ {file} is not a file in a valid format.")
-                else:
-                    self.show_warning(f"⚠️ {file} has already been added.")
-        self.update_status()
+                    self.step1_widget.show_warning(f"⚠️ .{file.split('.')[-1]} is not a valid file format.")
+        self.step1_widget.update_status()
 
     def is_valid_format_file(self, file_path):
         return file_path.endswith('.txt')
 
     def process_directory(self, directory_path):
+        print("processing directory...")
         valid_set = set(self.correct_files)
-        valid_files = [os.path.join(directory_path, f) for f in os.listdir(directory_path) if self.is_valid_format_file(os.path.join(directory_path, f)) and f not in valid_set]
-
-        if valid_files:
-            for file in valid_files:
-                if len(self.correct_files) >= self.max_file_amount:
-                    self.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}. Won't process files from {file} to {valid_files[-1]}.")
-                    break
-                self.correct_files.append(file)
-                self.add_file_to_list(file)
-                valid_set.add(file)
-            # Only add invalid files if the directory has valid ones
-            self.invalid_files.extend([os.path.join(directory_path, f) for f in os.listdir(directory_path) if not self.is_valid_format_file(os.path.join(directory_path, f))])
-            self.update_invalid_file_list()
-            self.update_status()
-
-    def add_file_to_list(self, file):
-        """Add a file to the correct files list with a 'remove' button."""
-        item = QListWidgetItem(self.correct_files_list)
-
-        # Create a widget to hold the file path and remove button
-        widget = QWidget()
-        layout = QHBoxLayout()
-
-        file_label = QLabel(file)  # Show the file path
-        remove_button = QPushButton("✕")  # A cross button to remove the file
-        remove_button.setStyleSheet("background: none; border: none; color: red; font-weight: bold;")
-        remove_button.setFixedSize(20, 20)
-        remove_button.clicked.connect(lambda: self.remove_file(file, item))
-
-        # Initially hide the remove button
-        remove_button.setVisible(False)
-
-        # Add the file label and remove button to the layout
-        layout.addWidget(file_label)
-        layout.addWidget(remove_button)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(5)
-
-        widget.setLayout(layout)
-
-        # Set up event filter to handle hover
-        widget.installEventFilter(self)
-
-        # Add the widget to the QListWidgetItem
-        item.setSizeHint(widget.sizeHint())
-        self.correct_files_list.setItemWidget(item, widget)
-
-    def remove_file(self, file, item):
-        self.correct_files.remove(file)
-        self.correct_files_list.takeItem(self.correct_files_list.row(item))
-        self.update_status()
-
-    def update_invalid_file_list(self):
-        """Updates the invalid files combo."""
-        self.invalid_files_combo.clear()
-        if self.invalid_files:
-            self.invalid_files_combo.add_item(f"{len(self.invalid_files)} Invalid file{'s' if len(self.invalid_files) > 1 else ''}:")
-            for file in self.invalid_files:
-                self.invalid_files_combo.add_item(file)
-            self.invalid_files_combo.setVisible(True)
-        else:
-            self.invalid_files_combo.setVisible(False)
-
-    def update_status(self, last_file_dropped = None):
-        """Update the status based on the number of correct files."""
-        if self.min_file_amount <= len(self.correct_files) <= self.max_file_amount:
-            self.set_ready_status()
-        else:
-            self.status_label.setStyleSheet("color: white;")
-            self.status_label.setText(f"⚠️ {len(self.correct_files)} file{'s' if len(self.correct_files) > 1 else ''} dropped.")
-            self.show_warning(f"Please drop at least {self.min_file_amount} valid file{'s' if self.min_file_amount==2 else ''}.")
-            self.step1_widget.next_button.setEnabled(False)
-
-    def set_ready_status(self):
-        self.status_label.setText("🗸 Ready to analyze 🗸")
-        self.status_label.setStyleSheet("color: green;")
-        self.step1_widget.next_button.setEnabled(True)
-
-    def show_warning(self, message):
-        self.warning_label.setText(message)
+        for f in os.listdir(directory_path):
+            full_path = os.path.join(directory_path, f)  # Chemin complet du fichier
+            if os.path.isfile(full_path) and self.is_valid_format_file(full_path):
+                if full_path not in valid_set:
+                    if len(self.correct_files) >= self.max_file_amount:
+                        self.step1_widget.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}.")
+                        break
+                    self.correct_files.append(full_path)  # Ajouter le chemin complet
+                    self.step1_widget.add_file_to_list_viz(full_path, valid=True)
+                    valid_set.add(full_path)
+            else:
+                if full_path not in self.invalid_files:
+                    self.invalid_files.append(full_path)  # Ajouter le chemin complet pour les fichiers invalides aussi
+                    self.step1_widget.add_file_to_list_viz(full_path, valid=False)
 
 
-    def eventFilter(self, arg__1, arg__2):
-        obj, event = arg__1, arg__2
-        """Handle hover events to show or hide the remove button."""
-        if event.type() == QEvent.Type.Enter:
-            # Show the remove button when mouse enters the widget
-            remove_button = obj.findChild(QPushButton)
-            if remove_button:
-                remove_button.setVisible(True) #TODO : find an alternative solution to this
-        elif event.type() == QEvent.Type.Leave:
-            # Hide the remove button when mouse leaves the widget
-            remove_button = obj.findChild(QPushButton)
-            if remove_button:
-                remove_button.setVisible(False)
-        return super().eventFilter(obj, event)
+    def simplify_path(self, path):
+        return os.path.basename(path)
 
 
 class HelpWindow(QWidget):
@@ -331,14 +232,12 @@ class GraphWindow(QWidget):
         self.graph_names = []
         self.current_graph_index = 0
 
-    def add_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
+    def add_FreqDist_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
         """
         Generic method to add a comparison graph from a FreqDist distribution.
         """
         all_keys = set(freq_dist1.keys()).union(set(freq_dist2.keys()))
-
         total_frequencies = {key: freq_dist1.get(key, 0) + freq_dist2.get(key, 0) for key in all_keys}
-
         sorted_keys = sorted(total_frequencies.keys(), key=lambda k: total_frequencies[k], reverse=True)
 
         threshold_percentage = 0.1  # 10% of terms kept if...
@@ -356,7 +255,30 @@ class GraphWindow(QWidget):
         self.current_graph_index = len(self.graph_names) - 1
         self.show_graph(name)
 
-    def update_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
+    def add_LengthPlot_graph(self, name, lengths1, lengths2, x_label, y_label, title):
+        """
+        Generic method to add a comparison graph from a list of lengths.
+        """
+        # Ajoute des zéros à la liste la plus courte pour égaliser les tailles
+        max_length = max(len(lengths1), len(lengths2))
+        lengths1 += [0] * (max_length - len(lengths1))
+        lengths2 += [0] * (max_length - len(lengths2))
+
+        x_data = [f"{n}" for n in range(max_length)]
+
+        # Préparation des données du graphe
+        graph_data = (x_data, lengths1, lengths2, x_label, y_label, title)
+
+        # Stockage des données du graphe
+        setattr(self, name, graph_data)
+        self.graph_names.append(name)
+        self.current_graph_index = len(self.graph_names) - 1
+
+        # Affichage immédiat du graphe ajouté
+        self.show_graph(name)
+
+
+    def update_FreqDist_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
         if hasattr(self, name):
             common_keys = list(set(freq_dist1.keys()).intersection(set(freq_dist2.keys())))
             common_keys.sort()
@@ -371,16 +293,40 @@ class GraphWindow(QWidget):
         else:
             raise AttributeError(f"No graph named '{name}' found.")
 
+    def update_LengthPlot_graph(self, name, lengths1, lengths2, x_label, y_label, title):
+        if hasattr(self, name):
+            graph_data = ([f"{n}" for n in range(max(len(lengths1), len(lengths2)))],lengths1, lengths2, x_label, y_label, title)
+            setattr(self, name, graph_data)
+            if self.graph_names[self.current_graph_index] == name:
+                self.show_graph(name)
+        else:
+            raise AttributeError(f"No graph named '{name}' found.")
+
     def show_graph(self, name):
-        #TODO : document this
         if hasattr(self, name):
             self._static_ax.clear()
             x_data, y_data1, y_data2, x_label, y_label, title = getattr(self, name)
-            bar_width = 0.35
-            index = arange(len(x_data))
-            self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
-            self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
 
+            # Si c'est un graphe de longueur de phrases, on utilise un graphe en bâtons
+            if "length" in name:
+                # Création d'un histogramme avec des barres côte à côte
+                bar_width = 0.35
+                index = arange(len(x_data))
+
+                # Affichage des barres concurrentes
+                self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
+                self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
+
+            else:
+                # Graphe de fréquence (ou autre type de graphe)
+                bar_width = 0.35
+                index = arange(len(x_data))
+
+                # Affichage des barres concurrentes pour les distributions de fréquence
+                self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
+                self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
+
+            # Configuration commune aux deux types de graphes
             self._static_ax.set_xlabel(x_label)
             self._static_ax.set_ylabel(y_label)
             self._static_ax.set_title(title)

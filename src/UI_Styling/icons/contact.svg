@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="none" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="path_1" d="M60 0L60 0L60 60L0 60L0 0L60 0Z" />
+    <rect id="rect_2" x="0" y="0" width="60" height="60" />
+    <clipPath id="clip_path_3">
+      <use xlink:href="#rect_2" />
+    </clipPath>
+  </defs>
+  <g id="Frame" opacity="1" clip-path="url(#clip_path_3)">
+    <g>
+      <use xlink:href="#path_1" style="mix-blend-mode:normal;" />
+      <g>
+        <path id="Path" d="M45.875 18.75C43.75 8.125 34.375 0 23.125 0C10.375 0 0 10.375 0 23.125C0 24.375 0.125 25.5 0.25 26.75" style="fill:none;stroke-width:3;stroke:#DDDDDD;stroke-linecap:round;stroke-linejoin:round;mix-blend-mode:normal;" transform="translate(6.875 6.875)" />
+        <path id="Path" d="M2.91815 5.75C2.91815 5.75 0.0431514 16 0.0431514 16C-0.206848 17 0.668151 17.875 1.66815 17.625C1.66815 17.625 11.9182 14.75 11.9182 14.75C15.2932 16.625 19.0432 17.625 23.1682 17.625C34.0432 17.625 43.1682 10.125 45.6682 0" style="fill:none;stroke-width:3;stroke:#DDDDDD;stroke-linecap:round;stroke-linejoin:round;mix-blend-mode:normal;" transform="translate(6.832 35.5)" />
+      </g>
+    </g>
+  </g>
+</svg>

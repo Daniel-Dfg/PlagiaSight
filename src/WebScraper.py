@@ -183,7 +183,7 @@ class HtmlText:
         with open("temp.txt", "w", encoding="utf-8-sig") as t:
             for html_tag in html_tags_list:
                 t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
-
+                
     def removeTempText(self): # To discuss (whether temp file or straight up str)
         remove("temp.txt")
 

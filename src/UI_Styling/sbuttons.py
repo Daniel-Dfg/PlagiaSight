@@ -6,15 +6,18 @@ class SButtons(QPushButton):
     """
     - Special button
     """
-    def __init__(self, text:str, parent:QWidget= None) -> None:
+    def __init__(self, text:str= None, parent:QWidget= None) -> None:
         super().__init__(text, parent)
         self.resize(w, h)
         self.setStyleSheet("""
-                           *{
-                               background-color:#5E485A;
+                           QPushButton{
+                               background-color:#5C3D58;
                                border-style:none;
                                border-radius:4;
                                color: white;
                                font-size: 18px;
+                           }
+                           QPushButton::hover{
+                               background-color:#996690;
                            }
                            """)

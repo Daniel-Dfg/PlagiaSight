@@ -8,7 +8,7 @@ import pytest
 import unittest
 import nltk
 import chardet
-from src import Tokenizer, TokensStatsAndRearrangements, TokensComparisonAlgorithms
+from src.TextAnalysis import Tokenizer, TokensStatsAndRearrangements, TokensComparisonAlgorithms
 from random import choice
 from os import path
 
@@ -51,7 +51,7 @@ class TestTextAnalysis(unittest.TestCase):
             self.source_tokens)
 
         self.tpa = TokensComparisonAlgorithms(
-            input_tokens_sets=self.poem_TSAR, source_tokens_sets=self.source_TSAR)
+            _input_tokens_sets=self.poem_TSAR, _source_tokens_sets=self.source_TSAR)
 
     def test_word_tokenization(self):
         expected_tokens = [
