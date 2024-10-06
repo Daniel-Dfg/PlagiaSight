@@ -14,12 +14,12 @@ class SMainWindow(QMainWindow):
         self.background = QWidget()
         self.background.setObjectName("background")
         self.background.setStyleSheet("""
-                           QWidget#background{       
-                                background-color: qlineargradient(x1: 1, y1: 0, x2: 1, y2: 1,stop: 0 #2B2B2B,stop: 1 #413439);
+                           QWidget#background{
+                                background-color: qlineargradient(x1: 1, y1: 0, x2: 1, y2: 1,stop: 0 #100B2B,stop: 1 #473242);
                                 border-radius:10px;
                                 }""")
         self.setCentralWidget(self.background)
-        
+
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton and not self.window().isMaximized():
             self.dragging = True
