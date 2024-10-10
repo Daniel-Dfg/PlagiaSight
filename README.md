@@ -1,3 +1,5 @@
+<img src="./src/UI_Styling/logo/PlagiaSight.png" style="height:300px">
+
 # PlagiarismDetectionProject
 
 ### Introduction:
