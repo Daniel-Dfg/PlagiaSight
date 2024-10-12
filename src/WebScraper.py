@@ -1,4 +1,4 @@
-from requests import get, RequestException, Response, ReadTimeout, ConnectionError, HTTPError
+from requests import ConnectTimeout, get, RequestException, Response, ReadTimeout, ConnectionError, HTTPError
 from numpy import array, ndarray, append, zeros
 from urllib.robotparser import RobotFileParser
 from urllib.error import URLError
@@ -77,7 +77,6 @@ class URLs:
     word_sent: str
     number: int
     useless_domain: str = field(init=False, repr=False) # Exclude useless domain
-    _url_array: ndarray = field(init=False, repr=False)
     _response_array: ndarray = field(init=False, repr=False)
     #TODO dict store url infos: response, title, author, date, co-author, etc...
 
@@ -93,7 +92,7 @@ class URLs:
             # google: Avoid error 429 (Too many requests) and ddgo: Avoid error 202 Ratelimit
         """
         urls = ss.safeSearch(word_sent, number, headers["User-Agent"], start)
-        return array(urls, dtype="U130")
+        return array(urls)
 
     @staticmethod
     def manageRobotsDotTxt(url:str) -> bool:
@@ -126,13 +125,14 @@ class URLs:
             for url in self._url_array[cut_at-self.number:]:
                 while True: # To stop the process if there is no internet connection
                     try:
-                        response = get(url, headers=headers, timeout=2)
                         print(url)
+                        response = get(url, headers=headers, timeout=2)
                         print(response)
                         sleep(2)
                         break # if there is internet connection
-                    except (URLError, ReadTimeout):
+                    except (URLError, ReadTimeout, ConnectTimeout):
                         print("Unreachable website")
+                        response = Response()
                         response.status_code = 0
                         break # if there is internet connection
                     except ConnectionError:
@@ -143,10 +143,11 @@ class URLs:
                     count +=1
                     self.number -=1
                 else:
+                    print("Can't scrap the website")
                     unwanted = self._url_array != url
                     self._url_array = self._url_array[unwanted] # Remove unwanted url from array
             if self.number:
-                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number+start_cycle, start_cycle)
+                new_urls = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number, start_cycle)
                 start_cycle += self.number
                 self._url_array = append(self._url_array, new_urls)
 
@@ -171,7 +172,8 @@ class HtmlText:
     response: Response
 
     def __post_init__(self):
-        self.makeTempText()
+        pass
+        # self.makeTempText()
 
 
     def makeTempText(self):
@@ -179,15 +181,16 @@ class HtmlText:
             TODO (or not): How to manage sites with multilayer/pages
         """
         bs = BeautifulSoup(self.response.text, "html.parser")
-        html_tags_list = bs.find_all(["h1", "h2", "h3", "p", "pre"]) # Get good part of any info site (ideal of an info site)
-        with open("temp.txt", "w", encoding="utf-8-sig") as t:
-            for html_tag in html_tags_list:
-                t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
-                
-    def removeTempText(self): # To discuss (whether temp file or straight up str)
-        remove("temp.txt")
+        html_tags_list = bs.find_all({"h1", "h2", "h3", "p", "pre"}) # Get good part of any info site (ideal of an info site)
+        return "\n".join([html_tag.get_text()  for html_tag in html_tags_list])
+        # with open("temp.txt", "w", encoding="utf-8-sig") as t:
+        #     for html_tag in html_tags_list:
+        #         t.write(html_tag.get_text()+"\n") # Transform each tag to a text and write it in the temp file
 
+    # def removeTempText(self):
+    #     remove("temp.txt")
 
+'''
 class UserStatus:
     """
         Improve user experience, manage status, internet connection, etc...
@@ -219,10 +222,11 @@ class UserStatus:
                 print("Failed to retrieve Wi-Fi status")
         except Exception as e:
             print(f"An error occurred: {e}")
+'''
 
 
-
-#x = URLs("spear", 10)
-#p = x.response_array
-#temp = HtmlText(p[0])
+x = URLs("spear", 5)
+p = x.response_array
+temp = HtmlText(p[0])
+print(temp.makeTempText())
 #temp.removeTempText()
