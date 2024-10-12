@@ -225,9 +225,8 @@ class UserStatus:
 '''
 
 
-x = URLs('post0 packaging', 2)
-p = x.response_array
-temp = HtmlText(p[1])
-print(temp.makeTempText())
+#x = URLs('post0 packaging', 2)
+#p = x.response_array
+#temp = HtmlText(p[1])
 #print(temp.makeTempText())
 #temp.removeTempText()
