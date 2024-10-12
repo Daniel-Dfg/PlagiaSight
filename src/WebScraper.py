@@ -81,7 +81,7 @@ class URLs:
     #TODO dict store url infos: response, title, author, date, co-author, etc...
 
     def __post_init__(self):
-        self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com -site:amazon.jobs -site:indeed.com"
+        self.useless_domain = "-site:amazon.com -site:ebay.com -site:tiktok.com -site:youtube.com -site:netflix.com -site:facebook.com -site:twitter.com -site:instagram.com -site:hulu.com -site:amazon.jobs -site:indeed.com -site:bpost.be -site:postpack.ca"
         self._url_array = self.makeUrls(f"{self.word_sent} {self.useless_domain}", self.number)
         self._response_array = zeros(self.number, dtype=Response)
         self.recycleUrls()
@@ -181,7 +181,7 @@ class HtmlText:
             TODO (or not): How to manage sites with multilayer/pages
         """
         bs = BeautifulSoup(self.response.text, "html.parser")
-        html_tags_list = bs.find_all({"h1", "h2", "h3", "p", "pre"}) # Get good part of any info site (ideal of an info site)
+        html_tags_list = bs.find_all({"h1", "h2", "h3", "p", "pre", "span"}) # Get good part of any info site (ideal of an info site)
         return "\n".join([html_tag.get_text()  for html_tag in html_tags_list])
         # with open("temp.txt", "w", encoding="utf-8-sig") as t:
         #     for html_tag in html_tags_list:
@@ -225,8 +225,9 @@ class UserStatus:
 '''
 
 
-x = URLs("spear", 5)
+x = URLs('post0 packaging', 2)
 p = x.response_array
-temp = HtmlText(p[0])
+temp = HtmlText(p[1])
 print(temp.makeTempText())
+#print(temp.makeTempText())
 #temp.removeTempText()
