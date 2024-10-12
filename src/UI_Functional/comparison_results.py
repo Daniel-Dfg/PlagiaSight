@@ -2,6 +2,7 @@ from TextAnalysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRe
 from WebScraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
 
+GATHERED_URLS = 2
 
 @dataclass
 class OneFileComparison:
@@ -22,7 +23,7 @@ class OneFileComparison:
         source_file_keywords = {k: v for k, v in sorted(self.content_stats[self.source_file].syntagms_scores.items(), key=lambda item: item[1], reverse=True)[:1]}
         print(source_file_keywords.keys())
         for keyword in source_file_keywords.keys():
-            u = URLs(keyword, 2)
+            u = URLs(keyword, GATHERED_URLS)
             associated_urls = u.response_array
             for response in associated_urls:
                 site_name = response.url
