@@ -137,6 +137,7 @@ class Tokenizer:
         return self._raw_data
 
 
+
 class TokensStatsAndRearrangements: # To be referred as TSAR
     def __init__(self, base):
         self._base : Tokenizer = base
@@ -364,3 +365,15 @@ def extract_raw_from_file(file_path: str) -> str:
 
     with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
         return f.read().lower()
+
+"""
+#FOR TESTING PURPOSES (feel free to uncomment and play around with this)
+def test_sentences_tokenized():
+    poem_content = extract_raw_from_file("Resources/Sample Data/BasicTexts/" + "poem1.txt")
+    poem_tokens = Tokenizer(poem_content)
+
+    sentence_tokens_poem = [str(token) for token in list(
+        poem_tokens.tokens_by_sentence)]
+    print(sentence_tokens_poem)
+test_sentences_tokenized()
+"""

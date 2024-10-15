@@ -24,6 +24,7 @@ class TestTextAnalysis(unittest.TestCase):
         nltk.download('punkt')
         nltk.download('wordnet')
         nltk.download('stopwords')
+        nltk.download('punkt_tab')
 
         self.poem_file_path = testfiles_path_basic + "poem1.txt"
         self.source_file_path = testfiles_path_basic + "source.txt"
@@ -73,8 +74,8 @@ class TestTextAnalysis(unittest.TestCase):
 
     def test_sentence_tokenization(self):
         expected_sentences = [
-            'march into the abyss', 'look down,',
-            'acknowledge your existence', 'live your life at fullest'
+            'march into the abyss.', 'look down,',
+            'acknowledge your existence.', 'live your life at fullest.'
         ]
         sentence_tokens_poem = [str(token) for token in list(
             self.poem_tokens.tokens_by_sentence)]
