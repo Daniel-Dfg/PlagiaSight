@@ -27,8 +27,8 @@ class OneFileComparison:
             associated_urls = u.response_array
             for response in associated_urls:
                 site_name = response.url
-                text = HtmlText(response)
-                self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file("temp.txt")))
+                text = HtmlText(response).makeTempText()
+                self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(text))
                 self.comparison_with[site_name] = TokensComparisonAlgorithms(self.content_stats[self.source_file], self.content_stats[site_name])
                 #text.removeTempText()
         #links = get_links_from_keywords(self.source_data.base.find_keywords()) (pseudocode)

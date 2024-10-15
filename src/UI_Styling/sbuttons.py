@@ -11,13 +11,12 @@ class SButtons(QPushButton):
         self.resize(w, h)
         self.setStyleSheet("""
                            QPushButton{
-                               background-color:#5C3D58;
-                               border-style:none;
+                               background-color:qlineargradient(x1: 1, y1: 0, x2: 1, y2: 1,stop: 0 #4F3242,stop: 1 #001A27);
                                border-radius:4;
                                color: white;
                                font-size: 18px;
                            }
                            QPushButton::hover{
-                               background-color:#996690;
+                               background-color:qlineargradient(x1: 1, y1: 0, x2: 1, y2: 1,stop: 0 #7F324F,stop: 1 #001A27);
                            }
                            """)
