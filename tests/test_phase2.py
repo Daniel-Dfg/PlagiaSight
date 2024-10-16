@@ -1,4 +1,5 @@
 import pytest
+import os # To be used in the future for the error handling
 import unittest
 from src import URLs, HtmlText
 
@@ -9,10 +10,10 @@ class TestScraping(unittest.TestCase):
         self.temp = HtmlText(self.p[0])
 
     def extract_temp_data(self):
-        with open("temp.txt", "r", encoding="utf-8-sig") as file:
+        with open("../data/temp.txt", "r", encoding="utf-8-sig") as file:
             self.temp_content = file.read()
         return self.temp_content
-
+    """
     def test_temp(self):
 
         data = self.extract_temp_data()
@@ -23,9 +24,9 @@ class TestScraping(unittest.TestCase):
                 self.temp = HtmlText(self.p[i])
         else:
             self.assertTrue(data)
-
-        """
-        To be done because allowed_chars it not that simple
-        if any(char not in allowed_chars for char in data):
-            raise Exception("Invalid characters found in temp file")
-        """
+    """
+    """
+    To be done because allowed_chars it not that simple
+    if any(char not in allowed_chars for char in data):
+        raise Exception("Invalid characters found in temp file")
+    """
