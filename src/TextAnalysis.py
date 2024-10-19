@@ -5,7 +5,7 @@
 
 #Language processing related ↴
 from nltk import FreqDist, data, pos_tag
-from nltk.tokenize import simple, wordpunct_tokenize, word_tokenize
+from nltk.tokenize import wordpunct_tokenize, word_tokenize
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
@@ -15,46 +15,70 @@ from string import punctuation # helps to check if a string is made of punctuati
 from collections import Counter
 from numpy import array, append, ndarray
 from dataclasses import dataclass, field
+from collections import defaultdict
 #Misc ↴
 from math import sqrt
 from numpy import mean, median
 from os import path
 import chardet #detects file encoding
+from time import time
+from lemminflect import getLemma
 
 #Global constants ↴
 VALID_FILE_EXTENSIONS = [".txt"]
 REGEX_SPLIT_SENTENCES = r"(?<!\w\.\w.)(?<!\b[A-Z][a-z]\.)(?<![A-Z]\.)(?<=\.|\?)\s|\n"
 TEXT_TOO_SHORT_LIMIT = 3 #minimal amount of sentences for the analysis to be made
 SENTENCES_TOO_SHORT_LIMIT = 3 #minimal amount of words/sentence on average to be considered a "valid" text
+TIME = None
 
+#TODO : find the main bottleneck between extract_raw, Tokenizer and TokensStatsAndRearrangements (after first optimizations)
+#TODO : learn about numba Just-In-Time compiler (and its alternatives)
+#TODO : implement benchmarking for basic operations; they should be documented too, to explain why we choose this way of reading text over that way (regarding speed.)
+# code readability might be hurt tho, this will have to be documented too.
+# Reconsider task delegation from TSAR to Tokenizer (will need benchmarking too)
 @dataclass
 class Tokenizer:
     _raw_data: str #init = True (given as parameter)
     _tokens_by_sentence: ndarray = field(init=False, repr=False)
     _tokens_by_wordpunct: ndarray = field(init=False, repr=False)
-    _tokens_by_word: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
-    _tokens_by_syntagm: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
-    _part_of_speeches_tags: ndarray = field(init=False, repr=False, default_factory=lambda: array([]))
+    _tokens_by_word: ndarray = field(init=False, repr=False, default_factory=lambda : array([]))
+    _tokens_by_syntagm: ndarray = field(init=False, repr=False, default_factory=lambda : array([]))
+    _part_of_speeches_tags: ndarray = field(init=False, repr=False, default_factory=lambda : array([]))
 
     def __post_init__(self):
-        sentences = re.split(REGEX_SPLIT_SENTENCES, self._raw_data)
+        TIME = time()
+        sentences = re.split(REGEX_SPLIT_SENTENCES, self._raw_data) #Possible subbottleneck
         self._tokens_by_sentence = array([sent.strip() for sent in sentences if sent.strip()])
         if len(self._tokens_by_sentence) < TEXT_TOO_SHORT_LIMIT:
             raise UnprocessableTextContent("Text is too short")
+        TIME = time()
         tokens_by_wordpunct_first_pass = wordpunct_tokenize(self._raw_data) #will be filtered in the next lines
+        TIME = time()
         pos_tags_first_pass = self._lemmatize_and_tag_tokens(tokens_by_wordpunct_first_pass) # → list[(word, pos_tag)]
+        print("Time spent lemmatizing and tagging", time() - TIME)
+        TIME = time()
         self._tokens_by_syntagm, self._tokens_by_wordpunct = self._filter_and_group_tokens(pos_tags_first_pass)
+        print("Time spent filtering and grouping", time() - TIME)
 
 
-    def _lemmatize_and_tag_tokens(self, tbwp_first_pass) -> list[tuple[str, str]]:
-        lemmatizer = WordNetLemmatizer()
+    def _lemmatize_and_tag_tokens(self, tbwp_first_pass) -> list[tuple[str, str]]: #BOTTLENECK
+        #lemmatizer = WordNetLemmatizer() #kept as a backup solution, with lemmatizer.lemmatize(token, self._get_wordnet_pos(tag))
         part_of_speech_tags = []
-        for token, tag in pos_tag(tbwp_first_pass):
+        time_spent_lemmatizing = 0
+        pos_tagged_tbwp = pos_tag(tbwp_first_pass)
+        for token, tag in pos_tagged_tbwp:
             if not self._is_only_punctuation(token):
-                lemmatized_token = lemmatizer.lemmatize(token, self._get_wordnet_pos(tag))
-                part_of_speech_tags.append((lemmatized_token, tag))
+                TIME = time()
+                lemma_tuple = getLemma(token, self.get_tag_lemminflect(tag)) #optimization compared to WordNetLemmatizer
+                if lemma_tuple:
+                    lemmatized_form = lemma_tuple[0]
+                else:
+                    lemmatized_form = token
+                time_spent_lemmatizing += time() - TIME
+                part_of_speech_tags.append((lemmatized_form, tag))
             else:
                 part_of_speech_tags.append((token, "Punct")) #fix mistakes made by the automatic POS tagger
+        print("Time spent lemmatizing", time_spent_lemmatizing)
         return part_of_speech_tags
 
     def _filter_and_group_tokens(self, part_of_speech_tags) -> tuple[ndarray, ndarray]:
@@ -70,6 +94,7 @@ class Tokenizer:
         filtered_tokens_by_wordpunct = []
         all_syntagms = []
         current_syntagm = []
+        #Possible subbottleneck : reiterating over the filtered list (might not be necessary)
         for term, pos in part_of_speech_tags: #term = either a word or a punctuation sign
             if term in stop_words or self._is_only_punctuation(term) or term == '': #if this token is a "syntagm breaker"
                 if current_syntagm != []:
@@ -90,15 +115,15 @@ class Tokenizer:
     def _is_only_punctuation(self, token) -> bool:
         return all(char in punctuation for char in token)
 
-    def _get_wordnet_pos(self, tag):
+    def get_tag_lemminflect(self, tag):
         if tag.startswith('J'):
-            return wordnet.ADJ
+            return 'ADJ'
         elif tag.startswith('V'):
-            return wordnet.VERB
+            return 'VERB'
         elif tag.startswith('R'):
-            return wordnet.ADV
+            return 'ADV'
         else:
-            return wordnet.NOUN  # Default
+            return 'NOUN' # Default
 
     @property
     def tokens_by_sentence(self):
@@ -149,8 +174,7 @@ class TokensStatsAndRearrangements: # To be referred as TSAR
         sum_of_sent_lengths = 0
         self._sent_lengths = []
         for sent in self._base.tokens_by_sentence:
-            #sent_length = len(sent.split())
-            sent_length = len(word_tokenize(sent)) #TODO : think about an optimization here
+            sent_length = len(word_tokenize(sent)) #Possible subbottleneck : shouldn't we have split the sentences before to extract words from it ?
             sum_of_sent_lengths += sent_length
             self._sent_lengths.append(sent_length)
         self._average_sent_length = sum_of_sent_lengths / len(self._base.tokens_by_sentence)
@@ -160,14 +184,17 @@ class TokensStatsAndRearrangements: # To be referred as TSAR
 
     def evaluate_syntagms_scores(self):
         #Helper to evaluate the syntagms scores based on the RAKE algorithm.
-        word_degrees = {}
+        word_degrees = defaultdict(int)
         for s in self._base.tokens_by_syntagm:
             degree = len(s) - 1
             for word in s:
+                """
                 if word not in word_degrees:
                     word_degrees[word] = degree
                 else:
                     word_degrees[word] += degree
+                """
+                word_degrees[word] += degree
         words_scores = {word: word_degrees[word] / self._word_freq[word] for word in self._word_freq}
 
         for s in self._base.tokens_by_syntagm:
@@ -295,7 +322,9 @@ class TokensComparisonAlgorithms: # To be referred as TCA
     def find_similar_ngrams(self, input_ngrams, source_ngrams):
         similar_ngrams = {}
         for ngram in input_ngrams:
-            if ngram in source_ngrams:
+            if ngram in source_ngrams: #Possible subbottleneck : subloop each time, unefficient. Might be better to :
+                # a) hash then lookup
+                # b) less memory-consuming approach ?
                 input_occurrences = input_ngrams[ngram]
                 source_occurrences = source_ngrams[ngram]
                 similar_ngrams[ngram] = (input_occurrences, source_occurrences)
@@ -366,6 +395,7 @@ def extract_raw_from_file(file_path: str) -> str:
     with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
         return f.read().lower()
 
+<<<<<<< Updated upstream
 """
 #FOR TESTING PURPOSES (feel free to uncomment and play around with this)
 def test_sentences_tokenized():
@@ -377,3 +407,8 @@ def test_sentences_tokenized():
     print(sentence_tokens_poem)
 test_sentences_tokenized()
 """
+=======
+
+#p = "/home/daniel/Downloads/thing2.txt"
+#t = Tokenizer(extract_raw_from_file(p))
+>>>>>>> Stashed changes

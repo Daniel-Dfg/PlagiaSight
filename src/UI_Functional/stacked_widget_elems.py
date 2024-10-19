@@ -1,4 +1,3 @@
-from typing import Generic
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
                              QListWidget, QHBoxLayout, QComboBox, QRadioButton,
                              QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
@@ -8,11 +7,14 @@ from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
 from .utilities import DropArea, GraphWindow
 from UI_Styling import slabels, sbuttons
+from time import time
 
 #GLOBAL CONSTANTS : characteristics with their attributes equivalents (to get them via the getattr() built-in Python method later on)
 #Characteristics independent to each text (found in the TokenStatsAndRearrangements instance each text is in)
 INDIV_CHARACTERISTICS = ["Text Richness", "average sentence length", "median sentence length"]
 INDIV_CHARS_ATTRS = ["text_richness", "average_sent_length", "median_sent_length"]
+CURRENT_TIME = None
+
 
 ### SIMPLE ANALYSIS ###
 #Characteristics common to each 'duo' of texts (found in the TextComparisonAlgorithms instance they're both in)
@@ -69,7 +71,7 @@ class Step0_WelcomingMessage(QWidget):
         self.setLayout(layout)
 
     def proceed_to_step1(self, max_files_amount):
-        self.main_window.max_files_amount = max_files_amount #TODO : rethink the code elsewhere now that this has changed !!!
+        self.main_window.max_files_amount = max_files_amount
         self.main_window.step1_widget = Step1_FileDropAndCheck(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step1_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step1_widget)
@@ -107,7 +109,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.warning_label.setStyleSheet("color: red;")
         layout.addWidget(self.warning_label)
 
-        self.correct_files_label = QLabel("Valid files:")
+        self.correct_files_label = QLabel(f"Valid files (0 / {self.main_window.max_files_amount})")
         layout.addWidget(self.correct_files_label)
         self.correct_files_list = QListWidget()
         layout.addWidget(self.correct_files_list)
@@ -141,10 +143,12 @@ class Step1_FileDropAndCheck(QWidget):
     def update_status(self):
         """Update status based on the number of files dropped."""
         num_valid_files = len(self.drop_area.correct_files)
+        self.correct_files_label.setText(f"Valid files ({num_valid_files} / {self.main_window.max_files_amount})")
         if num_valid_files >= self.drop_area.min_file_amount:
             self.next_button.setEnabled(True)
             self.status_label.setText("🗸 Ready to analyze 🗸")
             self.status_label.setStyleSheet("color: green;")
+            self.warning_label.setText("")
         else:
             self.next_button.setEnabled(False)
             self.status_label.setText(f"⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.")
@@ -197,9 +201,7 @@ class Step1_FileDropAndCheck(QWidget):
             remove_button.setStyleSheet("background: none; border: none; color: red; font-weight: bold;")
             remove_button.setFixedSize(20, 20)
             remove_button.clicked.connect(lambda: self.remove_file(file, item, valid))
-
-            # Cache le bouton de suppression initialement
-            remove_button.setVisible(True)
+            remove_button.setVisible(False)
             layout.addWidget(remove_button)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
@@ -291,10 +293,13 @@ class Step2_AnalysisComplexityPick(QWidget):
     def launch_analysis(self):
         selected_analysis = "simple" if self.simple_analysis_radio.isChecked() else "complex"
         #Move on to Step3Widget
+        CURRENT_TIME = time()
+        print("Loading step3...")
         self.main_window.step3_widget = Step3_LoadResults(self.main_window, selected_analysis)
         self.main_window.stacked_widget.addWidget(self.main_window.step3_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step3_widget)
         self.main_window.help_window.expand_step(3)
+        print("Step3 loaded in", time() - CURRENT_TIME)
 
 class Step3_LoadResults(QWidget):
     done = Signal()
@@ -330,12 +335,16 @@ class Step3_LoadResults(QWidget):
             #web scraping, etc
             ...
             print("processing a SINGLE FILE")
+            CURRENT_TIME = time()
             self.main_window.final_results = OneFileComparison(self.progress_bar, content[0], self.analysis_complexity)
+            print("OneFileComparison done in", time() - CURRENT_TIME)
         else:
             ...
             print("processing a SET of FILES")
             #compare files between each other
-            self.main_window.final_results = CrossCompare(self.progress_bar, files_paths=content, comparison_type=self.analysis_complexity)
+            CURRENT_TIME = time()
+            self.main_window.final_results = CrossCompare(self.progress_bar ,files_paths=content, comparison_type=self.analysis_complexity)
+            print("CrossCompare done in", time() - CURRENT_TIME)
 
         # Mark all as complete
         self.current_file_processed_label.setText("Processing: Complete")
@@ -343,10 +352,13 @@ class Step3_LoadResults(QWidget):
 
 
     def move_to_step4(self):
+        print("Moving to step 4")
+        CURRENT_TIME = time()
         self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step4_widget)
         self.main_window.help_window.expand_step(4)
+        print("Step4 loaded in", time() - CURRENT_TIME)
 
 class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
