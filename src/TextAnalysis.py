@@ -395,7 +395,6 @@ def extract_raw_from_file(file_path: str) -> str:
     with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
         return f.read().lower()
 
-<<<<<<< Updated upstream
 """
 #FOR TESTING PURPOSES (feel free to uncomment and play around with this)
 def test_sentences_tokenized():
@@ -407,8 +406,3 @@ def test_sentences_tokenized():
     print(sentence_tokens_poem)
 test_sentences_tokenized()
 """
-=======
-
-#p = "/home/daniel/Downloads/thing2.txt"
-#t = Tokenizer(extract_raw_from_file(p))
->>>>>>> Stashed changes
