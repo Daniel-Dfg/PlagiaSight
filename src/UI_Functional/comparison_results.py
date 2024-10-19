@@ -1,8 +1,11 @@
 from TextAnalysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
 from WebScraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
+from time import time
 
-GATHERED_URLS = 2
+
+CURRENT_TIME = time()
+GATHERED_URLS = 1
 
 @dataclass
 class OneFileComparison:
@@ -52,8 +55,8 @@ class CrossCompare:
     progress_bar : QProgressBar
     files_paths: list[str]
     comparison_type: str  # either "simple" or "complex"
-    content_stats: dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False)  # Statistiques individuelles par fichier
-    comparisons: dict[tuple[str, str], TokensComparisonAlgorithms] = field(init=False, repr=False)  # Comparaisons entre les fichiers
+    content_stats: dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False)
+    comparisons: dict[tuple[str, str], TokensComparisonAlgorithms] = field(init=False, repr=False)
 
     def __post_init__(self):
         progress_bar_small_increment = int(30 / (len(self.files_paths)) - 4)
@@ -63,20 +66,24 @@ class CrossCompare:
         if self.comparison_type not in ["simple", "complex"]:
             raise ValueError(f"Invalid comparison type. Must be either 'simple' or 'complex'. It is currently {self.comparison_type}.")
 
-        # Générer les statistiques pour chaque fichier
         #print(self.files_paths, "FILES PATHS")
         self.progress_bar.setValue(0)
-        for file in self.files_paths:
-            self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file)))
+        CURRENT_TIME = time()
+        for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
+            print("\nFILE\n----------------", file)
+            self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
+            print(self.progress_bar.value() + progress_bar_small_increment)
             self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
+        print("Stats generation time:", time() - CURRENT_TIME)
 
         # Comparer chaque fichier avec les autres
+        CURRENT_TIME = time()
         for i, file1 in enumerate(self.files_paths):
             for j, file2 in enumerate(self.files_paths):
                 if i < j:
                     tsar1 = self.content_stats[file1]
                     tsar2 = self.content_stats[file2]
-                    self.comparisons[(file1, file2)] = TokensComparisonAlgorithms(tsar1, tsar2)
+                    self.comparisons[(file1, file2)] = TokensComparisonAlgorithms(tsar1, tsar2) #BOTTLENECK
                     if self.comparison_type == "simple":
                         self.simple_analysis_two_files(file1, file2)
                         #self.comparisons[(file1, file2)].display_simple_results()
@@ -85,8 +92,14 @@ class CrossCompare:
                         #self.comparisons[(file1, file2)].display_complex_results()
                     #print("increment by", progress_bar_big_increment)
                     self.progress_bar.setValue(self.progress_bar.value() + progress_bar_big_increment)
+        print("Comparisons generation time:", time() - CURRENT_TIME)
         self.progress_bar.setValue(100)
 
+    def process_file(self, file):
+        """Traite un fichier individuel et retourne le résultat."""
+        tokenizer = Tokenizer(extract_raw_from_file(file))
+        stats = TokensStatsAndRearrangements(tokenizer)
+        return file, stats
 
     def simple_analysis_two_files(self, file1, file2) -> None:
         # just triggering the necessary computations that weren't done
