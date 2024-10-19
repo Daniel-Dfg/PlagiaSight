@@ -293,13 +293,10 @@ class Step2_AnalysisComplexityPick(QWidget):
     def launch_analysis(self):
         selected_analysis = "simple" if self.simple_analysis_radio.isChecked() else "complex"
         #Move on to Step3Widget
-        CURRENT_TIME = time()
-        print("Loading step3...")
         self.main_window.step3_widget = Step3_LoadResults(self.main_window, selected_analysis)
         self.main_window.stacked_widget.addWidget(self.main_window.step3_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step3_widget)
         self.main_window.help_window.expand_step(3)
-        print("Step3 loaded in", time() - CURRENT_TIME)
 
 class Step3_LoadResults(QWidget):
     done = Signal()
@@ -352,13 +349,10 @@ class Step3_LoadResults(QWidget):
 
 
     def move_to_step4(self):
-        print("Moving to step 4")
-        CURRENT_TIME = time()
         self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step4_widget)
         self.main_window.help_window.expand_step(4)
-        print("Step4 loaded in", time() - CURRENT_TIME)
 
 class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
