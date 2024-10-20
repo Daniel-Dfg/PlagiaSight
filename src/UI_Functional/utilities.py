@@ -123,30 +123,34 @@ class HelpWindow(QWidget):
 class GetInTouchWindow(QWidget):
     def __init__(self, main_window):
         super().__init__()
+        self.is_fully_init = False
         self.main_window = main_window
 
         self.setWindowTitle("Get in touch")
 
-        layout = QVBoxLayout()
+        # Make the layout an instance attribute so it can be accessed later
+        self.lay_out = QVBoxLayout()
 
         label = QLabel("Bug? Feature request? Commentary? Collab? We're all ears!")
-        layout.addWidget(label)
+        self.lay_out.addWidget(label)
+        self.setLayout(self.lay_out)  # Set the layout to the window
 
-        self.add_contact_info(layout, "Daniel D.", ["Texts similarity computations", "UI (functional)"],
+    def full_init(self):
+        self.add_contact_info(self.lay_out, "Daniel D.", ["Texts similarity computations", "UI (functional) and UX design", "Documentation"],
                               Mail="mailto:danieldefoing@gmail.com",
                               GitHub="https://github.com/Daniel-Dfg",
                               Discord="https://discord.com/users/720963652286414909")
 
-        self.add_contact_info(layout, "LUCKYINS", ["Web scraping", "UI (styling)"],
+        self.add_contact_info(self.lay_out, "LUCKYINS", ["Web scraping", "UI (styling)", "GitHub workflows"],
                               GitHub="https://github.com/Luckyyyin")
 
-        self.add_contact_info(layout, "onuriscoding", ["UX Design", "GitHub workflows"],
+        self.add_contact_info(self.lay_out, "onuriscoding", ["UX Design", "GitHub workflows"],
                               GitHub="https://github.com/onuriscoding")
 
-        self.add_contact_info(layout, "botEkrem", ["General Consultancy", "GitHub workflows", "Cross-platform compatibility (dockerization)"],
+        self.add_contact_info(self.lay_out, "botEkrem", ["General Consultancy", "GitHub workflows", "Cross-platform compatibility (dockerization)"],
                               GitHub="https://github.com/BotEkrem")
 
-        self.setLayout(layout)
+        self.is_fully_init = True
 
     def add_contact_info(self, parent_layout, name, roles=[], *args, **kwargs):
         if len(kwargs) > 3 or not kwargs:
