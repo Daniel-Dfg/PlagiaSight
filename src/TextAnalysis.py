@@ -1,13 +1,14 @@
 ######
 #ALL EXPLAINATIONS ARE IN OUR MANIFESTO :
-# https://github.com/LUCKYINS/PlagiarismDetectionProject
+# https://github.com/LUCKYINS/PlagiarismDetectionProject/...
 ######
 
 #Language processing related ↴
 from nltk import FreqDist, data, pos_tag
 from nltk.tokenize import wordpunct_tokenize, word_tokenize
 from nltk.corpus import stopwords, wordnet
-from nltk.stem import WordNetLemmatizer
+#from nltk.stem import WordNetLemmatizer
+from lemminflect import getLemma
 from nltk.util import ngrams
 import re
 from string import punctuation # helps to check if a string is made of punctuation only
@@ -22,7 +23,7 @@ from numpy import mean, median
 from os import path
 import chardet #detects file encoding
 from time import time
-from lemminflect import getLemma
+
 
 #Global constants ↴
 VALID_FILE_EXTENSIONS = [".txt"]

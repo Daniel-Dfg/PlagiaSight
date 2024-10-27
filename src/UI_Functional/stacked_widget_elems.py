@@ -372,6 +372,7 @@ class Step4_DisplayResults(QWidget):
         self.right_content_title = QComboBox()
 
         if isinstance(self.main_window.final_results, OneFileComparison):
+            #TODO : complete this
             self.left_content_title = QComboBox()
             self.left_content_title.addItem(self.main_window.final_results.source_file)
             right_items = sorted(list(self.main_window.final_results.comparison_with.keys())) #the site names
@@ -381,13 +382,18 @@ class Step4_DisplayResults(QWidget):
             self.left_content_title.addItems(self.main_window.step1_widget.drop_area.correct_files)
             right_items = self.main_window.step1_widget.drop_area.correct_files
             self.right_content_title.addItems(right_items)
-            self.right_content_title.removeItem(0)
-            self.left_content_title.currentIndexChanged.connect(self.update_results)
+            self.left_content_title.currentIndexChanged.connect(lambda : self.sync_comboboxes(self.left_content_title))
+            self.right_content_title.currentIndexChanged.connect(lambda : self.sync_comboboxes(self.right_content_title))
+
+
         else:
             raise TypeError("Unexpected type for final_results")
 
         file_selection_layout.addWidget(QLabel("File 1:"))
         file_selection_layout.addWidget(self.left_content_title)
+        switch_button = QPushButton("Switch Files")
+        switch_button.clicked.connect(self.switch_files)
+        file_selection_layout.addWidget(switch_button)
         file_selection_layout.addWidget(QLabel("File 2:"))
         file_selection_layout.addWidget(self.right_content_title)
 
@@ -422,7 +428,6 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(line_layout)
 
-        # Ajouter les caractéristiques communes
         for common_char in self.textual_display_common_charcs:
             line_layout = QHBoxLayout()
 
@@ -436,15 +441,15 @@ class Step4_DisplayResults(QWidget):
             layout.addLayout(line_layout)
 
         self.reset_button = QPushButton("Reset")
-        self.reset_button.clicked.connect(self.reset_process)
+        self.reset_button.clicked.connect(self.reset_process_entirely)
         layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.setLayout(layout)
-        self.right_content_title.currentIndexChanged.connect(self.update_results)
-        self.update_results()
 
-    def reset_process(self):
-        #TODO : make it work (like, reset EVERYTHING because it doesn't work right now)
-        #TODO : add a warning window with extra options (like exporting results to JSON)
+        self.sync_comboboxes(self.left_content_title)
+        self.sync_comboboxes(self.right_content_title)
+
+
+    def reset_process_entirely(self):
         self.main_window.final_results = None
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step0_widget)
 
@@ -473,6 +478,59 @@ class Step4_DisplayResults(QWidget):
             for common_char_name, common_char_label in zip(self.textual_display_common_charcs, self.textual_display_common_func_labels):
                 common_res = getattr(results.get_comparison(file1, file2), common_char_label)
                 self.common_result_labels[common_char_name].setText(str(common_res))
+
+
+    def sync_comboboxes(self, changed_combobox):
+        # Récupère l'élément actuellement sélectionné dans la combobox qui a changé
+        selected_item = changed_combobox.currentText()
+
+        # Détermine quelle combobox doit être mise à jour (l'autre combobox)
+        if changed_combobox == self.left_content_title:
+            target_combobox = self.right_content_title
+            items = self.main_window.step1_widget.drop_area.correct_files
+        else:
+            target_combobox = self.left_content_title
+            items = self.main_window.step1_widget.drop_area.correct_files
+        target_combobox.blockSignals(True)
+
+        # Efface la combobox cible et ajoute les éléments en excluant l'élément sélectionné
+        target_combobox.clear()
+        for item in items:
+            if item != selected_item:
+                target_combobox.addItem(item)
+
+        # Réinitialise l'index pour éviter des erreurs si l'autre combobox n'a qu'un seul élément restant
+        if target_combobox.count() > 0:
+            target_combobox.setCurrentIndex(0)
+
+        target_combobox.blockSignals(False)
+        self.update_results()
+
+
+    def switch_files(self):
+        # Sauvegarder les éléments sélectionnés
+        left_file = self.left_content_title.currentText()
+        right_file = self.right_content_title.currentText()
+        self.left_content_title.blockSignals(True)
+        self.right_content_title.blockSignals(True)
+
+        self.left_content_title.addItem(right_file)
+        self.right_content_title.addItem(left_file)
+
+        # Changer les éléments sélectionnés
+        left_index = self.left_content_title.findText(right_file)
+        right_index = self.right_content_title.findText(left_file)
+
+        if left_index != -1:
+            self.left_content_title.setCurrentIndex(left_index)
+        if right_index != -1:
+            self.right_content_title.setCurrentIndex(right_index)
+
+        # Mettre à jour les résultats après le switch
+        self.left_content_title.blockSignals(False)
+        self.right_content_title.blockSignals(False)
+        self.sync_comboboxes(self.left_content_title)
+        self.sync_comboboxes(self.right_content_title)
 
     def prepare_graphs_data(self):
         file1, file2 = self.left_content_title.currentText(), self.right_content_title.currentText()
