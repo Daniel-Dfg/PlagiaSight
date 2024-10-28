@@ -1,3 +1,8 @@
+"""
+This file aims to provide a basic "skeleton" for our UI,
+by defining a basic structure to build each app window from.
+"""
+
 from PySide6.QtWidgets import QStackedWidget, QVBoxLayout
 from .stacked_widget_elems import Step0_WelcomingMessage
 from .utilities import GetInTouchWindow, HelpWindow

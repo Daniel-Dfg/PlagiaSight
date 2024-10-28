@@ -46,7 +46,7 @@ class DropArea(QTextEdit):
         files = [url.toLocalFile() for url in e.mimeData().urls()]
         valid_set = set(self.correct_files)
         for file in files:
-            if os.path.isfile(file) and self.is_valid_format_file(file) and file not in valid_set:
+            if os.path.isfile(file) and self.file_format_is_valid(file) and file not in valid_set:
                 if len(self.correct_files) < self.max_file_amount:
                     self.correct_files.append(file)
                     self.step1_widget.add_file_to_list_viz(file, valid=True)
@@ -60,7 +60,7 @@ class DropArea(QTextEdit):
                     self.step1_widget.show_warning(f"⚠️ .{file.split('.')[-1]} is not a valid file format.")
         self.step1_widget.update_status()
 
-    def is_valid_format_file(self, file_path):
+    def file_format_is_valid(self, file_path):
         return file_path.endswith('.txt')
 
     def process_directory(self, directory_path):
@@ -68,7 +68,7 @@ class DropArea(QTextEdit):
         valid_set = set(self.correct_files)
         for f in os.listdir(directory_path):
             full_path = os.path.join(directory_path, f)  # Chemin complet du fichier
-            if os.path.isfile(full_path) and self.is_valid_format_file(full_path):
+            if os.path.isfile(full_path) and self.file_format_is_valid(full_path):
                 if full_path not in valid_set:
                     if len(self.correct_files) >= self.max_file_amount:
                         self.step1_widget.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}.")
@@ -205,8 +205,6 @@ class GetInTouchWindow(QWidget):
         else:
             toggle_checkbox.setText("Show roles")
             roles_widget.setVisible(False)
-
-
 
 class GraphWindow(QWidget):
     def __init__(self, main_window):
