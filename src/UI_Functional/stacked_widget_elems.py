@@ -297,6 +297,7 @@ class Step3_LoadResults(QWidget):
         layout = QVBoxLayout()
 
         self.current_file_processed_label = QLabel("Processing: None")
+        self.current_file_processed_label.setStyleSheet("font-size:24px;")
         layout.addWidget(self.current_file_processed_label)
 
         # Barre de progression
@@ -349,13 +350,6 @@ class Step4_DisplayResults(QWidget):
 
         layout = QVBoxLayout()
 
-        graph_view_button = QPushButton("View Graph")
-        graph_view_button.clicked.connect(self.view_graph)
-        layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        title_label = QLabel("Comparison Results")
-        layout.addWidget(title_label, alignment=Qt.AlignmentFlag.AlignCenter)
-
         file_selection_layout = QHBoxLayout()
         self.right_content_title = QComboBox()
 
@@ -379,7 +373,7 @@ class Step4_DisplayResults(QWidget):
 
         file_selection_layout.addWidget(QLabel("File 1:"))
         file_selection_layout.addWidget(self.left_content_title)
-        switch_button = QPushButton("Switch Files")
+        switch_button = sbuttons.SButtons("Switch Files")
         switch_button.clicked.connect(self.switch_files)
         file_selection_layout.addWidget(switch_button)
         file_selection_layout.addWidget(QLabel("File 2:"))
@@ -428,7 +422,11 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(line_layout)
 
-        self.reset_button = QPushButton("Reset")
+        graph_view_button = sbuttons.SButtons("View Graph")
+        graph_view_button.clicked.connect(self.view_graph)
+        layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.reset_button = sbuttons.SButtons("Reset")
         self.reset_button.clicked.connect(self.reset_process_entirely)
         layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.setLayout(layout)
