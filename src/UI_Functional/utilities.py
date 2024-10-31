@@ -1,15 +1,13 @@
+from matplotlib.backends.backend_agg import RendererAgg
 from nltk.tokenize.api import overridden
 from typing_extensions import override
 from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
 from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QStandardItem, QStandardItemModel, QAction
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QPainter, QStandardItem, QStandardItemModel, QAction, QColor
+from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QValueAxis, QBarCategoryAxis
 import os
 import webbrowser
 from numpy import arange
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt import NavigationToolbar2QT as NavigationToolbar
-from matplotlib.figure import Figure
-from UI_Styling.sdroparea import SDropArea
 
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
@@ -27,7 +25,7 @@ class NonSelectableComboBox(QComboBox):
         self.standard_model.appendRow(item)
 
 
-class DropArea(SDropArea):
+class DropArea(QTextEdit):
     def __init__(self, step1_widget, max_file_amount=5):
         super().__init__()
         self.setAcceptDrops(True)
@@ -208,139 +206,109 @@ class GetInTouchWindow(QWidget):
             toggle_checkbox.setText("Show roles")
             roles_widget.setVisible(False)
 
+
+
 class GraphWindow(QWidget):
-    #TODO : documentation of this
     def __init__(self, main_window):
         self.main_window = main_window
         super().__init__()
-        self.setWindowTitle("Graphs: Sentence Length & Word Frequencies")
+        self.setWindowTitle("Graphs [find an explicit title]")
+        self.is_dark_mode = False
+
         layout = QVBoxLayout(self)
 
-        button_layout = QHBoxLayout()
+        next_previous_buttons_layout = QHBoxLayout()
         self.previous_button = QPushButton("Previous Graph")
         self.previous_button.clicked.connect(self.show_previous_graph)
         self.next_button = QPushButton("Next Graph")
         self.next_button.clicked.connect(self.show_next_graph)
-        button_layout.addWidget(self.previous_button)
-        button_layout.addWidget(self.next_button)
 
-        layout.addLayout(button_layout)
+        #self.save_button = QPushButton("Save Graph")
+        #self.save_button.clicked.connect(self.save_graph)
+        next_previous_buttons_layout.addWidget(self.previous_button)
+        next_previous_buttons_layout.addWidget(self.next_button)
 
-        self.canvas = FigureCanvas(Figure(figsize=(10, 6)))
-        layout.addWidget(NavigationToolbar(self.canvas, self))
-        layout.addWidget(self.canvas)
+        #button_layout.addWidget(self.save_button)
 
-        # Initialisation de l'axe pour les graphiques
-        self._static_ax = self.canvas.figure.subplots()
+        layout.addLayout(next_previous_buttons_layout)
 
-        # Liste des noms des graphiques ajoutés
+        self.toggle_theme_button = QPushButton("Toggle Dark Theme")
+        self.toggle_theme_button.clicked.connect(self.toggle_theme)
+        layout.addWidget(self.toggle_theme_button) #TODO : remove this to let it be toggled by global dark theme, when ABCODIN will be done with UI implementation
+
+        self.chart_view = QChartView()
+        layout.addWidget(self.chart_view)
+
+        # Data structure to store graphs
+        self.graph_data = {}
         self.graph_names = []
         self.current_graph_index = 0
 
     def add_FreqDist_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
-        """
-        Generic method to add a comparison graph from a FreqDist distribution.
-        """
+        # Merge and filter data
         all_keys = set(freq_dist1.keys()).union(set(freq_dist2.keys()))
         total_frequencies = {key: freq_dist1.get(key, 0) + freq_dist2.get(key, 0) for key in all_keys}
-        sorted_keys = sorted(total_frequencies.keys(), key=lambda k: total_frequencies[k], reverse=True)
+        sorted_keys = sorted(total_frequencies.keys(), key=lambda k: total_frequencies[k], reverse=True)[:20]
 
-        threshold_percentage = 0.1  # 10% of terms kept if...
-        threshold = 30 # ... more than 30 terms in total
-        if len(sorted_keys) > threshold:
-            sorted_keys = sorted_keys[:int(len(sorted_keys) * threshold_percentage)]
-
+        #TODO : think about an optimization (might loop too much times over the same data...)
         y_data1 = [freq_dist1.get(key, 0) for key in sorted_keys]
         y_data2 = [freq_dist2.get(key, 0) for key in sorted_keys]
 
-        # Prepare graph data
-        graph_data = (sorted_keys, y_data1, y_data2, x_label, y_label, title)
-        setattr(self, name, graph_data)
+        self.graph_data[name] = (sorted_keys, y_data1, y_data2, x_label, y_label, title)
         self.graph_names.append(name)
-        self.current_graph_index = len(self.graph_names) - 1
         self.show_graph(name)
 
     def add_LengthPlot_graph(self, name, lengths1, lengths2, x_label, y_label, title):
-        """
-        Generic method to add a comparison graph from a list of lengths.
-        """
-        # Ajoute des zéros à la liste la plus courte pour égaliser les tailles
         max_length = max(len(lengths1), len(lengths2))
         lengths1 += [0] * (max_length - len(lengths1))
         lengths2 += [0] * (max_length - len(lengths2))
+        x_data = [str(i) for i in range(1, max_length + 1)]
 
-        x_data = [f"{n}" for n in range(max_length)]
-
-        # Préparation des données du graphe
-        graph_data = (x_data, lengths1, lengths2, x_label, y_label, title)
-
-        # Stockage des données du graphe
-        setattr(self, name, graph_data)
+        self.graph_data[name] = (x_data, lengths1, lengths2, x_label, y_label, title)
         self.graph_names.append(name)
-        self.current_graph_index = len(self.graph_names) - 1
-
-        # Affichage immédiat du graphe ajouté
         self.show_graph(name)
 
-
-    def update_FreqDist_graph(self, name, freq_dist1, freq_dist2, x_label, y_label, title):
-        if hasattr(self, name):
-            common_keys = list(set(freq_dist1.keys()).intersection(set(freq_dist2.keys())))
-            common_keys.sort()
-
-            y_data1 = [freq_dist1[key] for key in common_keys]
-            y_data2 = [freq_dist2[key] for key in common_keys]
-
-            graph_data = (common_keys, y_data1, y_data2, x_label, y_label, title)
-            setattr(self, name, graph_data)
-            if self.graph_names[self.current_graph_index] == name:
-                self.show_graph(name)
-        else:
-            raise AttributeError(f"No graph named '{name}' found.")
-
-    def update_LengthPlot_graph(self, name, lengths1, lengths2, x_label, y_label, title):
-        if hasattr(self, name):
-            graph_data = ([f"{n}" for n in range(max(len(lengths1), len(lengths2)))],lengths1, lengths2, x_label, y_label, title)
-            setattr(self, name, graph_data)
-            if self.graph_names[self.current_graph_index] == name:
-                self.show_graph(name)
-        else:
-            raise AttributeError(f"No graph named '{name}' found.")
-
     def show_graph(self, name):
-        if hasattr(self, name):
-            self._static_ax.clear()
-            x_data, y_data1, y_data2, x_label, y_label, title = getattr(self, name)
-
-            # Si c'est un graphe de longueur de phrases, on utilise un graphe en bâtons
-            if "length" in name:
-                # Création d'un histogramme avec des barres côte à côte
-                bar_width = 0.35
-                index = arange(len(x_data))
-
-                # Affichage des barres concurrentes
-                self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
-                self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
-
-            else:
-                # Graphe de fréquence (ou autre type de graphe)
-                bar_width = 0.35
-                index = arange(len(x_data))
-
-                # Affichage des barres concurrentes pour les distributions de fréquence
-                self._static_ax.bar(index, y_data1, bar_width, label='Text 1')
-                self._static_ax.bar(index + bar_width, y_data2, bar_width, label='Text 2')
-
-            # Configuration commune aux deux types de graphes
-            self._static_ax.set_xlabel(x_label)
-            self._static_ax.set_ylabel(y_label)
-            self._static_ax.set_title(title)
-            self._static_ax.set_xticks(index + bar_width / 2)
-            self._static_ax.set_xticklabels(x_data, rotation=45, ha="right")
-            self._static_ax.legend()
-            self.canvas.draw()
-        else:
+        """
+        Problem : pseudo OOR (will fix via preloading), clicking once doesn't do anything...
+        """
+        if name not in self.graph_data:
             raise AttributeError(f"No graph named '{name}' found.")
+
+        x_data, y_data1, y_data2, x_label, y_label, title = self.graph_data[name]
+
+        chart = QChart()
+        chart.setTitle(title)
+
+        series = QBarSeries()
+        set1 = QBarSet("Text 1")
+        set2 = QBarSet("Text 2")
+
+        set1.append(y_data1)
+        set2.append(y_data2)
+        series.append(set1)
+        series.append(set2)
+
+        chart.addSeries(series)
+
+        axis_x = QBarCategoryAxis()
+        axis_x.append(x_data)
+        axis_x.setTitleText(x_label)
+        axis_x.setLabelsAngle(-90)
+
+        axis_y = QValueAxis()
+        axis_y.setTitleText(y_label)
+        axis_y.applyNiceNumbers()
+
+        chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
+        chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
+
+        series.attachAxis(axis_x)
+        series.attachAxis(axis_y)
+
+        self.apply_theme(chart)  # Appliquer le thème actuel
+
+        self.chart_view.setChart(chart)
 
     def show_previous_graph(self):
         if self.current_graph_index > 0:
@@ -355,3 +323,32 @@ class GraphWindow(QWidget):
         else:
             self.current_graph_index = 0
         self.show_graph(self.graph_names[self.current_graph_index])
+
+    def toggle_theme(self):
+        self.is_dark_mode = not self.is_dark_mode
+        self.show_graph(self.graph_names[self.current_graph_index])  # Recharger le graphique pour appliquer le thème
+
+    def apply_theme(self, chart):
+        if self.is_dark_mode:
+            chart.setBackgroundBrush(QColor("#2b2b2b"))
+            chart.setTitleBrush(QColor("#dddddd"))
+            for axis in chart.axes():
+                axis.setLabelsBrush(QColor("#dddddd"))
+                axis.setLinePenColor(QColor("#dddddd"))
+                axis.setGridLineColor(QColor("#444444"))
+        else:
+            chart.setBackgroundBrush(QColor("#ffffff"))
+            chart.setTitleBrush(QColor("#000000"))
+            for axis in chart.axes():
+                axis.setLabelsBrush(QColor("#000000"))
+                axis.setLinePenColor(QColor("#000000"))
+                axis.setGridLineColor(QColor("#cccccc"))
+
+    #WILL PROBABLY BE GROUPED WITH OTHER SAVE METHODS IN A DEDICATED CLASS (like exporting full data in JSON or stuff like that)
+    """
+    def save_graph(self):
+        file_path, _ = QFileDialog.getSaveFileName(self, "Save Graph", "", "PNG Files (*.png);;JPEG Files (*.jpg)")
+        if file_path:
+            pixmap = self.chart_view.grab()
+            pixmap.save(file_path)
+    """
