@@ -7,7 +7,7 @@ from TextAnalysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
 from .utilities import DropArea, GraphWindow
-from UI_Styling import slabels, sbuttons, filescontainer
+from UI_Styling import slabels, sbuttons, filescontainer, sradiobuttons
 from time import time
 
 #GLOBAL CONSTANTS : characteristics with their attributes equivalents (to get them via the getattr() built-in Python method later on)
@@ -235,20 +235,22 @@ class Step2_AnalysisComplexityPick(QWidget):
         layout = QVBoxLayout()
 
         self.label = QLabel("Choose the type of analysis you want to perform:")
-        layout.addWidget(self.label)
+        self.label.setStyleSheet("font-size:24px;")
+        layout.addWidget(self.label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.simple_analysis_radio = QRadioButton("Simple Analysis")
-        self.complex_analysis_radio = QRadioButton("Complex Analysis")
+        self.simple_analysis_radio = sradiobuttons.SRadioButton("Simple Analysis    ")
+        self.complex_analysis_radio = sradiobuttons.SRadioButton("Complex Analysis")
 
         self.analysis_group = QButtonGroup()
         self.analysis_group.addButton(self.simple_analysis_radio)
         self.analysis_group.addButton(self.complex_analysis_radio)
 
-        layout.addWidget(self.simple_analysis_radio)
-        layout.addWidget(self.complex_analysis_radio)
+        layout.addWidget(self.simple_analysis_radio, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.complex_analysis_radio, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.description_label = QLabel("Select an analysis type to see a brief description.")
-        layout.addWidget(self.description_label)
+        self.description_label.setStyleSheet("font-size:24px;")
+        layout.addWidget(self.description_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.launch_button = sbuttons.SButtons("LAUNCH")
         self.launch_button.setEnabled(False)
