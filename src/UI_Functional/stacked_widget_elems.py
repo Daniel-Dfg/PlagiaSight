@@ -43,16 +43,16 @@ class Step0_WelcomingMessage(QWidget):
         layout = QVBoxLayout()
 
         #Labels
-        sl1 = slabels.SLabels("PlagiaEye", self)
-        sl2 = slabels.SLabels("A transparent plagiarism detection tool.", self)
-        sl3 = slabels.SLabels("Compare...", self)
+        sl1 = QLabel("PlagiaSight", self)
+        sl2 = QLabel("A transparent plagiarism detection tool.", self)
+        sl3 = QLabel("Compare...", self)
 
         #Labels fonts
         labels = {sl1:"64", sl2:"24", sl3:"32"}
 
         #Set Labels
         for label,font_size in labels.items():
-            label.setStyleSheet(label.styleSheet().replace("font-size: none;", f"font-size: {font_size}px;"))
+            label.setStyleSheet(f"font-size: {font_size}px;")
             layout.addWidget(label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Buttons
@@ -97,12 +97,6 @@ class Step1_FileDropAndCheck(QWidget):
             self.drop_area.browseFolders.setHidden(False)
             self.drop_area.browseFolders.clicked.connect(self.open_directory_dialog)
 
-
-        # Warning Label
-        self.warning_label = QLabel("")
-        self.warning_label.setStyleSheet("color: red;")
-        layout.addWidget(self.warning_label)
-
         # Files container
         self.filesContainers = filescontainer.FilesContainer()
         self.correct_files_label = self.filesContainers.validContainer.label
@@ -118,13 +112,8 @@ class Step1_FileDropAndCheck(QWidget):
         self.back_button.clicked.connect(self.go_back)
         bottom_layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
 
-        self.status_label = QLabel("Nothing yet dropped.")
-        self.status_label.setStyleSheet("""
-            *{
-                color: rgba(255,255,255, 255);
-                font-size: 16px;
-            }
-            """)
+        self.status_label = QLabel("Nothing dropped yet!")
+        self.status_label.setStyleSheet("font-size:20px;color:white;")
         bottom_layout.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.next_button = sbuttons.SButtons("Next")
@@ -150,17 +139,11 @@ class Step1_FileDropAndCheck(QWidget):
         if num_valid_files >= self.drop_area.min_file_amount:
             self.next_button.setEnabled(True)
             self.status_label.setText("🗸 Ready to analyze 🗸")
-            self.status_label.setStyleSheet("color: green;")
-            self.warning_label.setText("")
+            self.status_label.setStyleSheet(("font-size:20px;color:green;"))
         else:
             self.next_button.setEnabled(False)
             self.status_label.setText(f"⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.")
-            self.status_label.setStyleSheet("color: white;")
-            self.show_warning(f"Please drop at least {self.drop_area.min_file_amount} valid file{'s' if self.drop_area.min_file_amount != 1 else ''}.")
-
-    def show_warning(self, message):
-        """Display warning message in the UI."""
-        self.warning_label.setText(message)
+            self.status_label.setStyleSheet(("font-size:20px;color:red"))
 
     def go_back(self):
         self.main_window.stacked_widget.setCurrentIndex(0)
@@ -267,12 +250,12 @@ class Step2_AnalysisComplexityPick(QWidget):
         self.description_label = QLabel("Select an analysis type to see a brief description.")
         layout.addWidget(self.description_label)
 
-        self.launch_button = QPushButton("LAUNCH")
+        self.launch_button = sbuttons.SButtons("LAUNCH")
         self.launch_button.setEnabled(False)
         self.launch_button.clicked.connect(self.launch_analysis)
         layout.addWidget(self.launch_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.go_back_button = QPushButton("Back")
+        self.go_back_button = sbuttons.SButtons("Back")
         self.go_back_button.clicked.connect(self.go_back)
         layout.addWidget(self.go_back_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -306,7 +289,7 @@ class Step3_LoadResults(QWidget):
     def __init__(self, main_window, analysis_complexity):
         super().__init__()
         self.main_window = main_window
-        self.next_button = QPushButton("Next")
+        self.next_button = sbuttons.SButtons("Next")
         self.analysis_complexity = analysis_complexity
 
         layout = QVBoxLayout()

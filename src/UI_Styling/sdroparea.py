@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QLabel, QVBoxLayout
 from PySide6.QtGui import QPainter, QPen, QColor, QFont, QPainterPath
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QRect, Qt
 from nltk.metrics.aline import align
 from UI_Styling.sbuttons import SButtons
 
@@ -33,21 +33,22 @@ class SDropArea(QLabel):
         self.browseFolders.setHidden(True)
         self.vbox.addWidget(self.browseFolders, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
         self.vbox.addSpacing(20)
-    # def paintEvent(self, event):
-    #     painter = QPainter(self)
-    #     painter.setRenderHint(QPainter.Antialiasing)
 
-    #     # Create a rounded rectangle path
-    #     path = QPainterPath()
-    #     path.addRoundedRect(self.rect(), 20, 20)  # Adjust radius as needed
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing)
 
-    #     # Set pen for dashed border with custom dash pattern
-    #     pen = QPen(QColor(255, 255, 255, 128), 5)
-    #     pen.setDashPattern([2, 2])  # Adjust dash length and spacing as needed
-    #     pen.setCapStyle(Qt.RoundCap)
+        # Create a rounded rectangle path
+        path = QPainterPath()
+        path.addRoundedRect(QRect(2, 2, 295,325), 10, 10)  # Adjust radius as needed
 
-    #     painter.setPen(pen)
-    #     painter.strokePath(path, pen)
+        # Set pen for dashed border with custom dash pattern
+        pen = QPen(QColor(255, 255, 255, 128), 3)
+        pen.setDashPattern([2, 2])  # Adjust dash length and spacing as needed
+        pen.setCapStyle(Qt.RoundCap)
 
-    #     # Paint the label's text
-    #     super().paintEvent(event)
+        painter.setPen(pen)
+        painter.strokePath(path, pen)
+
+        # Paint the label's text
+        super().paintEvent(event)
