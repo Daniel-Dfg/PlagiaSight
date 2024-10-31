@@ -1,12 +1,13 @@
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
+from PySide6.QtWidgets import (QGridLayout, QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
                              QListWidget, QHBoxLayout, QComboBox, QRadioButton,
                              QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
+from nltk.metrics.aline import align
 from TextAnalysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
 from .utilities import DropArea, GraphWindow
-from UI_Styling import slabels, sbuttons
+from UI_Styling import slabels, sbuttons, slistwidget
 from time import time
 
 #GLOBAL CONSTANTS : characteristics with their attributes equivalents (to get them via the getattr() built-in Python method later on)
@@ -81,47 +82,52 @@ class Step0_WelcomingMessage(QWidget):
 class Step1_FileDropAndCheck(QWidget):
     def __init__(self, main_window):
         super().__init__()
+        # Main layout
         self.main_window = main_window
-        layout = QVBoxLayout()
-        self.drop_area = DropArea(self, self.main_window.max_files_amount)
-        layout.addWidget(self.drop_area, alignment=Qt.AlignmentFlag.AlignCenter |Qt.AlignmentFlag.AlignLeft)
+        layout = QGridLayout(self)
 
+        # Drop Area
+        self.drop_area = DropArea(self, self.main_window.max_files_amount)
+        layout.addWidget(self.drop_area,0,0, alignment=Qt.AlignmentFlag.AlignCenter |Qt.AlignmentFlag.AlignLeft)
+
+        # Browse Buttons
+        self.drop_area.browseFiles.clicked.connect(self.open_file_dialog)
         if self.main_window.max_files_amount == MAX_FILES_AMOUNT:
             self.drop_area.browseFolders.setDisabled(False)
             self.drop_area.browseFolders.setHidden(False)
             self.drop_area.browseFolders.clicked.connect(self.open_directory_dialog)
 
-        self.drop_area.browseFiles.clicked.connect(self.open_file_dialog)
 
-        self.status_label = QLabel("Nothing yet dropped.")
-        layout.addWidget(self.status_label)
-
+        # Warning Label
         self.warning_label = QLabel("")
         self.warning_label.setStyleSheet("color: red;")
         layout.addWidget(self.warning_label)
 
+        # Right Layout
         self.correct_files_label = QLabel(f"Valid files (0 / {self.main_window.max_files_amount})")
-        layout.addWidget(self.correct_files_label)
-        self.correct_files_list = QListWidget()
-        layout.addWidget(self.correct_files_list)
+        layout.addWidget(self.correct_files_label,0,2)
+        self.correct_files_list = slistwidget.SListWidget()
+        layout.addWidget(self.correct_files_list,0,2,alignment=Qt.AlignmentFlag.AlignTop)
 
         self.invalid_files_label = QLabel("Invalid files:")
-        layout.addWidget(self.invalid_files_label)
-        self.invalid_files_list = QListWidget()
-        layout.addWidget(self.invalid_files_list)
+        layout.addWidget(self.invalid_files_label, 2,2)
+        self.invalid_files_list = slistwidget.SListWidget()
+        layout.addWidget(self.invalid_files_list,3,2, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
 
-        back_and_next = QHBoxLayout()
-        self.back_button = QPushButton("Back")
+
+        # Bottom Layout
+        self.back_button = sbuttons.SButtons("Back")
         self.back_button.clicked.connect(self.go_back)
-        back_and_next.addWidget(self.back_button)
+        layout.addWidget(self.back_button,4,0, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
 
-        self.next_button = QPushButton("Next")
+        self.status_label = QLabel("Nothing yet dropped.")
+        layout.addWidget(self.status_label,4,2, alignment=Qt.AlignmentFlag.AlignCenter| Qt.AlignmentFlag.AlignBottom)
+
+        self.next_button = sbuttons.SButtons("Next")
         self.next_button.setEnabled(False)
         self.next_button.clicked.connect(self.proceed_to_step2)
-        back_and_next.addWidget(self.next_button)
+        layout.addWidget(self.next_button,4,3, alignment=Qt.AlignmentFlag.AlignRight| Qt.AlignmentFlag.AlignBottom)
 
-        layout.addLayout(back_and_next)
-        self.setLayout(layout)
 
     def update_ui_after_drop(self):
         self.correct_files_list.clear()
