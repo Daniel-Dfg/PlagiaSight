@@ -366,17 +366,26 @@ class Step4_DisplayResults(QWidget):
             self.right_content_title.addItems(right_items)
             self.left_content_title.currentIndexChanged.connect(lambda : self.sync_comboboxes(self.left_content_title))
             self.right_content_title.currentIndexChanged.connect(lambda : self.sync_comboboxes(self.right_content_title))
-
-
         else:
             raise TypeError("Unexpected type for final_results")
 
-        file_selection_layout.addWidget(QLabel("File 1:"))
+        label = QLabel("File 1:")
+        label.setStyleSheet("font-size:24px;")
+
+        #File1
+        file_selection_layout.addWidget(label)
         file_selection_layout.addWidget(self.left_content_title)
+
+        #Switch
         switch_button = sbuttons.SButtons("Switch Files")
+        switch_button.setFixedSize(100, 25)
         switch_button.clicked.connect(self.switch_files)
         file_selection_layout.addWidget(switch_button)
-        file_selection_layout.addWidget(QLabel("File 2:"))
+
+        #File2
+        label2 = QLabel("File2 :")
+        label2.setStyleSheet("font-size:24px;")
+        file_selection_layout.addWidget(label2)
         file_selection_layout.addWidget(self.right_content_title)
 
         layout.addLayout(file_selection_layout)
@@ -397,8 +406,11 @@ class Step4_DisplayResults(QWidget):
             line_layout = QHBoxLayout()
 
             char_label = QLabel(char)
+            char_label.setStyleSheet("font-size:18px")
             common_result_label = QLabel("-")
+            common_result_label.setStyleSheet("font-size:18px")
             result2_label = QLabel("-")
+            result2_label.setStyleSheet("font-size:18px")
 
             line_layout.addWidget(char_label)
             line_layout.addWidget(common_result_label)
@@ -414,7 +426,9 @@ class Step4_DisplayResults(QWidget):
             line_layout = QHBoxLayout()
 
             char_label = QLabel(common_char)
+            char_label.setStyleSheet("font-size:18px")
             common_result_label = QLabel("-")
+            common_result_label.setStyleSheet("font-size:18px")
 
             line_layout.addWidget(char_label)
             line_layout.addWidget(common_result_label)
