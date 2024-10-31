@@ -72,7 +72,6 @@ class CrossCompare:
         for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
             print("\nFILE\n----------------", file)
             self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
-            print(self.progress_bar.value() + progress_bar_small_increment)
             self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
         print("Stats generation time:", time() - CURRENT_TIME)
 
