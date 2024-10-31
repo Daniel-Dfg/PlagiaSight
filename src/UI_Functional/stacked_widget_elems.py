@@ -377,8 +377,7 @@ class Step4_DisplayResults(QWidget):
         file_selection_layout.addWidget(self.left_content_title)
 
         #Switch
-        switch_button = sbuttons.SButtons("Switch Files")
-        switch_button.setFixedSize(100, 25)
+        switch_button = QPushButton("Switch Files")
         switch_button.clicked.connect(self.switch_files)
         file_selection_layout.addWidget(switch_button)
 
