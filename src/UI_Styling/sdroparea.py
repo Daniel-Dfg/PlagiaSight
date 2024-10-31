@@ -4,7 +4,7 @@ from PySide6.QtCore import Qt
 from nltk.metrics.aline import align
 from UI_Styling.sbuttons import SButtons
 
-w =210
+w =300
 h = 330
 class SDropArea(QLabel):
     def __init__(self):
@@ -14,7 +14,7 @@ class SDropArea(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet("""
             *{
-                color: rgba(255, 255, 255, 128);
+                color: rgba(255, 255, 255, 100);
                 background-color: rgba(255, 255, 255, 25);
                 border-radius: 14px;
                 font-size: 24px;

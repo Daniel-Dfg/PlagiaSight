@@ -26,4 +26,7 @@ class SButtons(QPushButton):
                            QPushButton::hover{
                                background-color:#382F9C;
                            }
+                           QPushButton::disabled{
+                               background-color:#5D5A85;
+                           }
                            """)

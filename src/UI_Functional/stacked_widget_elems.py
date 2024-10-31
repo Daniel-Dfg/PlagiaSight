@@ -7,7 +7,7 @@ from TextAnalysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
 from .utilities import DropArea, GraphWindow
-from UI_Styling import slabels, sbuttons, slistwidget
+from UI_Styling import slabels, sbuttons, filescontainer
 from time import time
 
 #GLOBAL CONSTANTS : characteristics with their attributes equivalents (to get them via the getattr() built-in Python method later on)
@@ -103,30 +103,36 @@ class Step1_FileDropAndCheck(QWidget):
         self.warning_label.setStyleSheet("color: red;")
         layout.addWidget(self.warning_label)
 
-        # Right Layout
-        self.correct_files_label = QLabel(f"Valid files (0 / {self.main_window.max_files_amount})")
-        layout.addWidget(self.correct_files_label,0,2)
-        self.correct_files_list = slistwidget.SListWidget()
-        layout.addWidget(self.correct_files_list,0,2,alignment=Qt.AlignmentFlag.AlignTop)
-
-        self.invalid_files_label = QLabel("Invalid files:")
-        layout.addWidget(self.invalid_files_label, 2,2)
-        self.invalid_files_list = slistwidget.SListWidget()
-        layout.addWidget(self.invalid_files_list,3,2, alignment=Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignCenter)
-
+        # Files container
+        self.filesContainers = filescontainer.FilesContainer()
+        self.correct_files_label = self.filesContainers.validContainer.label
+        self.correct_files_label.setText(f"Valid files (0 / {self.main_window.max_files_amount})")
+        self.invalid_files_label = self.filesContainers.validContainer.label
+        self.correct_files_list = self.filesContainers.validContainer.container
+        self.invalid_files_list = self.filesContainers.invalidContainer.container
+        layout.addWidget(self.filesContainers, 0,1)
 
         # Bottom Layout
+        bottom_layout = QHBoxLayout()
         self.back_button = sbuttons.SButtons("Back")
         self.back_button.clicked.connect(self.go_back)
-        layout.addWidget(self.back_button,4,0, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
+        bottom_layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
 
         self.status_label = QLabel("Nothing yet dropped.")
-        layout.addWidget(self.status_label,4,2, alignment=Qt.AlignmentFlag.AlignCenter| Qt.AlignmentFlag.AlignBottom)
+        self.status_label.setStyleSheet("""
+            *{
+                color: rgba(255,255,255, 255);
+                font-size: 16px;
+            }
+            """)
+        bottom_layout.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.next_button = sbuttons.SButtons("Next")
         self.next_button.setEnabled(False)
         self.next_button.clicked.connect(self.proceed_to_step2)
-        layout.addWidget(self.next_button,4,3, alignment=Qt.AlignmentFlag.AlignRight| Qt.AlignmentFlag.AlignBottom)
+        bottom_layout.addWidget(self.next_button,alignment=Qt.AlignmentFlag.AlignRight| Qt.AlignmentFlag.AlignBottom)
+
+        layout.addLayout(bottom_layout, 1,0, 1,2)
 
 
     def update_ui_after_drop(self):
