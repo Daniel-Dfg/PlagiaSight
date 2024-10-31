@@ -64,7 +64,7 @@ class Step0_WelcomingMessage(QWidget):
         # Set Buttons
         for button, func in buttons.items():
             button.clicked.connect(func)
-            button.setFixedSize(400, 60)
+            button.setFixedSize(280, 50)
             layout.addWidget(button, alignment=Qt.AlignmentFlag.AlignCenter)
 
 
@@ -83,10 +83,8 @@ class Step1_FileDropAndCheck(QWidget):
         super().__init__()
         self.main_window = main_window
         layout = QVBoxLayout()
-        self.label = QLabel("Drop your files or directories below or click 'Browse':")
-        layout.addWidget(self.label)
         self.drop_area = DropArea(self, self.main_window.max_files_amount)
-        layout.addWidget(self.drop_area)
+        layout.addWidget(self.drop_area, alignment=Qt.AlignmentFlag.AlignCenter)
 
         browse_buttons_layout = QHBoxLayout()
 

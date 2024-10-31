@@ -13,7 +13,7 @@ class SLabels(QLabel):
                            *{
                                background-color:none;
                                border-style:none;
-                               color:#BBF1F5;
+                               color:#FFFFFF;
                                font-size: none;
                            }
                            """)
