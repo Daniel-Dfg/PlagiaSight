@@ -1,4 +1,3 @@
-from subprocess import run
 from PySide6.QtWidgets import QStackedWidget, QVBoxLayout
 from .stacked_widget_elems import Step0_WelcomingMessage
 from .utilities import GetInTouchWindow, HelpWindow
