@@ -9,7 +9,7 @@ from numpy import arange
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from UI_Styling.sdroprea import SDropArea
+from UI_Styling.sdroparea import SDropArea
 
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 

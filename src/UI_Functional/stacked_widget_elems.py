@@ -84,22 +84,15 @@ class Step1_FileDropAndCheck(QWidget):
         self.main_window = main_window
         layout = QVBoxLayout()
         self.drop_area = DropArea(self, self.main_window.max_files_amount)
-        layout.addWidget(self.drop_area, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        browse_buttons_layout = QHBoxLayout()
-
+        layout.addWidget(self.drop_area, alignment=Qt.AlignmentFlag.AlignCenter |Qt.AlignmentFlag.AlignLeft)
 
         if self.main_window.max_files_amount == MAX_FILES_AMOUNT:
-            self.browse_dirs_button = QPushButton("Browse directory")
-            self.browse_dirs_button.clicked.connect(self.open_directory_dialog)
-            layout.addWidget(self.browse_dirs_button)
+            self.drop_area.browseFolders.setDisabled(False)
+            self.drop_area.browseFolders.setHidden(False)
+            self.drop_area.browseFolders.clicked.connect(self.open_directory_dialog)
 
-        self.browse_files_button = QPushButton("Browse files")
-        self.browse_files_button.clicked.connect(self.open_file_dialog)
-        browse_buttons_layout.addWidget(self.browse_files_button)
+        self.drop_area.browseFiles.clicked.connect(self.open_file_dialog)
 
-
-        layout.addLayout(browse_buttons_layout)
         self.status_label = QLabel("Nothing yet dropped.")
         layout.addWidget(self.status_label)
 

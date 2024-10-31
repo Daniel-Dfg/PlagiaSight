@@ -1,7 +1,7 @@
 from PySide6.QtGui import QColor, QRgba64
 from PySide6.QtWidgets import QPushButton, QWidget, QGraphicsDropShadowEffect
 
-w = 280
+w = 130
 h = 50
 class SButtons(QPushButton):
     """
