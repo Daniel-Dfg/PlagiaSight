@@ -101,7 +101,7 @@ class Step1_FileDropAndCheck(QWidget):
         bottom_layout = QHBoxLayout()
         self.back_button = sbuttons.SButtons("Back")
         self.back_button.clicked.connect(self.go_back)
-        bottom_layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
+        bottom_layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.status_label = QLabel("Nothing dropped yet!")
         self.status_label.setStyleSheet("font-size:20px;color:white;")
@@ -110,7 +110,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.next_button = sbuttons.SButtons("Next")
         self.next_button.setEnabled(False)
         self.next_button.clicked.connect(self.proceed_to_next_step)
-        bottom_layout.addWidget(self.next_button,alignment=Qt.AlignmentFlag.AlignRight| Qt.AlignmentFlag.AlignBottom)
+        bottom_layout.addWidget(self.next_button,alignment=Qt.AlignmentFlag.AlignRight)
 
         layout.addLayout(bottom_layout, 1,0, 1,2)
 
@@ -133,7 +133,7 @@ class Step1_FileDropAndCheck(QWidget):
             self.status_label.setStyleSheet(("font-size:20px;color:green;"))
         else:
             self.next_button.setEnabled(False)
-            self.status_label.setText(f"⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.")
+            self.status_label.setText(f"       ⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.\nPlease drop at least {self.drop_area.min_file_amount} valid file{'s' if self.drop_area.min_file_amount != 1 else ''}.           ")
             self.status_label.setStyleSheet(("font-size:20px;color:red"))
 
     def go_back(self): ##to consider : add a generic method for all "go back" buttons ?
