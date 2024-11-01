@@ -51,7 +51,7 @@ class DropArea(SDropArea):
             if os.path.isfile(file) and self.file_format_is_valid(file) and file not in valid_set:
                 if len(self.correct_files) < self.max_file_amount:
                     self.correct_files.append(file)
-                    self.step1_widget.add_file_to_list_viz(file, valid=True)
+                    self.step1_widget.add_file_to_correct_files_list_UI(file,True)
                     valid_set.add(file)
                 else:
                     self.step1_widget.show_warning("⚠️ Maximum file limit reached!")
@@ -60,7 +60,7 @@ class DropArea(SDropArea):
             else:
                 if file not in valid_set:
                     self.step1_widget.show_warning(f"⚠️ .{file.split('.')[-1]} is not a valid file format.")
-        self.step1_widget.update_status()
+        self.step1_widget.update_current_content_validity()
 
     def file_format_is_valid(self, file_path):
         return file_path.endswith('.txt')
@@ -76,12 +76,12 @@ class DropArea(SDropArea):
                         self.step1_widget.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}.")
                         break
                     self.correct_files.append(full_path)  # Ajouter le chemin complet
-                    self.step1_widget.add_file_to_list_viz(full_path, valid=True)
+                    self.step1_widget.add_file_to_correct_files_list_UI(full_path, True)
                     valid_set.add(full_path)
             else:
                 if full_path not in self.invalid_files:
                     self.invalid_files.append(full_path)  # Ajouter le chemin complet pour les fichiers invalides aussi
-                    self.step1_widget.add_file_to_list_viz(full_path, valid=False)
+                    self.step1_widget.add_file_to_correct_files_list_UI(full_path, False)
 
 
     def simplify_path(self, path):
@@ -120,6 +120,7 @@ class HelpWindow(QWidget):
         for i in range(self.tree.topLevelItemCount()):
             item = self.tree.topLevelItem(i)
             item.setExpanded(i == step_index)
+
 
 class GetInTouchWindow(QWidget):
     def __init__(self, main_window):
@@ -207,6 +208,7 @@ class GetInTouchWindow(QWidget):
         else:
             toggle_checkbox.setText("Show roles")
             roles_widget.setVisible(False)
+
 
 class GraphWindow(QWidget):
     def __init__(self, main_window):
