@@ -119,11 +119,11 @@ class Step1_FileDropAndCheck(QWidget):
         self.correct_files_list.clear()
         self.invalid_files_list.clear()
         for file in self.drop_area.correct_files:
-            self._add_file_to_correct_files_list_UI(file, file_is_valid=True)
+            self.add_file_to_correct_files_list_UI(file, file_is_valid=True)
         for file in self.drop_area.invalid_files:
             self.invalid_files_list.addItem(file)
 
-    def _update_current_content_validity(self):
+    def update_current_content_validity(self):
         """Updates status, warnings, and (un)allows the user to proceed to the next step accordingly."""
         num_valid_files = len(self.drop_area.correct_files)
         self.correct_files_label.setText(f"Valid files ({num_valid_files} / {self.main_window.max_files_amount})")
@@ -146,7 +146,7 @@ class Step1_FileDropAndCheck(QWidget):
         if directory_path:
             self.drop_area.process_directory(directory_path)
             self.update_ui_after_content_drop()
-            self._update_current_content_validity()
+            self.update_current_content_validity()
 
     def _browse_single_file(self):
         """Open file dialog for selecting files manually."""
@@ -155,12 +155,12 @@ class Step1_FileDropAndCheck(QWidget):
             print("Selected file:", file_name)
             if self.drop_area.file_format_is_valid(file_name):
                 self.drop_area.correct_files.append(file_name)
-                self._add_file_to_correct_files_list_UI(file_name, file_is_valid=True)
-                self._update_current_content_validity()
+                self.add_file_to_correct_files_list_UI(file_name, file_is_valid=True)
+                self.update_current_content_validity()
             else:
                 pass
                 #self.show_warning("Please select only .txt files.")
-    def _add_file_to_correct_files_list_UI(self, file, file_is_valid=True):
+    def add_file_to_correct_files_list_UI(self, file, file_is_valid=True):
         """
         Adds a given file to its correct list (valid or invalid) only in the UI.
         The addition to a "physical" list is handled in the DropArea class (at ./utilities.py)
@@ -195,12 +195,12 @@ class Step1_FileDropAndCheck(QWidget):
         else:
             self.drop_area.invalid_files.remove(file)
             self.invalid_files_list.takeItem(self.invalid_files_list.row(item))
-        self._update_current_content_validity()
+        self.update_current_content_validity()
 
     @override #override of the default eventFilter provided by PySide6
     def eventFilter(self, watched, event):
         remove_button = watched.findChild(QPushButton)
-        assert(isinstance(remove_button, QPushButton))
+        #assert(isinstance(remove_button, QPushButton))
         if event.type() == QEvent.Type.Enter:
             if remove_button:
                 remove_button.setVisible(True)
