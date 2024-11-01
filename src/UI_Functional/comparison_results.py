@@ -1,5 +1,5 @@
-from TextAnalysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
-from WebScraper import URLs, HtmlText
+from text_analysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
+from web_scraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
 from time import time
 
