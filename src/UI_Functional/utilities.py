@@ -9,6 +9,8 @@ import os
 import webbrowser
 from numpy import arange
 
+from UI_Styling.sdroparea import SDropArea
+
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
 
@@ -25,7 +27,7 @@ class NonSelectableComboBox(QComboBox):
         self.standard_model.appendRow(item)
 
 
-class DropArea(QTextEdit):
+class DropArea(SDropArea):
     def __init__(self, step1_widget, max_file_amount=5):
         super().__init__()
         self.setAcceptDrops(True)

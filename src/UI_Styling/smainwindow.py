@@ -8,9 +8,19 @@ h = 560
 class SMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        #Window can't be resized more then that
+        self.setMinimumSize(w, h)
+
+        # Set Window to the center
+        screen = self.screen().size()
+        size = self.geometry()
+        self.move((screen.width() - size.width()) // 2,(screen.height() - size.height())//2)
+
+        # Window Flages
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.CustomizeWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
-        self.resize(w, h)
+
+        # Set the central background
         self.background = QWidget()
         self.background.setObjectName("background")
         self.background.setStyleSheet("""
