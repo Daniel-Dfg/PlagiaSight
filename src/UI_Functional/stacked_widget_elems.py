@@ -520,13 +520,13 @@ class Step4_DisplayResults(QWidget):
 
     def _view_graph(self):
         graphs_data = self._prepare_graphs_data()
-        self.graph_window = GraphWindow()
+        self.main_window.graph_window = GraphWindow()
 
         for graph_name, res_file1, res_file2 in graphs_data:
             if "length" in graph_name:
                 freq_dist1 = res_file1
                 freq_dist2 = res_file2
-                self.graph_window.add_LengthPlot_graph(
+                self.main_window.graph_window.add_LengthPlot_graph(
                     name=graph_name,
                     lengths1=freq_dist1,
                     lengths2=freq_dist2,
@@ -537,7 +537,7 @@ class Step4_DisplayResults(QWidget):
             else:
                 freq_dist1 = res_file1
                 freq_dist2 = res_file2
-                self.graph_window.add_FreqDist_graph(
+                self.main_window.graph_window.add_FreqDist_graph(
                     name=graph_name,
                     freq_dist1=freq_dist1,
                     freq_dist2=freq_dist2,
@@ -546,7 +546,7 @@ class Step4_DisplayResults(QWidget):
                     title=f"{graph_name} Comparison"
                 )
 
-        self.graph_window.show()
+        self.main_window.graph_window.show()
         #TODO : fix the logic of this
         #self.left_content_title.currentIndexChanged.connect(self.update_graph_window)
         #self.right_content_title.currentIndexChanged.connect(self.update_graph_window)

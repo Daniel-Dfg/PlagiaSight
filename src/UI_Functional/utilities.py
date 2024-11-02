@@ -82,6 +82,8 @@ class DropArea(SDropArea):
 class HelpWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
+        self.clo = SButtons("dfjoifj")
+        self.clo.clicked.connect(self.window().close)
 
         self.setWindowTitle("Help")
         self.resize(400, 300)
@@ -337,7 +339,6 @@ class GraphWindow(SMiniWindow):
 
     def apply_theme(self, chart):
         if self.is_dark_mode:
-
             chart.setBackgroundBrush(QColor("#232023"))
             chart.setTitleBrush(QColor("#e6e6e6"))
 
