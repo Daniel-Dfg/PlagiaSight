@@ -5,24 +5,21 @@ from PySide6.QtCore import Qt, QTimer
 import webbrowser
 from UI_Styling import smainwindow, stitlebar, userTools
 
-
+w = 790
+h = 560
 class MainWindow(smainwindow.SMainWindow):
     def __init__(self):
         super().__init__()
+        #Window can't be resized more then that
+        self.setMinimumSize(w, h)
         #Main Layout
         self.setWindowTitle("PlagiaSight")
-        self.main_layout = QVBoxLayout()
-
-        self.titleBar = stitlebar.STitleBar(self)
-        self.main_layout.addWidget(self.titleBar, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
 
         self.stacked_widget = QStackedWidget()
         self.step0_widget = Step0_WelcomingMessage(self)
         self.stacked_widget.addWidget(self.step0_widget)
         self.main_layout.addWidget(self.stacked_widget)
 
-        self.get_in_touch_window = None
-        self.help_window = None
         self.usertools = userTools.UserTools(self)
 
         # Buttons tooltip + functions
@@ -36,14 +33,13 @@ class MainWindow(smainwindow.SMainWindow):
             button.clicked.connect(func[1])
 
         self.main_layout.addWidget(self.usertools, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft)
-        self.centralWidget().setLayout(self.main_layout)
 
         # Load stuff in the background
         QTimer.singleShot(180, self.init_sub_windows)
 
     def init_sub_windows(self):
-        self.get_in_touch_window = GetInTouchWindow(self)
-        self.help_window = HelpWindow(self)
+        self.get_in_touch_window = GetInTouchWindow()
+        self.help_window = HelpWindow()
         self.get_in_touch_window.full_init()
 
     def toggle_GetInTouchWindow(self):

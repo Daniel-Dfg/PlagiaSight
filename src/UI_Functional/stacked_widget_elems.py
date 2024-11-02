@@ -101,7 +101,7 @@ class Step1_FileDropAndCheck(QWidget):
         bottom_layout = QHBoxLayout()
         self.back_button = sbuttons.SButtons("Back")
         self.back_button.clicked.connect(self.go_back)
-        bottom_layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom)
+        bottom_layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.status_label = QLabel("Nothing dropped yet!")
         self.status_label.setStyleSheet("font-size:20px;color:white;")
@@ -110,7 +110,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.next_button = sbuttons.SButtons("Next")
         self.next_button.setEnabled(False)
         self.next_button.clicked.connect(self.proceed_to_next_step)
-        bottom_layout.addWidget(self.next_button,alignment=Qt.AlignmentFlag.AlignRight| Qt.AlignmentFlag.AlignBottom)
+        bottom_layout.addWidget(self.next_button,alignment=Qt.AlignmentFlag.AlignRight)
 
         layout.addLayout(bottom_layout, 1,0, 1,2)
 
@@ -133,7 +133,7 @@ class Step1_FileDropAndCheck(QWidget):
             self.status_label.setStyleSheet(("font-size:20px;color:green;"))
         else:
             self.next_button.setEnabled(False)
-            self.status_label.setText(f"⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.")
+            self.status_label.setText(f"       ⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.\nPlease drop at least {self.drop_area.min_file_amount} valid file{'s' if self.drop_area.min_file_amount != 1 else ''}.           ")
             self.status_label.setStyleSheet(("font-size:20px;color:red"))
 
     def go_back(self): #to consider : add a generic method for all "go back" buttons ?
@@ -364,7 +364,9 @@ class Step4_DisplayResults(QWidget):
         left_side_selection_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         file_selection_layout.addLayout(left_side_selection_layout)
 
-        switch_button = QPushButton()
+
+        switch_button = sbuttons.SButtons("Switch")
+        switch_button.setFixedSize(110, 32)
         switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
         file_selection_layout.addWidget(switch_button)
@@ -396,11 +398,8 @@ class Step4_DisplayResults(QWidget):
             char_values_line_layout = QHBoxLayout()
 
             char_label = QLabel(char)
-            char_label.setStyleSheet("font-size:18px")
             common_result_label = QLabel("-")
-            common_result_label.setStyleSheet("font-size:18px")
             result2_label = QLabel("-")
-            result2_label.setStyleSheet("font-size:18px")
 
             char_values_line_layout.addWidget(char_label)
             char_values_line_layout.addWidget(common_result_label)
@@ -415,9 +414,7 @@ class Step4_DisplayResults(QWidget):
             char_values_line_layout = QHBoxLayout()
 
             char_label = QLabel(common_char)
-            char_label.setStyleSheet("font-size:18px")
             common_result_label = QLabel("-")
-            common_result_label.setStyleSheet("font-size:18px")
 
             char_values_line_layout.addWidget(char_label)
             char_values_line_layout.addWidget(common_result_label)
@@ -523,7 +520,7 @@ class Step4_DisplayResults(QWidget):
 
     def _view_graph(self):
         graphs_data = self._prepare_graphs_data()
-        self.graph_window = GraphWindow(self.main_window)
+        self.graph_window = GraphWindow()
 
         for graph_name, res_file1, res_file2 in graphs_data:
             if "length" in graph_name:

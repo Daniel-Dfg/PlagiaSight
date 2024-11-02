@@ -13,7 +13,7 @@ class SRadioButton(QRadioButton):
                     border-radius: 5px;
                     background-color: rgba(255, 255, 255, 25);
                 }
-                QRadioButton::indicator:checked {
-                        background-color: rgba(255, 200, 200, 100);
-                    }
+            QRadioButton::indicator:checked {
+                    background-color: rgba(255, 200, 200, 100);
+                }
             """)
