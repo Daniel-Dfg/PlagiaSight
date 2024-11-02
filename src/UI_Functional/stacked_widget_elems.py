@@ -363,7 +363,8 @@ class Step4_DisplayResults(QWidget):
         file_selection_layout.addWidget(label)
         file_selection_layout.addWidget(self.left_content_title)
 
-        switch_button = QPushButton("Switch Contents")
+        switch_button = sbuttons.SButtons("Switch")
+        switch_button.setFixedSize(110, 32)
         switch_button.clicked.connect(self._switch_contents)
         file_selection_layout.addWidget(switch_button)
 
@@ -390,11 +391,8 @@ class Step4_DisplayResults(QWidget):
             char_values_line_layout = QHBoxLayout()
 
             char_label = QLabel(char)
-            char_label.setStyleSheet("font-size:18px")
             common_result_label = QLabel("-")
-            common_result_label.setStyleSheet("font-size:18px")
             result2_label = QLabel("-")
-            result2_label.setStyleSheet("font-size:18px")
 
             char_values_line_layout.addWidget(char_label)
             char_values_line_layout.addWidget(common_result_label)
@@ -409,9 +407,7 @@ class Step4_DisplayResults(QWidget):
             char_values_line_layout = QHBoxLayout()
 
             char_label = QLabel(common_char)
-            char_label.setStyleSheet("font-size:18px")
             common_result_label = QLabel("-")
-            common_result_label.setStyleSheet("font-size:18px")
 
             char_values_line_layout.addWidget(char_label)
             char_values_line_layout.addWidget(common_result_label)

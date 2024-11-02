@@ -5,10 +5,13 @@ from PySide6.QtCore import Qt, QTimer
 import webbrowser
 from UI_Styling import smainwindow, stitlebar, userTools
 
-
+w = 790
+h = 560
 class MainWindow(smainwindow.SMainWindow):
     def __init__(self):
         super().__init__()
+        #Window can't be resized more then that
+        self.setMinimumSize(w, h)
         #Main Layout
         self.setWindowTitle("PlagiaSight")
 
@@ -35,7 +38,7 @@ class MainWindow(smainwindow.SMainWindow):
         QTimer.singleShot(180, self.init_sub_windows)
 
     def init_sub_windows(self):
-        self.get_in_touch_window = GetInTouchWindow(self)
+        self.get_in_touch_window = GetInTouchWindow()
         self.help_window = HelpWindow()
         self.get_in_touch_window.full_init()
 

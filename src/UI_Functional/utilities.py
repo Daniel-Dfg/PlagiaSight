@@ -1,15 +1,19 @@
 from matplotlib.backends.backend_agg import RendererAgg
+from nltk.probability import SimpleGoodTuringProbDist
 from nltk.tokenize.api import overridden
 from typing_extensions import override
-from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QPushButton, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
+from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
 from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QIcon, QPainter, QStandardItem, QStandardItemModel, QAction, QColor
+from PySide6.QtGui import QDragEnterEvent, QDropEvent, QFont, QIcon, QPainter, QStandardItem, QStandardItemModel, QAction, QColor
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QValueAxis, QBarCategoryAxis
 import os
 import webbrowser
 from numpy import arange
 
 from UI_Styling.sdroparea import SDropArea
+from UI_Styling.smainwindow import SMainWindow
+from UI_Styling.sminiwindow import SMiniWindow
+from UI_Styling.sbuttons import SButtons
 
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
@@ -88,24 +92,20 @@ class DropArea(SDropArea):
         return os.path.basename(path)
 
 
-class HelpWindow(QWidget):
-    def __init__(self, main_window):
+class HelpWindow(SMiniWindow):
+    def __init__(self):
         super().__init__()
-        self.main_window = main_window
 
         self.setWindowTitle("Help")
         self.resize(400, 300)
 
-        layout = QVBoxLayout()
-
         self.tree = QTreeWidget()
         self.tree.setHeaderHidden(True)
-        layout.addWidget(self.tree)
+        self.main_layout.addWidget(self.tree)
 
         self.add_help_step("Step 0: Welcome", "This is the welcoming message.\nYou can compare files and more.")
         self.add_help_step("Step 1: Select Comparison Type", "Choose whether you want to compare a single file with online data or multiple files.")
         self.add_help_step("Step 2: Choose Analysis Type", "Select whether you want a simple or complex analysis of your files.")
-        self.setLayout(layout)
 
     def add_help_step(self, step_title, step_details):
         step_item = QTreeWidgetItem([step_title])
@@ -122,34 +122,31 @@ class HelpWindow(QWidget):
             item.setExpanded(i == step_index)
 
 
-class GetInTouchWindow(QWidget):
-    def __init__(self, main_window):
+class GetInTouchWindow(SMiniWindow):
+    def __init__(self):
         super().__init__()
         self.is_fully_init = False
-        self.main_window = main_window
 
         self.setWindowTitle("Get in touch")
 
         # Make the layout an instance attribute so it can be accessed later
-        self.lay_out = QVBoxLayout()
 
         label = QLabel("Bug? Feature request? Commentary? Collab? We're all ears!")
-        self.lay_out.addWidget(label)
-        self.setLayout(self.lay_out)  # Set the layout to the window
+        self.main_layout.addWidget(label)
 
     def full_init(self):
-        self.add_contact_info(self.lay_out, "Daniel D.", ["Texts similarity computations", "UI (functional) and UX design", "Documentation"],
+        self.add_contact_info(self.main_layout, "Daniel D.", ["Texts similarity computations", "UI (functional) and UX design", "Documentation"],
                               Mail="mailto:danieldefoing@gmail.com",
                               GitHub="https://github.com/Daniel-Dfg",
                               Discord="https://discord.com/users/720963652286414909")
 
-        self.add_contact_info(self.lay_out, "LUCKYINS", ["Web scraping", "UI (styling)", "GitHub workflows"],
+        self.add_contact_info(self.main_layout, "LUCKYINS", ["Web scraping", "UI (styling)", "GitHub workflows"],
                               GitHub="https://github.com/Luckyyyin")
 
-        self.add_contact_info(self.lay_out, "onuriscoding", ["UX Design", "GitHub workflows"],
+        self.add_contact_info(self.main_layout, "onuriscoding", ["UX Design", "GitHub workflows"],
                               GitHub="https://github.com/onuriscoding")
 
-        self.add_contact_info(self.lay_out, "botEkrem", ["General Consultancy", "GitHub workflows", "Cross-platform compatibility (dockerization)"],
+        self.add_contact_info(self.main_layout, "botEkrem", ["General Consultancy", "GitHub workflows", "Cross-platform compatibility (dockerization)"],
                               GitHub="https://github.com/BotEkrem")
 
         self.is_fully_init = True
@@ -169,7 +166,7 @@ class GetInTouchWindow(QWidget):
 
         all_socials = sorted(kwargs.keys())
         for social in all_socials:
-            button = QPushButton()
+            button = SButtons()
             button.setIcon(QIcon(f"Resources/Excess Files/UI_elements/{social}_icon.png"))
             button.setToolTip(social)
             button.clicked.connect(lambda _, link=kwargs[social]: webbrowser.open(link))
@@ -179,6 +176,15 @@ class GetInTouchWindow(QWidget):
         contact_layout.addWidget(contact_header)
 
         toggle_checkbox = QCheckBox("Show roles")
+        toggle_checkbox.setStyleSheet("""
+                    QCheckBox::indicator:checked {
+                    background-color: rgba(255, 200, 200, 100);
+                    }
+                    QCheckBox::indicator {
+                            border-radius: 5px;
+                            background-color: rgba(255, 255, 255, 25);
+                        }
+                        """)
         roles_widget = QWidget()
         roles_layout = QVBoxLayout()
 
@@ -210,36 +216,35 @@ class GetInTouchWindow(QWidget):
             roles_widget.setVisible(False)
 
 
-class GraphWindow(QWidget):
+class GraphWindow(SMiniWindow):
     def __init__(self, main_window):
         self.main_window = main_window
         super().__init__()
         self.setWindowTitle("Graphs [find an explicit title]")
         self.is_dark_mode = False
 
-        layout = QVBoxLayout(self)
 
         next_previous_buttons_layout = QHBoxLayout()
-        self.previous_button = QPushButton("Previous Graph")
+        self.previous_button = SButtons("Previous Graph")
         self.previous_button.clicked.connect(self.show_previous_graph)
-        self.next_button = QPushButton("Next Graph")
+        self.next_button = SButtons("Next Graph")
         self.next_button.clicked.connect(self.show_next_graph)
 
-        #self.save_button = QPushButton("Save Graph")
+        #self.save_button = SButtons("Save Graph")
         #self.save_button.clicked.connect(self.save_graph)
         next_previous_buttons_layout.addWidget(self.previous_button)
         next_previous_buttons_layout.addWidget(self.next_button)
 
         #button_layout.addWidget(self.save_button)
 
-        layout.addLayout(next_previous_buttons_layout)
+        self.main_layout.addLayout(next_previous_buttons_layout)
 
-        self.toggle_theme_button = QPushButton("Toggle Dark Theme")
+        self.toggle_theme_button = SButtons("Dark Theme")
         self.toggle_theme_button.clicked.connect(self.toggle_theme)
-        layout.addWidget(self.toggle_theme_button) #TODO : remove this to let it be toggled by global dark theme, when ABCODIN will be done with UI implementation
+        self.main_layout.addWidget(self.toggle_theme_button, alignment=Qt.AlignmentFlag.AlignCenter|Qt.AlignmentFlag.AlignTop) #TODO : remove this to let it be toggled by global dark theme, when ABCODIN will be done with UI implementation
 
         self.chart_view = QChartView()
-        layout.addWidget(self.chart_view)
+        self.main_layout.addWidget(self.chart_view)
 
         # Data structure to store graphs
         self.graph_data = {}
@@ -332,14 +337,14 @@ class GraphWindow(QWidget):
 
     def apply_theme(self, chart):
         if self.is_dark_mode:
-            chart.setBackgroundBrush(QColor("#2b2b2b"))
+            chart.setBackgroundBrush(QColor(0, 0, 0, 50))
             chart.setTitleBrush(QColor("#dddddd"))
             for axis in chart.axes():
                 axis.setLabelsBrush(QColor("#dddddd"))
                 axis.setLinePenColor(QColor("#dddddd"))
                 axis.setGridLineColor(QColor("#444444"))
         else:
-            chart.setBackgroundBrush(QColor("#ffffff"))
+            chart.setBackgroundBrush(QColor(255, 255, 255, 50))
             chart.setTitleBrush(QColor("#000000"))
             for axis in chart.axes():
                 axis.setLabelsBrush(QColor("#000000"))
