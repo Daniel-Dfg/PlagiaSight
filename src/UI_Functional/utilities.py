@@ -14,19 +14,6 @@ from UI_Styling.sdroparea import SDropArea
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
 
-class NonSelectableComboBox(QComboBox):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.standard_model = QStandardItemModel(self)
-        self.setModel(self.standard_model)
-
-    def add_item(self, text, selectable=False):
-        item = QStandardItem(text)
-        if not selectable:
-            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsEnabled)
-        self.standard_model.appendRow(item)
-
-
 class DropArea(SDropArea):
     def __init__(self, step1_widget, max_file_amount=5):
         super().__init__()
@@ -298,7 +285,9 @@ class GraphWindow(QWidget):
         chart.setTitle(title)
         series = QBarSeries()
         set1 = QBarSet("File 1")
+        set1.setColor("#634747" if self.is_dark_mode else "#eba5a5")
         set2 = QBarSet("File 2")
+        set2.setColor("#a6d7e7" if self.is_dark_mode else "#475c63")
 
         set1.append(y_data1)
         set2.append(y_data2)
@@ -310,9 +299,11 @@ class GraphWindow(QWidget):
         axis_x = QBarCategoryAxis()
         axis_x.append(x_data)
         axis_x.setTitleText(x_label)
+        axis_x.setLabelsColor("#e6e6e6" if self.is_dark_mode else "#232023")
         axis_x.setLabelsAngle(-90)
         axis_y = QValueAxis()
         axis_y.setTitleText(y_label)
+        axis_y.setLabelsColor("#e6e6e6" if self.is_dark_mode else "#232023")
         axis_y.applyNiceNumbers()
 
         chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
@@ -336,18 +327,18 @@ class GraphWindow(QWidget):
 
     def apply_theme(self, chart):
         if self.is_dark_mode:
-            chart.setBackgroundBrush(QColor("#2b2b2b"))
-            chart.setTitleBrush(QColor("#dddddd"))
+            chart.setBackgroundBrush(QColor("#232023"))
+            chart.setTitleBrush(QColor("#e6e6e6"))
             for axis in chart.axes():
-                axis.setLabelsBrush(QColor("#dddddd"))
+                axis.setLabelsBrush(QColor("#e6e6e6"))
                 axis.setLinePenColor(QColor("#dddddd"))
                 axis.setGridLineColor(QColor("#444444"))
         else:
             chart.setBackgroundBrush(QColor("#ffffff"))
-            chart.setTitleBrush(QColor("#000000"))
+            chart.setTitleBrush(QColor("#232023"))
             for axis in chart.axes():
-                axis.setLabelsBrush(QColor("#000000"))
-                axis.setLinePenColor(QColor("#000000"))
+                axis.setLabelsBrush(QColor("#232023"))
+                axis.setLinePenColor(QColor("#232023"))
                 axis.setGridLineColor(QColor("#cccccc"))
 
     #WILL PROBABLY BE GROUPED WITH OTHER SAVE METHODS IN A DEDICATED CLASS (like exporting full data in JSON or stuff like that)

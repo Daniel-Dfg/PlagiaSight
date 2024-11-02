@@ -7,7 +7,7 @@ from nltk.metrics.aline import align
 from text_analysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
-from .utilities import DropArea, GraphWindow
+from .utilities import DropArea, GraphWindow, QIcon
 from UI_Styling import slabels, sbuttons, filescontainer, sradiobuttons
 from time import time
 
@@ -326,10 +326,17 @@ class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
+        self.final_results_label = QLabel("Final results")
+        self.final_results_label.setStyleSheet("font-size:32px;")
+        self.final_results_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.desc_label = QLabel("If some terms or values are unclear, please click on the \"?\" button at the bottom to learn more !")
+        self.desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         layout = QVBoxLayout()
 
         file_selection_layout = QHBoxLayout()
+        left_side_selection_layout = QHBoxLayout()
+        right_side_selection_layout = QHBoxLayout()
         self.right_content_title = QComboBox()
 
         if isinstance(self.main_window.final_results, OneFileComparison):
@@ -352,18 +359,25 @@ class Step4_DisplayResults(QWidget):
 
         label = QLabel("File 1:")
         label.setStyleSheet("font-size:24px;")
-        file_selection_layout.addWidget(label)
-        file_selection_layout.addWidget(self.left_content_title)
+        left_side_selection_layout.addWidget(label)
+        left_side_selection_layout.addWidget(self.left_content_title)
+        left_side_selection_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        file_selection_layout.addLayout(left_side_selection_layout)
 
-        switch_button = QPushButton("Switch Contents")
+        switch_button = QPushButton()
+        switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
         file_selection_layout.addWidget(switch_button)
 
         label2 = QLabel("File2 :")
         label2.setStyleSheet("font-size:24px;")
-        file_selection_layout.addWidget(label2)
-        file_selection_layout.addWidget(self.right_content_title)
+        right_side_selection_layout.addWidget(label2)
+        right_side_selection_layout.addWidget(self.right_content_title)
+        right_side_selection_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+        file_selection_layout.addLayout(right_side_selection_layout)
 
+        layout.addWidget(self.final_results_label)
+        layout.addWidget(self.desc_label)
         layout.addLayout(file_selection_layout)
 
         self.file1_result_labels = {}
