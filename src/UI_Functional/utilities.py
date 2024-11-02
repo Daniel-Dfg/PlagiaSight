@@ -14,38 +14,25 @@ from UI_Styling.sdroparea import SDropArea
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
 
-class NonSelectableComboBox(QComboBox):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.standard_model = QStandardItemModel(self)
-        self.setModel(self.standard_model)
-
-    def add_item(self, text, selectable=False):
-        item = QStandardItem(text)
-        if not selectable:
-            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable & ~Qt.ItemFlag.ItemIsEnabled)
-        self.standard_model.appendRow(item)
-
-
 class DropArea(SDropArea):
     def __init__(self, step1_widget, max_file_amount=5):
         super().__init__()
         self.setAcceptDrops(True)
         self.max_file_amount = max_file_amount
         self.step1_widget = step1_widget
-
-        # Limite minimum de fichiers
         self.min_file_amount = 1 if max_file_amount == 1 else 2
 
         self.correct_files = []
         self.invalid_files = []
 
-    def dragEnterEvent(self, e):
-        if e.mimeData().hasUrls():
-            e.acceptProposedAction()
+    @override
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
 
-    def dropEvent(self, e):
-        files = [url.toLocalFile() for url in e.mimeData().urls()]
+    @override
+    def dropEvent(self, event):
+        files = [url.toLocalFile() for url in event.mimeData().urls()]
         valid_set = set(self.correct_files)
         for file in files:
             if os.path.isfile(file) and self.file_format_is_valid(file) and file not in valid_set:
@@ -102,9 +89,23 @@ class HelpWindow(QWidget):
         self.tree.setHeaderHidden(True)
         layout.addWidget(self.tree)
 
-        self.add_help_step("Step 0: Welcome", "This is the welcoming message.\nYou can compare files and more.")
-        self.add_help_step("Step 1: Select Comparison Type", "Choose whether you want to compare a single file with online data or multiple files.")
-        self.add_help_step("Step 2: Choose Analysis Type", "Select whether you want a simple or complex analysis of your files.")
+        self.add_help_step("Step 0: Pick a type of analysis",
+                            "Compare a single file with online data or files between each other (useful for students, for example : they can compare their texts that way)")
+        self.add_help_step("Step 1: Choose your desired files",
+                            "We support drag & dropping and browsing files/folders.\nValid content will be automatically extracted from a provided folder, with its invalid files being shown in the \"invalid files\" section.")
+        self.add_help_step("Step 2: Choose Analysis Type",
+                            "The difference between the simple and complex analysis stands in the fact that complex analysis extends the simple analysis, helping to provide more insights while being more computation-heavy.")
+        self.add_help_step("Step 3: Results",
+                            "All of these numbers and terms can be overwhelming for many, so let's explain these one by one very simply :\n"
+                            "- Text richness = number_of_different_terms / total_number_of_terms\n"
+                            "Cosine and Jaccard similarity are similarity computations based on several factors : the position of words in a text, the amount of times they appear in total, etc. They're known to be among the most accurate text similarity algorithms we know today.\n"
+                            "You might've noticed than, if you decided to do a \"Complex Analysis\", Cosine and Jaccard similarity both appear twice : they're applied once on the 'words' of each pair of texts, and once on the 'pos' of each pair of text... But what does 'pos' mean ?\n"
+                            "Well - POS is an abbreviation for \"Part(s) Of Speech\", which indicates the 'class' of a given word in a text (noun, pronoun, adjective, determinant...).\n"
+                            "So we compute similarity between the POS of each pair of text because, if two texts are structurally similar (their sentences are \"built the same way\", if you wish), it's going to show up in these computations !")
+        self.add_help_step("(Optional) Graph Window",
+            "When looking at the results, if you click the 'show graphs' button, a button displaying some graphs will appear : they're here to help you visualize how the texts you provided are (dis)similar to each other.\n"
+            "There is just one thing we must clarify in these :\n"
+            "The meaning of 'bigrams' (and 'trigrams' in the case of a complex analysis) : n-grams are sequences of n contiguous words in a text. In the sentence \"I ate an apple\", the BIgrams are 'I ate', 'ate an', and 'an apple'.\n")
         self.setLayout(layout)
 
     def add_help_step(self, step_title, step_details):
@@ -129,27 +130,29 @@ class GetInTouchWindow(QWidget):
         self.main_window = main_window
 
         self.setWindowTitle("Get in touch")
-
-        # Make the layout an instance attribute so it can be accessed later
         self.lay_out = QVBoxLayout()
 
         label = QLabel("Bug? Feature request? Commentary? Collab? We're all ears!")
         self.lay_out.addWidget(label)
-        self.setLayout(self.lay_out)  # Set the layout to the window
+        self.setLayout(self.lay_out)
 
     def full_init(self):
-        self.add_contact_info(self.lay_out, "Daniel D.", ["Texts similarity computations", "UI (functional) and UX design", "Documentation"],
+        self.add_contact_info(self.lay_out, "Daniel-Dfg", ["Lead developer", "Texts similarity computations", "UI design (functional)", "Documentation gathering and handling"],
                               Mail="mailto:danieldefoing@gmail.com",
                               GitHub="https://github.com/Daniel-Dfg",
                               Discord="https://discord.com/users/720963652286414909")
 
-        self.add_contact_info(self.lay_out, "LUCKYINS", ["Web scraping", "UI (styling)", "GitHub workflows"],
-                              GitHub="https://github.com/Luckyyyin")
+        self.add_contact_info(self.lay_out, "LUCKYINS", ["Web scraping", "UI (styling)", "Documentation gathering"],
+                              Mail="mailto:elhusseinabdalrahman@gmail.com",
+                              GitHub="https://github.com/LUCKYINS",
+                              Discord="https://discord.com/users/721008804300455978")
 
         self.add_contact_info(self.lay_out, "onuriscoding", ["UX Design", "GitHub workflows"],
-                              GitHub="https://github.com/onuriscoding")
+                              Mail="mailto:onurdogancs@gmail.com",
+                              GitHub="https://github.com/onuriscoding",
+                              Discord="https://discord.com/users/332553376707510272")
 
-        self.add_contact_info(self.lay_out, "botEkrem", ["General Consultancy", "GitHub workflows", "Cross-platform compatibility (dockerization)"],
+        self.add_contact_info(self.lay_out, "botEkrem", ["General Consultancy", "GitHub workflows", "Dockerization"],
                               GitHub="https://github.com/BotEkrem")
 
         self.is_fully_init = True
@@ -220,9 +223,9 @@ class GraphWindow(QWidget):
         layout = QVBoxLayout(self)
 
         next_previous_buttons_layout = QHBoxLayout()
-        self.previous_button = QPushButton("Previous Graph")
+        self.previous_button = QPushButton("Previous")
         self.previous_button.clicked.connect(self.show_previous_graph)
-        self.next_button = QPushButton("Next Graph")
+        self.next_button = QPushButton("Next")
         self.next_button.clicked.connect(self.show_next_graph)
 
         #self.save_button = QPushButton("Save Graph")
@@ -231,9 +234,7 @@ class GraphWindow(QWidget):
         next_previous_buttons_layout.addWidget(self.next_button)
 
         #button_layout.addWidget(self.save_button)
-
         layout.addLayout(next_previous_buttons_layout)
-
         self.toggle_theme_button = QPushButton("Toggle Dark Theme")
         self.toggle_theme_button.clicked.connect(self.toggle_theme)
         layout.addWidget(self.toggle_theme_button) #TODO : remove this to let it be toggled by global dark theme, when ABCODIN will be done with UI implementation
@@ -241,7 +242,6 @@ class GraphWindow(QWidget):
         self.chart_view = QChartView()
         layout.addWidget(self.chart_view)
 
-        # Data structure to store graphs
         self.graph_data = {}
         self.graph_names = []
         self.current_graph_index = 0
@@ -253,11 +253,14 @@ class GraphWindow(QWidget):
         sorted_keys = sorted(total_frequencies.keys(), key=lambda k: total_frequencies[k], reverse=True)[:20]
 
         #TODO : think about an optimization (might loop too much times over the same data...)
-        y_data1 = [freq_dist1.get(key, 0) for key in sorted_keys]
-        y_data2 = [freq_dist2.get(key, 0) for key in sorted_keys]
+        y_data1 = [float(freq_dist1.get(key, 0)) for key in sorted_keys]
+        y_data2 = [float(freq_dist2.get(key, 0)) for key in sorted_keys]
 
-        self.graph_data[name] = (sorted_keys, y_data1, y_data2, x_label, y_label, title)
-        self.graph_names.append(name)
+        self.graph_data[name] = ([' '.join(key) if isinstance(key, tuple) else key for key in sorted_keys],
+                                y_data1, y_data2, x_label, y_label, title)
+        if name not in self.graph_names:
+            self.graph_names.append(name)
+            self.current_graph_index = len(self.graph_names) - 1
         self.show_graph(name)
 
     def add_LengthPlot_graph(self, name, lengths1, lengths2, x_label, y_label, title):
@@ -267,13 +270,12 @@ class GraphWindow(QWidget):
         x_data = [str(i) for i in range(1, max_length + 1)]
 
         self.graph_data[name] = (x_data, lengths1, lengths2, x_label, y_label, title)
-        self.graph_names.append(name)
+        if name not in self.graph_names:
+            self.graph_names.append(name)
+            self.current_graph_index = len(self.graph_names) - 1
         self.show_graph(name)
 
     def show_graph(self, name):
-        """
-        Problem : pseudo OOR (will fix via preloading), clicking once doesn't do anything...
-        """
         if name not in self.graph_data:
             raise AttributeError(f"No graph named '{name}' found.")
 
@@ -281,10 +283,11 @@ class GraphWindow(QWidget):
 
         chart = QChart()
         chart.setTitle(title)
-
         series = QBarSeries()
-        set1 = QBarSet("Text 1")
-        set2 = QBarSet("Text 2")
+        set1 = QBarSet("File 1")
+        set1.setColor("#634747" if self.is_dark_mode else "#eba5a5")
+        set2 = QBarSet("File 2")
+        set2.setColor("#a6d7e7" if self.is_dark_mode else "#475c63")
 
         set1.append(y_data1)
         set2.append(y_data2)
@@ -296,54 +299,46 @@ class GraphWindow(QWidget):
         axis_x = QBarCategoryAxis()
         axis_x.append(x_data)
         axis_x.setTitleText(x_label)
+        axis_x.setLabelsColor("#e6e6e6" if self.is_dark_mode else "#232023")
         axis_x.setLabelsAngle(-90)
-
         axis_y = QValueAxis()
         axis_y.setTitleText(y_label)
+        axis_y.setLabelsColor("#e6e6e6" if self.is_dark_mode else "#232023")
         axis_y.applyNiceNumbers()
 
         chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
         chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
-
         series.attachAxis(axis_x)
         series.attachAxis(axis_y)
-
-        self.apply_theme(chart)  # Appliquer le thème actuel
-
+        self.apply_theme(chart)
         self.chart_view.setChart(chart)
 
     def show_previous_graph(self):
-        if self.current_graph_index > 0:
-            self.current_graph_index -= 1
-        else:
-            self.current_graph_index = len(self.graph_names) - 1
-        self.show_graph(self.graph_names[self.current_graph_index])
-
+        if self.graph_names:
+            self.current_graph_index = (self.current_graph_index - 1) % len(self.graph_names)
+            self.show_graph(self.graph_names[self.current_graph_index])
     def show_next_graph(self):
-        if self.current_graph_index < len(self.graph_names) - 1:
-            self.current_graph_index += 1
-        else:
-            self.current_graph_index = 0
-        self.show_graph(self.graph_names[self.current_graph_index])
-
+        if self.graph_names:
+            self.current_graph_index = (self.current_graph_index + 1) % len(self.graph_names)
+            self.show_graph(self.graph_names[self.current_graph_index])
     def toggle_theme(self):
-        self.is_dark_mode = not self.is_dark_mode
-        self.show_graph(self.graph_names[self.current_graph_index])  # Recharger le graphique pour appliquer le thème
+            self.is_dark_mode = not self.is_dark_mode
+            self.show_graph(self.graph_names[self.current_graph_index])  # Recharger le graphique pour appliquer le thème
 
     def apply_theme(self, chart):
         if self.is_dark_mode:
-            chart.setBackgroundBrush(QColor("#2b2b2b"))
-            chart.setTitleBrush(QColor("#dddddd"))
+            chart.setBackgroundBrush(QColor("#232023"))
+            chart.setTitleBrush(QColor("#e6e6e6"))
             for axis in chart.axes():
-                axis.setLabelsBrush(QColor("#dddddd"))
+                axis.setLabelsBrush(QColor("#e6e6e6"))
                 axis.setLinePenColor(QColor("#dddddd"))
                 axis.setGridLineColor(QColor("#444444"))
         else:
             chart.setBackgroundBrush(QColor("#ffffff"))
-            chart.setTitleBrush(QColor("#000000"))
+            chart.setTitleBrush(QColor("#232023"))
             for axis in chart.axes():
-                axis.setLabelsBrush(QColor("#000000"))
-                axis.setLinePenColor(QColor("#000000"))
+                axis.setLabelsBrush(QColor("#232023"))
+                axis.setLinePenColor(QColor("#232023"))
                 axis.setGridLineColor(QColor("#cccccc"))
 
     #WILL PROBABLY BE GROUPED WITH OTHER SAVE METHODS IN A DEDICATED CLASS (like exporting full data in JSON or stuff like that)
