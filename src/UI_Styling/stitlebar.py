@@ -32,10 +32,11 @@ class STitleBar(QWidget):
         #List buttons functionalities
         buttons = {self.mini:(self.window().showMinimized, "mini"),
             self.maxi:(self.switchSize,"maxi"),
-            self.exit:(self.window().close,"exit" )}
+            self.exit:(None,"exit" )}
 
         for button, func in buttons.items():
-            button.pressed.connect(func[0])
+            if (button != self.exit):
+                button.pressed.connect(func[0])
             button.setObjectName(func[1])
             button.setFixedSize(iconsize, iconsize)
             button.setIcon(QIcon(f"{icons_dir}/{func[1]}.svg"))

@@ -1,6 +1,8 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QApplication
+from PySide6.QtWidgets import QMainWindow, QWidget, QApplication, QVBoxLayout
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QMouseEvent
+
+from UI_Styling.stitlebar import STitleBar
 
 
 w = 790
@@ -8,6 +10,8 @@ h = 560
 class SMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.get_in_touch_window = None
+        self.help_window = None
         #Window can't be resized more then that
         self.setMinimumSize(w, h)
 
@@ -28,6 +32,11 @@ class SMainWindow(QMainWindow):
                                 background-color: qlineargradient(x1: 1, y1: 0, x2: 1, y2: 1,stop: 0 #100B2B,stop: 1 #473242);
                                 border-radius:10px;
                                 }""")
+
+        self.main_layout = QVBoxLayout(self.background)
+        self.titleBar = STitleBar(self)
+        self.titleBar.exit.clicked.connect(self.closeAll)
+        self.main_layout.addWidget(self.titleBar, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
         self.setCentralWidget(self.background)
 
     def mousePressEvent(self, event: QMouseEvent):
@@ -39,23 +48,19 @@ class SMainWindow(QMainWindow):
         try:
             if self.dragging:
                 new_pos = event.globalPosition().toPoint() - self.offset
-                screen_geometry = QApplication.primaryScreen().geometry()
-                window_geometry = self.geometry()
-                if new_pos.x() < 0:
-                    new_pos.setX(0)
-                elif new_pos.x() + window_geometry.width() > screen_geometry.width():
-                    new_pos.setX(screen_geometry.width() - window_geometry.width())
-
-                if new_pos.y() < 0:
-                    new_pos.setY(0)
-                elif new_pos.y() + window_geometry.height() > screen_geometry.height():
-                    new_pos.setY(screen_geometry.height() - window_geometry.height())
-
                 # Move the window to the new position
                 self.move(new_pos)
+
         except AttributeError:
             print("window drag could not started")
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         if event.button() == Qt.MouseButton.LeftButton:
             self.dragging = False
+
+    def closeAll(self):
+        self.close()
+        if (self.get_in_touch_window):
+            self.get_in_touch_window.close()
+        if (self.help_window):
+            self.help_window.close()
