@@ -15,7 +15,7 @@ from time import time
 #Characteristics independent to each text (found in the TokenStatsAndRearrangements instance each text is in)
 INDIV_CHARACTERISTICS = ["Text Richness", "average sentence length", "median sentence length"]
 INDIV_CHARS_ATTRS = ["text_richness", "average_sent_length", "median_sent_length"]
-CURRENT_TIME = None
+#CURRENT_TIME = None for basic benchmarking, if ever needed
 
 
 ### SIMPLE ANALYSIS ###
@@ -23,7 +23,7 @@ CURRENT_TIME = None
 COMMON_CHARS_SIMPLE = ["Cosine sim (words)", "Jaccard sim (words)"]
 COMMON_CHARS_SIMPLE_ATTRS =  ["cosine_sim_words", "jaccard_sim_words"]
 #Characteristics common to each 'duo' of texts to be displayed in graphics
-GRAPH_COMMON_CHARS_SIMPLE = ["word frequency (top ???%)", "Sentences length (plotting)"]
+GRAPH_COMMON_CHARS_SIMPLE = ["word frequency (top ~20%)", "Sentences lengths"]
 GRAPH_COMMON_CHARS_SIMPLE_ATTRS = ["word_freq", "sent_lengths"] #the 'top 20%' of most frequent terms will be filtered from the word_freq attribute, that initially is a FreqDist of ALL terms
 #######################
 
@@ -31,7 +31,7 @@ GRAPH_COMMON_CHARS_SIMPLE_ATTRS = ["word_freq", "sent_lengths"] #the 'top 20%' o
 #Same idea as Simple analysis' global constants. Notice how the complex analysis is essentially an "extension" of the simple analysis !
 COMMON_CHARS_COMPLEX = COMMON_CHARS_SIMPLE + ["Cosine sim (pos)", "Jaccard sim (pos)"]
 COMMON_CHARS_COMPLEX_ATTRS = COMMON_CHARS_SIMPLE_ATTRS + ["cosine_sim_pos", "jaccard_sim_pos"]
-GRAPH_COMMON_CHARS_COMPLEX = GRAPH_COMMON_CHARS_SIMPLE + ["most common bigrams (top ???%)", "most common trigrams (top 20%)"]
+GRAPH_COMMON_CHARS_COMPLEX = GRAPH_COMMON_CHARS_SIMPLE + ["most common bigrams (top ~20%)", "most common trigrams (top ~20%)"]
 GRAPH_COMMON_CHARS_COMPLEX_ATTRS = GRAPH_COMMON_CHARS_SIMPLE_ATTRS + ["bigrams", "trigrams"] #same remark as for word_freq (see GRAPH_COMMON_CHARS_SIMPLE_ATTRS)
 #########################
 
@@ -136,12 +136,11 @@ class Step1_FileDropAndCheck(QWidget):
             self.status_label.setText(f"⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.")
             self.status_label.setStyleSheet(("font-size:20px;color:red"))
 
-    def go_back(self): ##to consider : add a generic method for all "go back" buttons ?
+    def go_back(self): #to consider : add a generic method for all "go back" buttons ?
         self.main_window.stacked_widget.setCurrentIndex(0)
         self.main_window.help_window.expand_step(0)
 
     def _browse_directory(self):
-        """Open dialog for selecting a directory."""
         directory_path = QFileDialog.getExistingDirectory(self, "Select a directory with .txt files")
         if directory_path:
             self.drop_area.process_directory(directory_path)
@@ -149,7 +148,6 @@ class Step1_FileDropAndCheck(QWidget):
             self.update_current_content_validity()
 
     def _browse_single_file(self):
-        """Open file dialog for selecting files manually."""
         file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt file", "", "Text Files (*.txt)")
         if file_name:
             print("Selected file:", file_name)
@@ -160,6 +158,7 @@ class Step1_FileDropAndCheck(QWidget):
             else:
                 pass
                 #self.show_warning("Please select only .txt files.")
+
     def add_file_to_correct_files_list_UI(self, file, file_is_valid=True):
         """
         Adds a given file to its correct list (valid or invalid) only in the UI.
@@ -200,13 +199,9 @@ class Step1_FileDropAndCheck(QWidget):
     @override #override of the default eventFilter provided by PySide6
     def eventFilter(self, watched, event):
         remove_button = watched.findChild(QPushButton)
-        #assert(isinstance(remove_button, QPushButton))
-        if event.type() == QEvent.Type.Enter:
-            if remove_button:
-                remove_button.setVisible(True)
-        elif event.type() == QEvent.Type.Leave:
-            if remove_button:
-                remove_button.setVisible(False)
+        if event.type() == QEvent.Type.Enter or event.type() == QEvent.Type.Leave:
+            if remove_button and isinstance(remove_button, QPushButton):
+                remove_button.setVisible(event.type() == QEvent.Type.Enter)
         return super().eventFilter(watched, event)
 
     def proceed_to_next_step(self):
@@ -307,21 +302,18 @@ class Step3_LoadResults(QWidget):
         if self.main_window.max_files_amount == 1:
             #web scraping, etc
             ...
-            print("processing a SINGLE FILE")
-            CURRENT_TIME = time()
+            #CURRENT_TIME = time()
             self.main_window.final_results = OneFileComparison(self.progress_bar, valid_files_to_process[0], self.analysis_complexity)
-            print("OneFileComparison done in", time() - CURRENT_TIME)
+            #print("OneFileComparison done in", time() - CURRENT_TIME)
         else:
-            ...
-            print("processing a SET of FILES")
             #compare files between each other
-            CURRENT_TIME = time()
+            #CURRENT_TIME = time()
             self.main_window.final_results = CrossCompare(self.progress_bar ,files_paths=valid_files_to_process, comparison_type=self.analysis_complexity)
-            print("CrossCompare done in", time() - CURRENT_TIME)
+            #print("CrossCompare done in", time() - CURRENT_TIME)
 
         # Mark all as complete
         self.current_file_processed_label.setText("Processing: Complete")
-        QTimer.singleShot(100, self.done.emit)
+        QTimer.singleShot(70, self.done.emit)
 
 
     def move_to_step4(self):
@@ -448,18 +440,17 @@ class Step4_DisplayResults(QWidget):
                 res_file1 = "N/A"
                 res_file2 = "N/A"
 
-            self.file1_result_labels[char_name].setText(str(res_file1))
-            self.file2_result_labels[char_name].setText(str(res_file2))
+            self.file1_result_labels[char_name].setText(str(res_file1) if int(res_file1) == res_file1 else str("{:.3f}".format(res_file1)))
+            self.file2_result_labels[char_name].setText(str(res_file2) if int(res_file2) == res_file2 else str("{:.3f}".format(res_file2)))
 
-        if isinstance(self.main_window.final_results, OneFileComparison):
-            # TODO : specific treatment for OneFileComp ?
-            for common_char_name, common_char_label in zip(self.textual_display_common_charcs, self.textual_display_common_func_labels):
+        for common_char_name, common_char_label in zip(self.textual_display_common_charcs, self.textual_display_common_func_labels):
+            if isinstance(self.main_window.final_results, OneFileComparison):
+                # TODO : specific treatment for OneFileComp ?
                 common_res = getattr(results.get_comparison(file2), common_char_label)
-                self.common_result_labels[common_char_name].setText(str(common_res))
-        else:
-            for common_char_name, common_char_label in zip(self.textual_display_common_charcs, self.textual_display_common_func_labels):
+            else:
                 common_res = getattr(results.get_comparison(file1, file2), common_char_label)
-                self.common_result_labels[common_char_name].setText(str(common_res))
+            self.common_result_labels[common_char_name].setText(str(common_res) if int(common_res) == common_res else str("{:.3f}".format(common_res)))
+
 
     def _sync_comboboxes(self, changed_combobox):
         selected_item = changed_combobox.currentText()
@@ -528,8 +519,8 @@ class Step4_DisplayResults(QWidget):
                     name=graph_name,
                     lengths1=freq_dist1,
                     lengths2=freq_dist2,
-                    x_label="Sentence index",
-                    y_label="Length",
+                    x_label="Sentence number in text",
+                    y_label="Sentence length",
                     title=f"{graph_name} Comparison"
                 )
             else:
@@ -548,20 +539,3 @@ class Step4_DisplayResults(QWidget):
         #TODO : fix the logic of this
         #self.left_content_title.currentIndexChanged.connect(self.update_graph_window)
         #self.right_content_title.currentIndexChanged.connect(self.update_graph_window)
-
-    """
-    def update_graph_window(self):
-        if self.graph_window:
-            new_graphs_data = self.prepare_graphs_data()
-            for graph_name, res_file1, res_file2 in new_graphs_data:
-                freq_dist1 = FreqDist(dict(res_file1))
-                freq_dist2 = FreqDist(dict(res_file2))
-                self.graph_window.update_FreqDist_graph(
-                    name=graph_name,
-                    freq_dist1=freq_dist1,
-                    freq_dist2=freq_dist2,
-                    x_label="Items",
-                    y_label="Frequency",
-                    title=f"{graph_name} Comparison"
-                )
-    """

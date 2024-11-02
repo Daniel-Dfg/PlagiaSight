@@ -1,10 +1,10 @@
 from text_analysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
 from web_scraper import URLs, HtmlText
 from PySide6.QtWidgets import QProgressBar
-from time import time
+#from time import time
 
 
-CURRENT_TIME = time()
+#CURRENT_TIME = time()
 GATHERED_URLS = 1
 
 @dataclass
@@ -68,15 +68,14 @@ class CrossCompare:
 
         #print(self.files_paths, "FILES PATHS")
         self.progress_bar.setValue(0)
-        CURRENT_TIME = time()
+        #CURRENT_TIME = time()
         for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
-            print("\nFILE\n----------------", file)
+            #print("\nFILE\n----------------", file)
             self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
             self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
-        print("Stats generation time:", time() - CURRENT_TIME)
+        #print("Stats generation time:", time() - CURRENT_TIME)
 
-        # Comparer chaque fichier avec les autres
-        CURRENT_TIME = time()
+        #CURRENT_TIME = time()
         for i, file1 in enumerate(self.files_paths):
             for j, file2 in enumerate(self.files_paths):
                 if i < j:
@@ -91,7 +90,7 @@ class CrossCompare:
                         #self.comparisons[(file1, file2)].display_complex_results()
                     #print("increment by", progress_bar_big_increment)
                     self.progress_bar.setValue(self.progress_bar.value() + progress_bar_big_increment)
-        print("Comparisons generation time:", time() - CURRENT_TIME)
+        #print("Comparisons generation time:", time() - CURRENT_TIME)
         self.progress_bar.setValue(100)
 
     def process_file(self, file):

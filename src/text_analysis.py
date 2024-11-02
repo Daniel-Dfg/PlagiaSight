@@ -22,7 +22,7 @@ from math import sqrt
 from numpy import mean, median
 from os import path
 import chardet #detects file encoding
-from time import time
+#from time import time
 
 
 #Global constants ↴
@@ -47,19 +47,19 @@ class Tokenizer:
     _part_of_speeches_tags: ndarray = field(init=False, repr=False, default_factory=lambda : array([]))
 
     def __post_init__(self):
-        TIME = time()
+        #TIME = time()
         sentences = re.split(REGEX_SPLIT_SENTENCES, self._raw_data) #Possible subbottleneck
         self._tokens_by_sentence = array([sent.strip() for sent in sentences if sent.strip()])
         if len(self._tokens_by_sentence) < TEXT_TOO_SHORT_LIMIT:
             raise UnprocessableTextContent("Text is too short")
-        TIME = time()
+        #TIME = time()
         tokens_by_wordpunct_first_pass = wordpunct_tokenize(self._raw_data) #will be filtered in the next lines
-        TIME = time()
+        #TIME = time()
         pos_tags_first_pass = self._lemmatize_and_tag_tokens(tokens_by_wordpunct_first_pass) # → list[(word, pos_tag)]
-        print("Time spent lemmatizing and tagging", time() - TIME)
-        TIME = time()
+        #print("Time spent lemmatizing and tagging", time() - TIME)
+        #TIME = time()
         self._tokens_by_syntagm, self._tokens_by_wordpunct = self._filter_and_group_tokens(pos_tags_first_pass)
-        print("Time spent filtering and grouping", time() - TIME)
+        #print("Time spent filtering and grouping", time() - TIME)
 
 
     def _lemmatize_and_tag_tokens(self, tbwp_first_pass) -> list[tuple[str, str]]: #BOTTLENECK
@@ -69,17 +69,17 @@ class Tokenizer:
         pos_tagged_tbwp = pos_tag(tbwp_first_pass)
         for token, tag in pos_tagged_tbwp:
             if not self._is_only_punctuation(token):
-                TIME = time()
+                #TIME = time()
                 lemma_tuple = getLemma(token, self.get_tag_lemminflect(tag)) #optimization compared to WordNetLemmatizer
                 if lemma_tuple:
                     lemmatized_form = lemma_tuple[0]
                 else:
                     lemmatized_form = token
-                time_spent_lemmatizing += time() - TIME
+                #time_spent_lemmatizing += time() - TIME
                 part_of_speech_tags.append((lemmatized_form, tag))
             else:
                 part_of_speech_tags.append((token, "Punct")) #fix mistakes made by the automatic POS tagger
-        print("Time spent lemmatizing", time_spent_lemmatizing)
+        #print("Time spent lemmatizing", time_spent_lemmatizing)
         return part_of_speech_tags
 
     def _filter_and_group_tokens(self, part_of_speech_tags) -> tuple[ndarray, ndarray]:
