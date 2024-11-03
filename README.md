@@ -15,6 +15,10 @@ Add badges from somewhere like: [shields.io](https://shields.io/)
 
 ## Documentation
 
+## Installation
+
+use git commands
+
 
 ## Demo
 
@@ -27,7 +31,5 @@ Add badges from somewhere like: [shields.io](https://shields.io/)
 [https://github.com/LUCKYINS](https://github.com/Luckyyyin)
 
 [https://github.com/onuriscoding](https://github.com/onuriscoding)
-## Installation
 
-use git commands
 ## Acknowledgements
