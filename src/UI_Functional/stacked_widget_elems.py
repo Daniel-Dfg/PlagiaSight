@@ -6,9 +6,11 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
 from text_analysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
-from nltk import FreqDist
-from .utilities import DropArea, GraphWindow, QIcon, simplify_path
-from UI_Styling import slabels, sbuttons, filescontainer, sradiobuttons
+from .utilities import GraphWindow, DropArea, simplify_path
+from UI_Styling.filescontainer import FilesContainer
+from UI_Styling.sbuttons import SButtons
+from UI_Styling.sradiobuttons import SRadioButton
+
 #from time import time
 
 #GLOBAL CONSTANTS : characteristics with their attributes equivalents (to get them via the getattr() built-in Python method later on)
@@ -301,7 +303,7 @@ class Step3_LoadResults(QWidget):
         self.done.connect(lambda: QTimer.singleShot(100, self.move_to_step4))
 
         bottom_button_layout = QHBoxLayout()
-        self.reset_button = sbuttons.SButtons("Reset")
+        self.reset_button = SButtons("Reset")
         self.reset_button.clicked.connect(self.reset_process)
         bottom_button_layout.addWidget(self.reset_button)
         bottom_button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)

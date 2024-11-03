@@ -24,7 +24,6 @@ class SMainWindow(QMainWindow):
 
                             }
                             QComboBox:hover{
-                                width: 0;
                                 height: 30px;
                                 background-color:#3E3182;
                                 border-radius:3px;
