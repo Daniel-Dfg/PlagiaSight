@@ -216,7 +216,6 @@ class GetInTouchWindow(SMiniWindow):
 
     def toggle_roles(self, roles_widget, toggle_checkbox, checked):
         if checked:
-            self.setFixedSize(550, 680)
             for i in range(len(self.checkBoxs)):
                 if toggle_checkbox != self.checkBoxs[i]:
                     self.checkBoxs[i].setChecked(False)
@@ -224,6 +223,7 @@ class GetInTouchWindow(SMiniWindow):
                     self.rolesWidget[i].setVisible(False)
             toggle_checkbox.setText("Hide roles")
             roles_widget.setVisible(True)
+            self.setFixedSize(550, 680)
         else:
             self.setFixedSize(550, 580)
             toggle_checkbox.setText("Show roles")
