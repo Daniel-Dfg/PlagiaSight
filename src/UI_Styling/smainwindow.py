@@ -15,7 +15,7 @@ class SMainWindow(QMainWindow):
                             *{
                             background-color: rgba(0,0, 0, 0);
                             border:none;
-                            font-size:18px;
+                            font-size:15px;
                             }
                             QComboBox {
                                 height: 30px;
