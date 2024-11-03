@@ -13,7 +13,6 @@ from UI_Styling.sdroparea import SDropArea
 from UI_Styling.smainwindow import SMainWindow
 from UI_Styling.sminiwindow import SMiniWindow
 from UI_Styling.sbuttons import SButtons
-
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
 
