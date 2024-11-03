@@ -1,19 +1,33 @@
-<img src="./src/UI_Styling/logo/PlagiaSight.png" style="height:300px">
 
-# PlagiarismDetectionProject
+# PlagiaSight
 
-### Introduction:
+A brief description of what this project does and who it's for
 
-### Description:
-- Text Analysis:
 
-### ScreenShots:
+## Badges
 
-### Sources:
+Add badges from somewhere like: [shields.io](https://shields.io/)
 
-### Coded By:
-&emsp;&emsp;[https://github.com/Daniel-Dfg](https://github.com/Daniel-Dfg)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
+[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
 
-&emsp;&emsp;[https://github.com/LUCKYINS](https://github.com/Luckyyyin)
 
-&emsp;&emsp;[https://github.com/onuriscoding](https://github.com/onuriscoding)
+## Documentation
+
+
+## Demo
+
+
+
+## Contributing
+
+[https://github.com/Daniel-Dfg](https://github.com/Daniel-Dfg)
+
+[https://github.com/LUCKYINS](https://github.com/Luckyyyin)
+
+[https://github.com/onuriscoding](https://github.com/onuriscoding)
+## Installation
+
+use git commands
+## Acknowledgements
