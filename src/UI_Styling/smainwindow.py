@@ -18,14 +18,13 @@ class SMainWindow(QMainWindow):
                             font-size:18px;
                             }
                             QComboBox {
-                                width: 230px;
                                 height: 30px;
                                 background-color:#3E3182;
                                 border-radius:3px;
 
                             }
                             QComboBox:hover{
-                                width: 230px;
+                                width: 0;
                                 height: 30px;
                                 background-color:#3E3182;
                                 border-radius:3px;
