@@ -130,11 +130,11 @@ class Step1_FileDropAndCheck(QWidget):
         if num_valid_files >= self.drop_area.min_file_amount:
             self.next_button.setEnabled(True)
             self.status_label.setText("🗸 Ready to analyze 🗸")
-            self.status_label.setStyleSheet(("font-size:20px;color:green;"))
+            self.status_label.setStyleSheet(("color:green;"))
         else:
             self.next_button.setEnabled(False)
-            self.status_label.setText(f"       ⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.\nPlease drop at least {self.drop_area.min_file_amount} valid file{'s' if self.drop_area.min_file_amount != 1 else ''}.           ")
-            self.status_label.setStyleSheet(("font-size:20px;color:red"))
+            self.status_label.setText(f"       ⚠️ {num_valid_files} valid file{'s' if num_valid_files != 1 else ''} dropped.\nPlease drop at least {self.drop_area.min_file_amount} valid file{'s' if self.drop_area.min_file_amount != 1 else ''}.           \n" + self.drop_area.errormessage)
+            self.status_label.setStyleSheet(("font-size:15px;color:red"))
 
     def go_back(self): #to consider : add a generic method for all "go back" buttons ?
         self.main_window.stacked_widget.setCurrentIndex(0)

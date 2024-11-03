@@ -22,6 +22,8 @@ class DropArea(SDropArea):
     def __init__(self, step1_widget, max_file_amount=5):
         super().__init__()
         self.setAcceptDrops(True)
+        # Error message
+        self.errormessage = ""
         self.max_file_amount = max_file_amount
         self.step1_widget = step1_widget
         self.min_file_amount = 1 if max_file_amount == 1 else 2
@@ -45,12 +47,12 @@ class DropArea(SDropArea):
                     self.step1_widget.add_file_to_correct_files_list_UI(file,True)
                     valid_set.add(file)
                 else:
-                    self.step1_widget.show_warning("⚠️ Maximum file limit reached!")
+                    self.errormessage = "⚠️ Maximum file limit reached!"
             elif os.path.isdir(file):
                 self.process_directory(file)
             else:
                 if file not in valid_set:
-                    self.step1_widget.show_warning(f"⚠️ .{file.split('.')[-1]} is not a valid file format.")
+                    self.errormessage = f"⚠️ .{file.split('.')[-1]} is not a valid file format."
         self.step1_widget.update_current_content_validity()
 
     def file_format_is_valid(self, file_path):
@@ -64,7 +66,7 @@ class DropArea(SDropArea):
             if os.path.isfile(full_path) and self.file_format_is_valid(full_path):
                 if full_path not in valid_set:
                     if len(self.correct_files) >= self.max_file_amount:
-                        self.step1_widget.show_warning(f"⚠️ Maximum file limit reached while processing {directory_path}.")
+                        self.errormessage = f"⚠️ Maximum file limit reached while processing {directory_path}."
                         break
                     self.correct_files.append(full_path)  # Ajouter le chemin complet
                     self.step1_widget.add_file_to_correct_files_list_UI(full_path, True)
