@@ -1,4 +1,5 @@
 from matplotlib.backends.backend_agg import RendererAgg
+from nltk.corpus.reader import toolbox
 from nltk.probability import SimpleGoodTuringProbDist
 from nltk.tokenize.api import overridden
 from typing_extensions import override
@@ -128,7 +129,10 @@ class HelpWindow(SMiniWindow):
 class GetInTouchWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
+        self.setFixedSize(550, 680)
         self.is_fully_init = False
+        self.checkBoxs = []
+        self.rolesWidget = []
 
         self.setWindowTitle("Get in touch")
 
@@ -144,7 +148,7 @@ class GetInTouchWindow(SMiniWindow):
                               GitHub="https://github.com/Daniel-Dfg",
                               Discord="https://discord.com/users/720963652286414909")
 
-        self.add_contact_info(self.main_layout, "LUCKYINS", ["Web scraping", "UI (styling)", "Documentation gathering"],
+        self.add_contact_info(self.main_layout, "LUCKYINS", ["Fixes Lead developer Bugs :p","Web scraping", "UI (styling)", "Documentation gathering"],
                               Mail="mailto:elhusseinabdalrahmanwork@gmail.com",
                               GitHub="https://github.com/LUCKYINS",
                               Discord="https://discord.com/users/721008804300455978")
@@ -184,6 +188,7 @@ class GetInTouchWindow(SMiniWindow):
         contact_layout.addWidget(contact_header)
 
         toggle_checkbox = QCheckBox("Show roles")
+        self.checkBoxs.append(toggle_checkbox)
         toggle_checkbox.setStyleSheet("""
                     QCheckBox::indicator:checked {
                     background-color: rgba(255, 200, 200, 100);
@@ -194,6 +199,7 @@ class GetInTouchWindow(SMiniWindow):
                         }
                         """)
         roles_widget = QWidget()
+        self.rolesWidget.append(roles_widget)
         roles_layout = QVBoxLayout()
 
         for role in roles:
@@ -217,6 +223,11 @@ class GetInTouchWindow(SMiniWindow):
 
     def toggle_roles(self, roles_widget, toggle_checkbox, checked):
         if checked:
+            for i in range(len(self.checkBoxs)):
+                if toggle_checkbox != self.checkBoxs[i]:
+                    self.checkBoxs[i].setChecked(False)
+                    self.checkBoxs[i].setText("Show roles")
+                    self.rolesWidget[i].setVisible(False)
             toggle_checkbox.setText("Hide roles")
             roles_widget.setVisible(True)
         else:
