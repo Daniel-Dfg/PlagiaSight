@@ -1,4 +1,4 @@
-from PySide6.QtGui import QColor, QRgba64
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QPushButton, QWidget, QGraphicsDropShadowEffect
 
 w = 130

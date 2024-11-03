@@ -4,7 +4,6 @@ from PySide6.QtGui import QMouseEvent
 
 from UI_Styling.stitlebar import STitleBar
 
-width = 200
 height = 40
 iconsize = 20
 class SMiniWindow(QMainWindow):

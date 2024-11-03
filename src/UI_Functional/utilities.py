@@ -2,14 +2,12 @@ from matplotlib.backends.backend_agg import RendererAgg
 from nltk.probability import SimpleGoodTuringProbDist
 from nltk.tokenize.api import overridden
 from typing_extensions import override
-from PySide6.QtWidgets import QComboBox, QTextEdit, QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFrame, QCheckBox, QListWidget, QAbstractItemView, QMenu, QListWidgetItem
-from PySide6.QtCore import Qt, QTimer, Signal
-from PySide6.QtGui import QDragEnterEvent, QDropEvent, QFont, QIcon, QPainter, QStandardItem, QStandardItemModel, QAction, QColor
+from PySide6.QtWidgets import  QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFrame, QCheckBox
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtGui import  QColor, QIcon
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QValueAxis, QBarCategoryAxis
 import os
 import webbrowser
-from numpy import arange
-
 from UI_Styling.sdroparea import SDropArea
 from UI_Styling.smainwindow import SMainWindow
 from UI_Styling.sminiwindow import SMiniWindow
@@ -84,8 +82,6 @@ class DropArea(SDropArea):
 class HelpWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.clo = SButtons("dfjoifj")
-        self.clo.clicked.connect(self.window().close)
 
         self.setWindowTitle("Help")
         self.resize(400, 300)

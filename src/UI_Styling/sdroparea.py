@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QLabel, QVBoxLayout
 from PySide6.QtGui import QPainter, QPen, QColor, QFont, QPainterPath
 from PySide6.QtCore import QRect, Qt
-from nltk.metrics.aline import align
 from UI_Styling.sbuttons import SButtons
 
 w =300
