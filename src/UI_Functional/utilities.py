@@ -59,21 +59,20 @@ class DropArea(SDropArea):
         return file_path.endswith('.txt')
 
     def process_directory(self, directory_path):
-        print("processing directory...")
         valid_set = set(self.correct_files)
         for f in os.listdir(directory_path):
-            full_path = os.path.join(directory_path, f)  # Chemin complet du fichier
+            full_path = os.path.join(directory_path, f)
             if os.path.isfile(full_path) and self.file_format_is_valid(full_path):
                 if full_path not in valid_set:
                     if len(self.correct_files) >= self.max_file_amount:
                         self.errormessage = f"⚠️ Maximum file limit reached while processing {directory_path}."
                         break
-                    self.correct_files.append(full_path)  # Ajouter le chemin complet
+                    self.correct_files.append(full_path)
                     self.step1_widget.add_file_to_correct_files_list_UI(full_path, True)
                     valid_set.add(full_path)
             else:
                 if full_path not in self.invalid_files:
-                    self.invalid_files.append(full_path)  # Ajouter le chemin complet pour les fichiers invalides aussi
+                    self.invalid_files.append(full_path)
                     self.step1_widget.add_file_to_correct_files_list_UI(full_path, False)
 
 

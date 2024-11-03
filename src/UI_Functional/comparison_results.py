@@ -1,6 +1,6 @@
 from text_analysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
 from web_scraper import URLs, HtmlText
-from PySide6.QtWidgets import QProgressBar
+from PySide6.QtWidgets import QLabel, QProgressBar
 #from time import time
 
 
@@ -33,11 +33,7 @@ class OneFileComparison:
                 text = HtmlText(response).makeTempText()
                 self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(text))
                 self.comparison_with[site_name] = TokensComparisonAlgorithms(self.content_stats[self.source_file], self.content_stats[site_name])
-                #text.removeTempText()
-        #links = get_links_from_keywords(self.source_data.base.find_keywords()) (pseudocode)
-        #for link in links:
-            #self.online_data[link] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_link(text)))
-            #self.comparison_with[link] = TextProcessingAlgorithms(self.source_data, self.online_data[link])
+
         ...
     def get_comparison(self, to_be_compared: str) -> TokensComparisonAlgorithms:
         if to_be_compared in self.comparison_with:
@@ -52,9 +48,11 @@ class CrossCompare:
     Used when a directory is provided (step 0).
     Compares the given files between eachother.
     """
+    current_file_processed_label : QLabel
     progress_bar : QProgressBar
     files_paths: list[str]
     comparison_type: str  # either "simple" or "complex"
+    problematic_files : list[tuple[str, Exception]] = field(init=False, repr=False, default_factory=list)
     content_stats: dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False)
     comparisons: dict[tuple[str, str], TokensComparisonAlgorithms] = field(init=False, repr=False)
 
@@ -69,11 +67,21 @@ class CrossCompare:
         #print(self.files_paths, "FILES PATHS")
         self.progress_bar.setValue(0)
         #CURRENT_TIME = time()
+        file_counter = 1
         for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
             #print("\nFILE\n----------------", file)
-            self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
+            self.current_file_processed_label.setText(f"Processing {file} ({file_counter}/{len(self.files_paths)})")
+            try:
+                self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
+            except Exception as e:
+                self.problematic_files.append((file, e))
+                ... #do what's needed visually, interrupt the process entirely ? Or maybe keep going to look for all invalid files at once ?
             self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
+            file_counter += 1
         #print("Stats generation time:", time() - CURRENT_TIME)
+
+        if self.problematic_files: #bad practice...
+            return
 
         #CURRENT_TIME = time()
         for i, file1 in enumerate(self.files_paths):
@@ -92,12 +100,6 @@ class CrossCompare:
                     self.progress_bar.setValue(self.progress_bar.value() + progress_bar_big_increment)
         #print("Comparisons generation time:", time() - CURRENT_TIME)
         self.progress_bar.setValue(100)
-
-    def process_file(self, file):
-        """Traite un fichier individuel et retourne le résultat."""
-        tokenizer = Tokenizer(extract_raw_from_file(file))
-        stats = TokensStatsAndRearrangements(tokenizer)
-        return file, stats
 
     def simple_analysis_two_files(self, file1, file2) -> None:
         # just triggering the necessary computations that weren't done
