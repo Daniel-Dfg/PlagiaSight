@@ -149,7 +149,7 @@ class GetInTouchWindow(SMiniWindow):
                               Discord="https://discord.com/users/720963652286414909")
 
         self.add_contact_info(self.main_layout, "LUCKYINS", ["Web scraping", "UI (styling)", "Documentation gathering"],
-                              Mail="mailto:elhusseinabdalrahman@gmail.com",
+                              Mail="mailto:elhusseinabdalrahmanwork@gmail.com",
                               GitHub="https://github.com/LUCKYINS",
                               Discord="https://discord.com/users/721008804300455978")
 
