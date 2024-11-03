@@ -102,7 +102,6 @@ class HelpWindow(SMiniWindow):
             "When looking at the results, if you click the 'show graphs' button, a button displaying some graphs will appear : they're here to help you visualize how the texts you provided are (dis)similar to each other.\n"
             "There is just one thing we must clarify in these :\n"
             "The meaning of 'bigrams' (and 'trigrams' in the case of a complex analysis) : n-grams are sequences of n contiguous words in a text. In the sentence \"I ate an apple\", the BIgrams are 'I ate', 'ate an', and 'an apple'.\n")
-        #self.setLayout(layout)
 
     def add_help_step(self, step_title, step_details):
         step_item = QTreeWidgetItem([step_title])

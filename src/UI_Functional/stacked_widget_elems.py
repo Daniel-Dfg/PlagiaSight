@@ -399,7 +399,7 @@ class Step4_DisplayResults(QWidget):
         file_selection_layout.addLayout(left_side_selection_layout)
 
 
-        switch_button = SButtons("Switch")
+        switch_button = SButtons()
         switch_button.setFixedSize(110, 32)
         switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
@@ -456,6 +456,22 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(char_values_line_layout)
 
+        self.data_interpretation_label = QLabel("Data Interpretation guidance :")
+        self.data_interpretation_label.setStyleSheet("font-size=24px;")
+        self.data_interpretation_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.meaningful_data_elems = QListWidget()
+        self.meaningful_data_elems.setStyleSheet("color:grey;") #TODO : change this color to a more subtle white in the end
+        self.advice_label = QLabel("Our advice :")
+        self.advice_label.setStyleSheet("font-size:24px;")
+        self.advice_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.list_of_advices = QListWidget()
+        self.list_of_advices.setStyleSheet("color:grey;")
+
+        layout.addWidget(self.data_interpretation_label)
+        layout.addWidget(self.meaningful_data_elems)
+        layout.addWidget(self.advice_label)
+        layout.addWidget(self.list_of_advices)
+
         graph_view_button = SButtons("View Graph")
         graph_view_button.clicked.connect(self._view_graph)
         layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -476,9 +492,13 @@ class Step4_DisplayResults(QWidget):
     def _update_results(self):
         file1_simplified_path, file2_simplified_path = simplify_path(self.left_content_title.currentText()), simplify_path(self.right_content_title.currentText())
         results = self.main_window.final_results
+        indiv_results_for_conclusion = {}
+        common_results_for_conclusion = {}
+
         for char_name, char_label in zip(INDIV_CHARACTERISTICS, INDIV_CHARS_ATTRS):
             res_file1 = getattr(results.content_stats[file1_simplified_path], char_label)
             res_file2 = getattr(results.content_stats[file2_simplified_path], char_label)
+            indiv_results_for_conclusion[char_name] = (res_file1, res_file2)
             self.file1_result_labels[char_name].setText(str(res_file1) if int(res_file1) == res_file1 else str("{:.3f}".format(res_file1)))
             self.file2_result_labels[char_name].setText(str(res_file2) if int(res_file2) == res_file2 else str("{:.3f}".format(res_file2)))
 
@@ -488,7 +508,90 @@ class Step4_DisplayResults(QWidget):
                 common_res = getattr(results.get_comparison(file2_simplified_path), common_char_label)
             else:
                 common_res = getattr(results.get_comparison(file1_simplified_path, file2_simplified_path), common_char_label)
-            self.common_result_labels[common_char_name].setText(str(common_res) if int(common_res) == common_res else str("{:.3f}".format(common_res)))
+            common_results_for_conclusion[common_char_name] = common_res
+            self.common_result_labels[common_char_name].setText(str(common_res) if int(common_res) == common_res else str("{:.3f}".format(common_res*100)) + " %")
+        self.make_conclusion(indiv_results_for_conclusion, common_results_for_conclusion)
+
+    def make_conclusion(self, individual_results : dict[str, tuple[float, float]], common_results : dict [str, float]):
+        """
+        #TODO !
+        This function is barely a skeleton of what it's supposed to be.
+        It's only a temporary solution while we're crafting a more comprehensive, LLM-based conclusion maker that
+        should notably provide context awareness (it's currently being worked on, indeed !).
+
+        If there's a spot to work on in this code, it's here !
+        """
+        #these thresholds will probably be redefined with experience #TODO
+        critical_thresholds_indiv_characteristics = {"Text Richness" : 0.9, "average sentence length" : 0.85, "median sentence length" : 0.8} #Keys = INDIV_CHARACTERISTICS
+        suspicious_thresholds_indiv_characteristics = {"Text Richness" : 0.8, "average sentence length" : 0.75, "median sentence length" : 0.7}
+        critical_thresholds_common_characteristics = {"Cosine sim (words)" : 0.9, "Jaccard sim (words)" : 0.9 , "Cosine sim (pos)" : 0.95, "Jaccard sim (pos)" : 0.95} #Keys = COMMON_CHARS_COMPLEX
+        suspicious_thresholds_common_characteristics = {"Cosine sim (words)" : 0.65, "Jaccard sim (words)" : 0.65 , "Cosine sim (pos)" : 0.8, "Jaccard sim (pos)" : 0.8}
+
+        critical_results = []
+        suspicious_results = []
+        plagiarism_score = 0 #pretty arbitrairy, will be to change too...
+        structural_similarity = 0
+        words_similarity = 0
+        for char in sorted(individual_results.keys()):
+            ratio = min(individual_results[char]) / max(individual_results[char])
+            if ratio >= critical_thresholds_indiv_characteristics[char]:
+                critical_results.append("Ratio (min/max) for " + char)
+                plagiarism_score += 2
+                structural_similarity += 1
+            elif ratio >= suspicious_thresholds_indiv_characteristics[char]:
+                suspicious_results.append(char)
+                plagiarism_score += 1
+                structural_similarity += 1
+        for char in sorted(common_results.keys()):
+            if common_results[char] >= critical_thresholds_common_characteristics[char]:
+                critical_results.append(char)
+                plagiarism_score += 2
+                if "words" in char:
+                    words_similarity += 1
+                else:
+                    structural_similarity += 1
+            elif common_results[char] >= suspicious_thresholds_common_characteristics[char]:
+                suspicious_results.append(char)
+                plagiarism_score += 1
+                if "words" in char:
+                    words_similarity += 1
+                else:
+                    structural_similarity += 1
+
+        self.meaningful_data_elems.clear()
+        self.list_of_advices.clear()
+        if critical_results:
+            self.meaningful_data_elems.addItem("The following values seem to show critical levels of plagiarism :")
+            for critical_element in critical_results:
+                self.meaningful_data_elems.addItem("\t⤷" + critical_element + "\n")
+                ...
+        if suspicious_results:
+            self.meaningful_data_elems.addItem("\n\nThe following values allow us to suspect that there's some plagiarism here :")
+            for suspicious_element in suspicious_results:
+                self.meaningful_data_elems.addItem("\t⤷" + suspicious_element + "\n")
+        if not critical_results and not suspicious_results:
+            self.data_interpretation_label.setVisible(False)
+            self.meaningful_data_elems.addItem("\nNo suspicious values have been detected.")
+        else:
+            self.data_interpretation_label.setVisible(True)
+
+        if plagiarism_score >= 5:
+            ...
+            self.list_of_advices.addItem("Our computations seem to reveal high levels of plagiarism.\n")
+            if structural_similarity >= 2:
+                self.list_of_advices.addItem("Notable similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n")
+            if words_similarity > 1:
+                self.list_of_advices.addItem("Major similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n")
+        elif plagiarism_score >= 3:
+            self.list_of_advices.addItem("Our computations seem to reveal moderate levels of plagiarism.\n")
+            ...
+            if structural_similarity >= 1:
+                self.list_of_advices.addItem("Some similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n")
+            if words_similarity > 0:
+                self.list_of_advices.addItem("Some similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n")
+        else:
+            self.list_of_advices.addItem("Our computations don't reveal that there's much plagiarism here.\n")
+        self.list_of_advices.addItem("Whatshowever, make sure to take a look at the graphs ('Graphs' button) to refine your judgement.\n")
 
 
     def _sync_comboboxes(self, changed_combobox):

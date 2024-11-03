@@ -69,9 +69,7 @@ class CrossCompare:
         #CURRENT_TIME = time()
         file_counter = 1
         for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
-            print("\nFILE\n----------------", file)
             simplified_path = simplify_path(file)
-            print("simplified :", simplified_path)
             self.current_file_processed_label.setText(f"Processing {simplified_path} ({file_counter}/{len(self.files_paths)})")
             try:
                 self.content_stats[simplified_path] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
@@ -84,8 +82,6 @@ class CrossCompare:
 
         if self.problematic_files: #bad practice...
             return
-
-        print("INDIVIDUAL PROCESSING GOOD")
 
         #CURRENT_TIME = time()
         for i, file1 in enumerate(self.files_paths):
