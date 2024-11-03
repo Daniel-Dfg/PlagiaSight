@@ -122,7 +122,7 @@ class HelpWindow(SMiniWindow):
 class GetInTouchWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.resize(550, 680)
+        self.setFixedSize(550, 580)
         self.is_fully_init = False
         self.checkBoxs = []
         self.rolesWidget = []
@@ -216,6 +216,7 @@ class GetInTouchWindow(SMiniWindow):
 
     def toggle_roles(self, roles_widget, toggle_checkbox, checked):
         if checked:
+            self.setFixedSize(550, 680)
             for i in range(len(self.checkBoxs)):
                 if toggle_checkbox != self.checkBoxs[i]:
                     self.checkBoxs[i].setChecked(False)
@@ -224,6 +225,7 @@ class GetInTouchWindow(SMiniWindow):
             toggle_checkbox.setText("Hide roles")
             roles_widget.setVisible(True)
         else:
+            self.setFixedSize(550, 580)
             toggle_checkbox.setText("Show roles")
             roles_widget.setVisible(False)
 
