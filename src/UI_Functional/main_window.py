@@ -3,11 +3,12 @@ from .stacked_widget_elems import Step0_WelcomingMessage
 from .utilities import GetInTouchWindow, HelpWindow
 from PySide6.QtCore import Qt, QTimer
 import webbrowser
-from UI_Styling import smainwindow, stitlebar, userTools
+from UI_Styling.smainwindow import SMainWindow
+from UI_Styling.userTools import UserTools
 
 w = 790
 h = 560
-class MainWindow(smainwindow.SMainWindow):
+class MainWindow(SMainWindow):
     def __init__(self):
         super().__init__()
         #Window can't be resized more then that
@@ -20,7 +21,7 @@ class MainWindow(smainwindow.SMainWindow):
         self.stacked_widget.addWidget(self.step0_widget)
         self.main_layout.addWidget(self.stacked_widget)
 
-        self.usertools = userTools.UserTools(self)
+        self.usertools = UserTools(self)
 
         # Buttons tooltip + functions
         buttons = {self.usertools.contact: ("Get in touch",self.toggle_GetInTouchWindow),

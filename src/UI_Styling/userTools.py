@@ -2,7 +2,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QPushButton, QWidget, QHBoxLayout
 from PySide6.QtCore import QPoint, QPropertyAnimation, QSequentialAnimationGroup, QSize, Qt
 from PySide6.QtSvg import QSvgRenderer
-import os
+from os import path
 
 w = 70*3
 h = 70
@@ -25,7 +25,7 @@ class UserTools(QWidget):
                            }
                            """)
         #icons folder path
-        icons_dir = os.path.join(os.path.dirname(__file__), 'icons')
+        icons_dir = path.join(path.dirname(__file__), 'icons')
 
         #Contact, Help, Setting,  button
         self.contact = QPushButton(self)

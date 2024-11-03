@@ -1,9 +1,9 @@
 from typing_extensions import override
 from PySide6.QtWidgets import (QGridLayout, QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
-                             QListWidget, QHBoxLayout, QComboBox, QRadioButton,
+                             QListWidget, QHBoxLayout, QComboBox,
                              QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
-from nltk.metrics.aline import align
 from text_analysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
 from nltk import FreqDist
@@ -55,8 +55,8 @@ class Step0_WelcomingMessage(QWidget):
             label.setStyleSheet(f"font-size: {font_size}px;")
             layout.addWidget(label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        button1 = sbuttons.SButtons("One file with related online data")
-        button2 = sbuttons.SButtons("A set of files between each other")
+        button1 = SButtons("One file with related online data")
+        button2 = SButtons("A set of files between each other")
 
         buttons = {button1: (lambda: self.proceed_to_next_step(1)), button2: (lambda: self.proceed_to_next_step(MAX_FILES_AMOUNT))}
         for button, func in buttons.items():
@@ -80,7 +80,7 @@ class Step1_FileDropAndCheck(QWidget):
         layout = QGridLayout(self)
 
         self.drop_area = DropArea(self, self.main_window.max_files_amount)
-        layout.addWidget(self.drop_area,0,0, alignment=Qt.AlignmentFlag.AlignCenter |Qt.AlignmentFlag.AlignLeft)
+        layout.addWidget(self.drop_area,0,0)
 
         self.drop_area.browseFiles.clicked.connect(self._browse_single_file)
         if self.main_window.max_files_amount == MAX_FILES_AMOUNT:
@@ -88,7 +88,7 @@ class Step1_FileDropAndCheck(QWidget):
             self.drop_area.browseFolders.setHidden(False)
             self.drop_area.browseFolders.clicked.connect(self._browse_directory)
 
-        self.filesContainers = filescontainer.FilesContainer()
+        self.filesContainers = FilesContainer()
         self.correct_files_label = self.filesContainers.validContainer.label
         self.correct_files_label.setText(f"Valid files (0 / {self.main_window.max_files_amount})")
         self.invalid_files_label = self.filesContainers.validContainer.label
@@ -97,7 +97,7 @@ class Step1_FileDropAndCheck(QWidget):
         layout.addWidget(self.filesContainers, 0,1)
 
         bottom_layout = QHBoxLayout()
-        self.back_button = sbuttons.SButtons("Back")
+        self.back_button = SButtons("Back")
         self.back_button.clicked.connect(self.go_back)
         bottom_layout.addWidget(self.back_button, alignment=Qt.AlignmentFlag.AlignLeft)
 
@@ -105,7 +105,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.status_label.setStyleSheet("font-size:20px;color:white;")
         bottom_layout.addWidget(self.status_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.next_button = sbuttons.SButtons("Next")
+        self.next_button = SButtons("Next")
         self.next_button.setEnabled(False)
         self.next_button.clicked.connect(self.proceed_to_next_step)
         bottom_layout.addWidget(self.next_button,alignment=Qt.AlignmentFlag.AlignRight)
@@ -219,8 +219,8 @@ class Step2_AnalysisComplexityPick(QWidget):
         self.label.setStyleSheet("font-size:24px;")
         layout.addWidget(self.label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.simple_analysis_radio = sradiobuttons.SRadioButton("Simple Analysis    ")
-        self.complex_analysis_radio = sradiobuttons.SRadioButton("Complex Analysis")
+        self.simple_analysis_radio = SRadioButton("Simple Analysis    ")
+        self.complex_analysis_radio = SRadioButton("Complex Analysis")
 
         self.analysis_group = QButtonGroup()
         self.analysis_group.addButton(self.simple_analysis_radio)
@@ -236,12 +236,12 @@ class Step2_AnalysisComplexityPick(QWidget):
         layout.addWidget(self.description_label, alignment=Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.sub_desc_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.launch_button = sbuttons.SButtons("LAUNCH")
+        self.launch_button = SButtons("LAUNCH")
         self.launch_button.setEnabled(False)
         self.launch_button.clicked.connect(self.proceed_to_next_step)
         layout.addWidget(self.launch_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.go_back_button = sbuttons.SButtons("Back")
+        self.go_back_button = SButtons("Back")
         self.go_back_button.clicked.connect(self._go_back)
         layout.addWidget(self.go_back_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -277,7 +277,7 @@ class Step3_LoadResults(QWidget):
     def __init__(self, main_window, analysis_complexity):
         super().__init__()
         self.main_window = main_window
-        self.next_button = sbuttons.SButtons("Next")
+        self.next_button = SButtons("Next")
         self.analysis_complexity = analysis_complexity
 
         layout = QVBoxLayout()
@@ -397,7 +397,7 @@ class Step4_DisplayResults(QWidget):
         file_selection_layout.addLayout(left_side_selection_layout)
 
 
-        switch_button = sbuttons.SButtons("Switch")
+        switch_button = SButtons("Switch")
         switch_button.setFixedSize(110, 32)
         switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
@@ -454,11 +454,11 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(char_values_line_layout)
 
-        graph_view_button = sbuttons.SButtons("View Graph")
+        graph_view_button = SButtons("View Graph")
         graph_view_button.clicked.connect(self._view_graph)
         layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.reset_button = sbuttons.SButtons("Reset")
+        self.reset_button = SButtons("Reset")
         self.reset_button.clicked.connect(self._reset_process_entirely)
         layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.setLayout(layout)

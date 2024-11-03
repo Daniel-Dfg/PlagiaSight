@@ -2,7 +2,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QWidget, QToolButton, QHBoxLayout
 from PySide6.QtCore import QSize
 from PySide6.QtSvg import QSvgRenderer
-import os
+from os import path
 
 
 width = 200
@@ -22,7 +22,7 @@ class STitleBar(QWidget):
                                 border-style:none;
                            }
                            """)
-        icons_dir = os.path.join(os.path.dirname(__file__), 'icons')
+        icons_dir = path.join(path.dirname(__file__), 'icons')
 
         #Exit, max, min button
         self.exit = QToolButton()

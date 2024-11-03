@@ -1,4 +1,4 @@
-import os
+from os import path
 from PySide6.QtGui import QFontDatabase, QFont
 from PySide6.QtWidgets import QLabel, QWidget
 
@@ -18,10 +18,10 @@ class SLabels(QLabel):
                            }
                            """)
         # Set the font path on the OS
-        font_dir = os.path.join(os.path.dirname(__file__), 'fonts')
-        font_path = os.path.join(font_dir, 'AllertaStencil-Regular.ttf')
+        font_dir = path.join(path.dirname(__file__), 'fonts')
+        font_path = path.join(font_dir, 'AllertaStencil-Regular.ttf')
 
-        if not os.path.exists(font_path):
+        if not path.exists(font_path):
             print(f"Error: Font file not found at {font_path}")
             return
 

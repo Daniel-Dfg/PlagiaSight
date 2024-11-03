@@ -1,13 +1,10 @@
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QListWidget, QVBoxLayout
 
-w = 440
-h = 150
 class SListWidget(QLabel):
     def __init__(self) -> None:
         super().__init__()
         self.setObjectName("SListWidget")
-        self.setFixedSize(w, h)
         self.main_layout = QVBoxLayout(self)
         self.label = QLabel(self)
         self.container = QListWidget(self)
