@@ -13,6 +13,6 @@ class FilesContainer(QWidget):
         #Containers
         self.validContainer = SListWidget()
         self.invalidContainer = SListWidget()
-        self.invalidContainer.label.setText("InValid Files:")
-        self.main_layout.addWidget(self.validContainer)
-        self.main_layout.addWidget(self.invalidContainer)
+        self.invalidContainer.label.setText("Invalid Files:")
+        self.main_layout.addWidget(self.validContainer, alignment=Qt.AlignmentFlag.AlignTop)
+        self.main_layout.addWidget(self.invalidContainer, alignment=Qt.AlignmentFlag.AlignBottom)

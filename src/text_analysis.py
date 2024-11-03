@@ -51,7 +51,7 @@ class Tokenizer:
         sentences = re.split(REGEX_SPLIT_SENTENCES, self._raw_data) #Possible subbottleneck
         self._tokens_by_sentence = array([sent.strip() for sent in sentences if sent.strip()])
         if len(self._tokens_by_sentence) < TEXT_TOO_SHORT_LIMIT:
-            raise UnprocessableTextContent("Text is too short")
+            raise UnprocessableTextContent(f"Text is too short (under {TEXT_TOO_SHORT_LIMIT} sentences detected)")
         #TIME = time()
         tokens_by_wordpunct_first_pass = wordpunct_tokenize(self._raw_data) #will be filtered in the next lines
         #TIME = time()
@@ -368,7 +368,7 @@ class TokensComparisonAlgorithms: # To be referred as TCA
 #Custom exceptions
 class TokenListIsEmpty(Exception):
     def __init__(self, tokens_by):
-        self.message = "Warning: empty list of " + tokens_by + ". \nPlease make sure that there's data to work with."
+        self.message = "Warning: empty list of " + tokens_by + ": \nPlease make sure that there's data to work with."
         super().__init__(self.message)
 
 class UnprocessableTextContent(Exception):

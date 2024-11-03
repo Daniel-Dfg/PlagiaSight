@@ -6,11 +6,10 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
 from text_analysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
-from .utilities import GraphWindow, DropArea
-from UI_Styling.filescontainer import FilesContainer
-from UI_Styling.sbuttons import SButtons
-from UI_Styling.sradiobuttons import SRadioButton
-from time import time
+from nltk import FreqDist
+from .utilities import DropArea, GraphWindow, QIcon, simplify_path
+from UI_Styling import slabels, sbuttons, filescontainer, sradiobuttons
+#from time import time
 
 #GLOBAL CONSTANTS : characteristics with their attributes equivalents (to get them via the getattr() built-in Python method later on)
 #Characteristics independent to each text (found in the TokenStatsAndRearrangements instance each text is in)
@@ -64,8 +63,6 @@ class Step0_WelcomingMessage(QWidget):
             button.clicked.connect(func)
             button.setFixedSize(280, 50)
             layout.addWidget(button, alignment=Qt.AlignmentFlag.AlignCenter)
-
-
         self.setLayout(layout)
 
     def proceed_to_next_step(self, max_files_amount):
@@ -112,7 +109,6 @@ class Step1_FileDropAndCheck(QWidget):
         self.next_button.setEnabled(False)
         self.next_button.clicked.connect(self.proceed_to_next_step)
         bottom_layout.addWidget(self.next_button,alignment=Qt.AlignmentFlag.AlignRight)
-
         layout.addLayout(bottom_layout, 1,0, 1,2)
 
 
@@ -120,9 +116,9 @@ class Step1_FileDropAndCheck(QWidget):
         self.correct_files_list.clear()
         self.invalid_files_list.clear()
         for file in self.drop_area.correct_files:
-            self.add_file_to_correct_files_list_UI(file, file_is_valid=True)
+            self.add_file_to_correct_files_list_UI(simplify_path(file), True)
         for file in self.drop_area.invalid_files:
-            self.invalid_files_list.addItem(file)
+            self.invalid_files_list.addItem(simplify_path(file))
 
     def update_current_content_validity(self):
         """Updates status, warnings, and (un)allows the user to proceed to the next step accordingly."""
@@ -154,7 +150,7 @@ class Step1_FileDropAndCheck(QWidget):
             print("Selected file:", file_name)
             if self.drop_area.file_format_is_valid(file_name):
                 self.drop_area.correct_files.append(file_name)
-                self.add_file_to_correct_files_list_UI(file_name, file_is_valid=True)
+                self.add_file_to_correct_files_list_UI(simplify_path(file_name), True) #TODO : make dropArea itself add the simplified path, rather than simplifying it before...
                 self.update_current_content_validity()
             else:
                 pass
@@ -235,7 +231,10 @@ class Step2_AnalysisComplexityPick(QWidget):
 
         self.description_label = QLabel("Select an analysis type to see a brief description.")
         self.description_label.setStyleSheet("font-size:24px;")
+        self.sub_desc_label = QLabel("")
+        self.sub_desc_label.setStyleSheet("font-size:16px;color:grey;")
         layout.addWidget(self.description_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.sub_desc_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.launch_button = SButtons("LAUNCH")
         self.launch_button.setEnabled(False)
@@ -258,9 +257,11 @@ class Step2_AnalysisComplexityPick(QWidget):
     def update_description(self):
         if self.simple_analysis_radio.isChecked():
             self.description_label.setText("Simple Analysis: A quick overview of the files.")
+            self.sub_desc_label.setText("Focuses on words similarity rather than structural similarity.\n\n\n")
             self.launch_button.setEnabled(True)
         elif self.complex_analysis_radio.isChecked():
-            self.description_label.setText("Complex Analysis: A detailed and thorough analysis.")
+            self.description_label.setText("Complex Analysis: extends the simple analysis.")
+            self.sub_desc_label.setText("Takes structural similarity and relationships between contiguous words into account.\n\n(More computation-heavy tho)\n\n")
             self.launch_button.setEnabled(True)
 
     def proceed_to_next_step(self):
@@ -283,39 +284,68 @@ class Step3_LoadResults(QWidget):
 
         self.current_file_processed_label = QLabel("Processing: None")
         self.current_file_processed_label.setStyleSheet("font-size:24px;")
+        self.current_file_processed_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.current_file_processed_label)
 
-        # Barre de progression
         self.progress_bar = QProgressBar()
         self.progress_bar.setMinimum(0)
         self.progress_bar.setMaximum(100)
+        self.progress_bar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.progress_bar.setStyleSheet("border: 2px solid grey;")
         layout.addWidget(self.progress_bar)
 
-        self.done.connect(lambda: QTimer.singleShot(200, self.move_to_step4))
+        self.problematic_files_list = QListWidget()
+        self.problematic_files_list.setItemAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.problematic_files_list)
+        self.problematic_files_list.setVisible(False)
+        self.done.connect(lambda: QTimer.singleShot(100, self.move_to_step4))
 
+        bottom_button_layout = QHBoxLayout()
+        self.reset_button = sbuttons.SButtons("Reset")
+        self.reset_button.clicked.connect(self.reset_process)
+        bottom_button_layout.addWidget(self.reset_button)
+        bottom_button_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(bottom_button_layout)
+        self.reset_button.setVisible(False)
         self.setLayout(layout)
 
         self.comparison_content = None
-        QTimer.singleShot(70, self._process_files)
+        QTimer.singleShot(50, self._process_files)
+
     def _process_files(self):
         valid_files_to_process = self.main_window.step1_widget.drop_area.correct_files
-        #type = self.main_window.max_files_amount
         if self.main_window.max_files_amount == 1:
             #web scraping, etc
             ...
             #CURRENT_TIME = time()
             self.main_window.final_results = OneFileComparison(self.progress_bar, valid_files_to_process[0], self.analysis_complexity)
             #print("OneFileComparison done in", time() - CURRENT_TIME)
-        else:
-            #compare files between each other
+
+        else: #compare files between each other
             #CURRENT_TIME = time()
-            self.main_window.final_results = CrossCompare(self.progress_bar ,files_paths=valid_files_to_process, comparison_type=self.analysis_complexity)
+            self.main_window.final_results = CrossCompare(self.current_file_processed_label, progress_bar=self.progress_bar ,files_paths=valid_files_to_process, comparison_type=self.analysis_complexity)
+            if self.main_window.final_results.problematic_files :
+                ...
+                self.progress_bar.setVisible(False)
+                self.problematic_files_list.setVisible(True)
+                self.reset_button.setVisible(True)
+                for problematic_file in self.main_window.final_results.problematic_files:
+                    self.problematic_files_list.addItem(problematic_file[0])
+                    try:
+                        self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]).split(':')[2] + "\n\n") #trouver une solution + élégante
+                    except IndexError:
+                        self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]) + "\n\n")
+                self.current_file_processed_label.setText("Processing: Errors encountered")
+                #change
             #print("CrossCompare done in", time() - CURRENT_TIME)
+            else:
+                # Mark all as complete
+                self.current_file_processed_label.setText("Processing: Complete")
+                QTimer.singleShot(70, self.done.emit)
 
-        # Mark all as complete
-        self.current_file_processed_label.setText("Processing: Complete")
-        QTimer.singleShot(70, self.done.emit)
-
+    def reset_process(self):
+        self.main_window.final_results = None
+        self.main_window.stacked_widget.setCurrentWidget(self.main_window.step0_widget)
 
     def move_to_step4(self):
         self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
@@ -332,9 +362,10 @@ class Step4_DisplayResults(QWidget):
         self.final_results_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.desc_label = QLabel("If some terms or values are unclear, please click on the \"?\" button at the bottom to learn more !")
         self.desc_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.desc_label.setStyleSheet("font-size:16px;color:grey;")
+        self.file_items = [simplify_path(f) for f in self.main_window.step1_widget.drop_area.correct_files]
 
         layout = QVBoxLayout()
-
         file_selection_layout = QHBoxLayout()
         left_side_selection_layout = QHBoxLayout()
         right_side_selection_layout = QHBoxLayout()
@@ -343,16 +374,16 @@ class Step4_DisplayResults(QWidget):
         if isinstance(self.main_window.final_results, OneFileComparison):
             #TODO : complete this
             self.left_content_title = QComboBox()
-            self.left_content_title.addItem(self.main_window.final_results.source_file)
+            self.left_content_title.addItem(simplify_path(self.main_window.final_results.source_file))
             items_to_compare_base_with = sorted(list(self.main_window.final_results.comparison_with.keys())) #the site names
             self.right_content_title.addItems(items_to_compare_base_with)
             ...
 
         elif isinstance(self.main_window.final_results, CrossCompare):
             self.left_content_title = QComboBox()
-            self.left_content_title.addItems(self.main_window.step1_widget.drop_area.correct_files)
-            items_to_compare_base_with = self.main_window.step1_widget.drop_area.correct_files
-            self.right_content_title.addItems(items_to_compare_base_with)
+            for simplified_path in self.file_items:
+                self.left_content_title.addItem(simplified_path)
+                self.right_content_title.addItem(simplified_path)
             self.left_content_title.currentIndexChanged.connect(lambda : self._sync_comboboxes(self.left_content_title))
             self.right_content_title.currentIndexChanged.connect(lambda : self._sync_comboboxes(self.right_content_title))
         else:
@@ -433,7 +464,7 @@ class Step4_DisplayResults(QWidget):
         self.setLayout(layout)
 
         self._sync_comboboxes(self.left_content_title)
-        self._sync_comboboxes(self.right_content_title)
+        #self._sync_comboboxes(self.right_content_title)
 
 
     def _reset_process_entirely(self):
@@ -441,26 +472,20 @@ class Step4_DisplayResults(QWidget):
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step0_widget)
 
     def _update_results(self):
-        file1, file2 = self.left_content_title.currentText(), self.right_content_title.currentText()
+        file1_simplified_path, file2_simplified_path = simplify_path(self.left_content_title.currentText()), simplify_path(self.right_content_title.currentText())
         results = self.main_window.final_results
         for char_name, char_label in zip(INDIV_CHARACTERISTICS, INDIV_CHARS_ATTRS):
-            try:
-                res_file1 = getattr(results.content_stats[file1], char_label)
-                res_file2 = getattr(results.content_stats[file2], char_label)
-            except UnprocessableTextContent:
-                pass #TODO : handle this case
-                res_file1 = "N/A"
-                res_file2 = "N/A"
-
+            res_file1 = getattr(results.content_stats[file1_simplified_path], char_label)
+            res_file2 = getattr(results.content_stats[file2_simplified_path], char_label)
             self.file1_result_labels[char_name].setText(str(res_file1) if int(res_file1) == res_file1 else str("{:.3f}".format(res_file1)))
             self.file2_result_labels[char_name].setText(str(res_file2) if int(res_file2) == res_file2 else str("{:.3f}".format(res_file2)))
 
         for common_char_name, common_char_label in zip(self.textual_display_common_charcs, self.textual_display_common_func_labels):
             if isinstance(self.main_window.final_results, OneFileComparison):
                 # TODO : specific treatment for OneFileComp ?
-                common_res = getattr(results.get_comparison(file2), common_char_label)
+                common_res = getattr(results.get_comparison(file2_simplified_path), common_char_label)
             else:
-                common_res = getattr(results.get_comparison(file1, file2), common_char_label)
+                common_res = getattr(results.get_comparison(file1_simplified_path, file2_simplified_path), common_char_label)
             self.common_result_labels[common_char_name].setText(str(common_res) if int(common_res) == common_res else str("{:.3f}".format(common_res)))
 
 
@@ -469,14 +494,12 @@ class Step4_DisplayResults(QWidget):
 
         if changed_combobox == self.left_content_title:
             target_combobox = self.right_content_title
-            items = self.main_window.step1_widget.drop_area.correct_files
         else:
             target_combobox = self.left_content_title
-            items = self.main_window.step1_widget.drop_area.correct_files
         target_combobox.blockSignals(True)
 
         target_combobox.clear()
-        for item in items:
+        for item in self.file_items:
             if item != selected_item:
                 target_combobox.addItem(item)
 
