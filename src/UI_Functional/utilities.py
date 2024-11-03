@@ -44,7 +44,7 @@ class DropArea(SDropArea):
             if os.path.isfile(file) and self.file_format_is_valid(file) and file not in valid_set:
                 if len(self.correct_files) < self.max_file_amount:
                     self.correct_files.append(file)
-                    self.step1_widget.add_file_to_correct_files_list_UI(file,True)
+                    self.step1_widget.add_file_to_correct_files_list_UI(simplify_path(file), True)
                     valid_set.add(file)
                 else:
                     self.errormessage = "⚠️ Maximum file limit reached!"
@@ -56,7 +56,7 @@ class DropArea(SDropArea):
         self.step1_widget.update_current_content_validity()
 
     def file_format_is_valid(self, file_path):
-        return file_path.endswith('.txt')
+        return file_path.endswith('.txt') #TODO : support other file types (.pdf, .md...)
 
     def process_directory(self, directory_path):
         valid_set = set(self.correct_files)
@@ -68,17 +68,12 @@ class DropArea(SDropArea):
                         self.errormessage = f"⚠️ Maximum file limit reached while processing {directory_path}."
                         break
                     self.correct_files.append(full_path)
-                    self.step1_widget.add_file_to_correct_files_list_UI(full_path, True)
+                    self.step1_widget.add_file_to_correct_files_list_UI(simplify_path(full_path), True)
                     valid_set.add(full_path)
             else:
                 if full_path not in self.invalid_files:
                     self.invalid_files.append(full_path)
-                    self.step1_widget.add_file_to_correct_files_list_UI(full_path, False)
-
-
-    def simplify_path(self, path):
-        return os.path.basename(path)
-
+                    self.step1_widget.add_file_to_correct_files_list_UI(simplify_path(full_path), False)
 
 class HelpWindow(SMiniWindow):
     def __init__(self):
@@ -363,3 +358,9 @@ class GraphWindow(SMiniWindow):
             pixmap = self.chart_view.grab()
             pixmap.save(file_path)
     """
+
+
+def simplify_path(file_path):
+    parent_dir = os.path.basename(os.path.dirname(file_path))
+    file_name = os.path.basename(file_path)
+    return os.path.join(parent_dir, file_name)
