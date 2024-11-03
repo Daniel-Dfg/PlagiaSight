@@ -83,7 +83,7 @@ class Step1_FileDropAndCheck(QWidget):
         layout = QGridLayout(self)
 
         self.drop_area = DropArea(self, self.main_window.max_files_amount)
-        layout.addWidget(self.drop_area,0,0, alignment=Qt.AlignmentFlag.AlignCenter |Qt.AlignmentFlag.AlignLeft)
+        layout.addWidget(self.drop_area,0,0)
 
         self.drop_area.browseFiles.clicked.connect(self._browse_single_file)
         if self.main_window.max_files_amount == MAX_FILES_AMOUNT:

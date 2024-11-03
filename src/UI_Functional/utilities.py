@@ -129,7 +129,7 @@ class HelpWindow(SMiniWindow):
 class GetInTouchWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(550, 680)
+        self.resize(550, 680)
         self.is_fully_init = False
         self.checkBoxs = []
         self.rolesWidget = []
