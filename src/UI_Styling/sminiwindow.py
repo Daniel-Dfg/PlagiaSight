@@ -40,8 +40,8 @@ class SMiniWindow(QMainWindow):
         self.titleBar = STitleBar(self)
         self.titleBar.exit.clicked.connect(self.close)
 
-        self.titleBar.maxi.setFixedSize(iconsize, iconsize)
-        self.titleBar.maxi.setIconSize(QSize(iconsize, iconsize))
+        self.titleBar.maxi.hide()
+        self.titleBar.maxi.setDisabled(True)
 
         self.titleBar.mini.setFixedSize(iconsize, iconsize)
         self.titleBar.mini.setIconSize(QSize(iconsize, iconsize))

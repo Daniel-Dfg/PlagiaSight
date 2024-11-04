@@ -121,8 +121,6 @@ class GetInTouchWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
         self.setFixedSize(550, 580)
-        self.titleBar.maxi.hide()
-        self.titleBar.maxi.setDisabled(True)
         self.is_fully_init = False
         self.checkBoxs = []
         self.rolesWidget = []
@@ -233,7 +231,6 @@ class GetInTouchWindow(SMiniWindow):
 class GraphWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(800, 650)
         self.setWindowTitle("Graphs")
         self.is_dark_mode = False
 
