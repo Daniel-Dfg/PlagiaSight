@@ -6,13 +6,14 @@ import webbrowser
 from UI_Styling.smainwindow import SMainWindow
 from UI_Styling.userTools import UserTools
 
-w = 790
-h = 560
 class MainWindow(SMainWindow):
     def __init__(self):
         super().__init__()
+        w = self.screen().size().width()
+        h = self.screen().size().height()
+
         #Window can't be resized more then that
-        self.setMinimumSize(w, h)
+        self.setMinimumSize(int(w/1.8), int(h/1.1))
         #Main Layout
         self.setWindowTitle("PlagiaSight")
 

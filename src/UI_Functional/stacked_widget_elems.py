@@ -368,7 +368,7 @@ class Step4_DisplayResults(QWidget):
         self.desc_label.setStyleSheet("font-size:16px;color:grey;")
         self.file_items = [simplify_path(f) for f in self.main_window.step1_widget.drop_area.correct_files]
 
-        layout = QVBoxLayout()
+        layout = QVBoxLayout(self)
         file_selection_layout = QHBoxLayout()
         left_side_selection_layout = QHBoxLayout()
         right_side_selection_layout = QHBoxLayout()
@@ -395,12 +395,12 @@ class Step4_DisplayResults(QWidget):
         label = QLabel("File 1:")
         label.setStyleSheet("font-size:24px;")
         left_side_selection_layout.addWidget(label)
-        left_side_selection_layout.addWidget(self.left_content_title)
-        left_side_selection_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        left_side_selection_layout.addWidget(self.left_content_title, Qt.AlignmentFlag.AlignLeft)
         file_selection_layout.addLayout(left_side_selection_layout)
 
 
         switch_button = SButtons()
+        switch_button.setStyleSheet(switch_button.styleSheet().replace("background-color:#3E3182;", "background-color:#aeabc2;").replace("background-color:#382F9C;", "background-color:#cccad8;"))
         switch_button.setFixedSize(110, 32)
         switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
@@ -409,8 +409,7 @@ class Step4_DisplayResults(QWidget):
         label2 = QLabel("File2 :")
         label2.setStyleSheet("font-size:24px;")
         right_side_selection_layout.addWidget(label2)
-        right_side_selection_layout.addWidget(self.right_content_title)
-        right_side_selection_layout.setAlignment(Qt.AlignmentFlag.AlignRight)
+        right_side_selection_layout.addWidget(self.right_content_title, Qt.AlignmentFlag.AlignLeft)
         file_selection_layout.addLayout(right_side_selection_layout)
 
         layout.addWidget(self.final_results_label)
@@ -473,15 +472,16 @@ class Step4_DisplayResults(QWidget):
         layout.addWidget(self.advice_label)
         layout.addWidget(self.list_of_advices)
 
+        bottom_layout = QHBoxLayout()
         graph_view_button = SButtons("View Graph")
         graph_view_button.clicked.connect(self._view_graph)
-        layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        bottom_layout.addWidget(graph_view_button, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.reset_button = SButtons("Reset")
+        self.reset_button.setStyleSheet(self.reset_button.styleSheet().replace("background-color:#3E3182;", "background-color:#5c1a3e;").replace("background-color:#382F9C;","background-color:#a33e3e;"))
         self.reset_button.clicked.connect(self._reset_process_entirely)
-        layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.setLayout(layout)
-
+        bottom_layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        layout.addLayout(bottom_layout)
         self._sync_comboboxes(self.left_content_title)
         #self._sync_comboboxes(self.right_content_title)
 

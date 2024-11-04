@@ -18,6 +18,7 @@ class SMainWindow(QMainWindow):
                             font-size:15px;
                             }
                             QComboBox {
+                                font-size:18px;
                                 height: 30px;
                                 background-color:#3E3182;
                                 border-radius:3px;
@@ -30,7 +31,8 @@ class SMainWindow(QMainWindow):
 
                             }
                             QComboBox::drop-down{
-                                   background-color:rgba(0, 0, 0, 0);
+                                width:0px;
+                                background-color:rgba(0, 0, 0, 0);
                             }
 
                             QComboBox QAbstractItemView {
