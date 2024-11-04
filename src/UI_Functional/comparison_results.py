@@ -1,10 +1,11 @@
-from TextAnalysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
-from WebScraper import URLs, HtmlText
-from PySide6.QtWidgets import QProgressBar
-from time import time
+from .utilities import simplify_path
+from text_analysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
+from web_scraper import URLs, HtmlText
+from PySide6.QtWidgets import QLabel, QProgressBar
+#from time import time
 
 
-CURRENT_TIME = time()
+#CURRENT_TIME = time()
 GATHERED_URLS = 1
 
 @dataclass
@@ -21,7 +22,6 @@ class OneFileComparison:
 
     def __post_init__(self):
         #TODO : make this more explicit
-
         self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file)))
         source_file_keywords = {k: v for k, v in sorted(self.content_stats[self.source_file].syntagms_scores.items(), key=lambda item: item[1], reverse=True)[:1]}
         print(source_file_keywords.keys())
@@ -33,11 +33,7 @@ class OneFileComparison:
                 text = HtmlText(response).makeTempText()
                 self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(text))
                 self.comparison_with[site_name] = TokensComparisonAlgorithms(self.content_stats[self.source_file], self.content_stats[site_name])
-                #text.removeTempText()
-        #links = get_links_from_keywords(self.source_data.base.find_keywords()) (pseudocode)
-        #for link in links:
-            #self.online_data[link] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_link(text)))
-            #self.comparison_with[link] = TextProcessingAlgorithms(self.source_data, self.online_data[link])
+
         ...
     def get_comparison(self, to_be_compared: str) -> TokensComparisonAlgorithms:
         if to_be_compared in self.comparison_with:
@@ -52,9 +48,11 @@ class CrossCompare:
     Used when a directory is provided (step 0).
     Compares the given files between eachother.
     """
+    current_file_processed_label : QLabel
     progress_bar : QProgressBar
     files_paths: list[str]
     comparison_type: str  # either "simple" or "complex"
+    problematic_files : list[tuple[str, Exception]] = field(init=False, repr=False, default_factory=list)
     content_stats: dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False)
     comparisons: dict[tuple[str, str], TokensComparisonAlgorithms] = field(init=False, repr=False)
 
@@ -68,38 +66,41 @@ class CrossCompare:
 
         #print(self.files_paths, "FILES PATHS")
         self.progress_bar.setValue(0)
-        CURRENT_TIME = time()
+        #CURRENT_TIME = time()
+        file_counter = 1
         for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
-            print("\nFILE\n----------------", file)
-            self.content_stats[file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
-            print(self.progress_bar.value() + progress_bar_small_increment)
+            simplified_path = simplify_path(file)
+            self.current_file_processed_label.setText(f"Processing {simplified_path} ({file_counter}/{len(self.files_paths)})")
+            try:
+                self.content_stats[simplified_path] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
+            except Exception as e:
+                self.problematic_files.append((simplified_path, e))
+                ... #do what's needed visually, interrupt the process entirely ? Or maybe keep going to look for all invalid files at once ?
             self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
-        print("Stats generation time:", time() - CURRENT_TIME)
+            file_counter += 1
+        #print("Stats generation time:", time() - CURRENT_TIME)
 
-        # Comparer chaque fichier avec les autres
-        CURRENT_TIME = time()
+        if self.problematic_files: #bad practice...
+            return
+
+        #CURRENT_TIME = time()
         for i, file1 in enumerate(self.files_paths):
             for j, file2 in enumerate(self.files_paths):
                 if i < j:
-                    tsar1 = self.content_stats[file1]
-                    tsar2 = self.content_stats[file2]
-                    self.comparisons[(file1, file2)] = TokensComparisonAlgorithms(tsar1, tsar2) #BOTTLENECK
+                    simplified_path1, simplified_path2 = simplify_path(file1), simplify_path(file2)
+                    tsar1 = self.content_stats[simplified_path1]
+                    tsar2 = self.content_stats[simplified_path2]
+                    self.comparisons[(simplified_path1, simplified_path2)] = TokensComparisonAlgorithms(tsar1, tsar2)
                     if self.comparison_type == "simple":
-                        self.simple_analysis_two_files(file1, file2)
+                        self.simple_analysis_two_files(simplified_path1, simplified_path2)
                         #self.comparisons[(file1, file2)].display_simple_results()
                     elif self.comparison_type == "complex":
-                        self.complex_analysis_two_files(file1, file2)
+                        self.complex_analysis_two_files(simplified_path1, simplified_path2)
                         #self.comparisons[(file1, file2)].display_complex_results()
                     #print("increment by", progress_bar_big_increment)
                     self.progress_bar.setValue(self.progress_bar.value() + progress_bar_big_increment)
-        print("Comparisons generation time:", time() - CURRENT_TIME)
+        #print("Comparisons generation time:", time() - CURRENT_TIME)
         self.progress_bar.setValue(100)
-
-    def process_file(self, file):
-        """Traite un fichier individuel et retourne le résultat."""
-        tokenizer = Tokenizer(extract_raw_from_file(file))
-        stats = TokensStatsAndRearrangements(tokenizer)
-        return file, stats
 
     def simple_analysis_two_files(self, file1, file2) -> None:
         # just triggering the necessary computations that weren't done

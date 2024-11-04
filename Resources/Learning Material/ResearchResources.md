@@ -82,5 +82,5 @@ __*[What gave us the idea for the project (see n°5)](https://codegnan.com/blogs
 
     - [Qt](https://doc.qt.io/qtforpython-6/) (PySide6)
     
-    - [matplotlib](https://matplotlib.org/stable/)
+    - ...
 
