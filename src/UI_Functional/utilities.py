@@ -232,6 +232,7 @@ class GetInTouchWindow(SMiniWindow):
 class GraphWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
+        self.setFixedSize(800, 650)
         self.setWindowTitle("Graphs")
         self.is_dark_mode = False
 
