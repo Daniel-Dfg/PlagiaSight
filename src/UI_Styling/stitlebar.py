@@ -6,8 +6,8 @@ from os import path
 
 
 width = 200
-height = 40
-iconsize = 35
+height = 30
+iconsize = 25
 class STitleBar(QWidget):
     def __init__(self, parent:QWidget= None) -> None:
         super().__init__(parent)
