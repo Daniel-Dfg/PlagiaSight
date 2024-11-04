@@ -76,7 +76,6 @@ class DropArea(SDropArea):
 class HelpWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-
         self.setWindowTitle("Help")
         self.resize(400, 300)
 
@@ -122,6 +121,8 @@ class GetInTouchWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
         self.setFixedSize(550, 580)
+        self.titleBar.maxi.hide()
+        self.titleBar.maxi.setDisabled(True)
         self.is_fully_init = False
         self.checkBoxs = []
         self.rolesWidget = []
@@ -140,7 +141,7 @@ class GetInTouchWindow(SMiniWindow):
                               GitHub="https://github.com/Daniel-Dfg",
                               Discord="https://discord.com/users/720963652286414909")
 
-        self.add_contact_info(self.main_layout, "LUCKYINS", ["Fixes Lead developer Bugs :p","Web scraping", "UI (styling)", "Documentation gathering"],
+        self.add_contact_info(self.main_layout, "LUCKYINS", ["Repo manager and Bugs fixer","Web scraping", "UI design (styling)", "Documentation gathering"],
                               Mail="mailto:elhusseinabdalrahmanwork@gmail.com",
                               GitHub="https://github.com/LUCKYINS",
                               Discord="https://discord.com/users/721008804300455978")
