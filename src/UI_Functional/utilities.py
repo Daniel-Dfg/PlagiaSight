@@ -54,7 +54,7 @@ class DropArea(SDropArea):
         self.step1_widget.update_current_content_validity()
 
     def file_format_is_valid(self, file_path):
-        return file_path.endswith('.txt') #TODO : support other file types (.pdf, .md...)
+        return file_path.endswith(('.pdf', '.txt')) #TODO : support other file types (.pdf, .md...)
 
     def process_directory(self, directory_path):
         valid_set = set(self.correct_files)

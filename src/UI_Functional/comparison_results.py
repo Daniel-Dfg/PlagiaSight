@@ -2,6 +2,7 @@ from .utilities import simplify_path
 from text_analysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
 from web_scraper import URLs, HtmlText
 from PySide6.QtWidgets import QLabel, QProgressBar
+import os # to get the file format
 #from time import time
 
 
@@ -16,13 +17,14 @@ class OneFileComparison:
     """
     progress_bar : QProgressBar
     source_file : str # file path
+    file_format: str # either "txt" or "pdf" for now
     comparison_type : str # either "simple" or "complex"
     content_stats : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TSAR]
     comparison_with : dict[str, TokensComparisonAlgorithms] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TPA]
 
     def __post_init__(self):
         #TODO : make this more explicit
-        self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file)))
+        self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file, self.file_format)))
         source_file_keywords = {k: v for k, v in sorted(self.content_stats[self.source_file].syntagms_scores.items(), key=lambda item: item[1], reverse=True)[:1]}
         print(source_file_keywords.keys())
         for keyword in source_file_keywords.keys():
@@ -70,9 +72,10 @@ class CrossCompare:
         file_counter = 1
         for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
             simplified_path = simplify_path(file)
+            file_format = os.path.splitext(file)[1][1:]
             self.current_file_processed_label.setText(f"Processing {simplified_path} ({file_counter}/{len(self.files_paths)})")
             try:
-                self.content_stats[simplified_path] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file))) #BOTTLENECK
+                self.content_stats[simplified_path] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file, file_format))) #BOTTLENECK
             except Exception as e:
                 self.problematic_files.append((simplified_path, e))
                 ... #do what's needed visually, interrupt the process entirely ? Or maybe keep going to look for all invalid files at once ?
