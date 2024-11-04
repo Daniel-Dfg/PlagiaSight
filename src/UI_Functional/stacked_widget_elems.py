@@ -57,13 +57,13 @@ class Step0_WelcomingMessage(QWidget):
             label.setStyleSheet(f"font-size: {font_size}px;")
             layout.addWidget(label, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        button1 = SButtons("One file with related online data")
-        button2 = SButtons("A set of files between each other")
+        button1 = SButtons("A set of files between each other")
+        button2 = SButtons("One file with related online data (experimental)")
 
-        buttons = {button1: (lambda: self.proceed_to_next_step(1)), button2: (lambda: self.proceed_to_next_step(MAX_FILES_AMOUNT))}
+        buttons = {button1: (lambda: self.proceed_to_next_step(MAX_FILES_AMOUNT)), button2: (lambda: self.proceed_to_next_step(1))}
         for button, func in buttons.items():
             button.clicked.connect(func)
-            button.setFixedSize(280, 50)
+            button.setFixedSize(400, 50)
             layout.addWidget(button, alignment=Qt.AlignmentFlag.AlignCenter)
         self.setLayout(layout)
 
@@ -358,6 +358,7 @@ class Step3_LoadResults(QWidget):
 class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
         super().__init__()
+        #self.setFixedSize(800, 1000)
         self.main_window = main_window
         self.final_results_label = QLabel("Final results")
         self.final_results_label.setStyleSheet("font-size:32px;")
