@@ -21,7 +21,9 @@ from collections import defaultdict
 from math import sqrt
 from numpy import mean, median
 from os import path
+import os
 import chardet #detects file encoding
+import pymupdf #for extracting data from pdf files
 #from time import time
 
 
@@ -31,6 +33,7 @@ REGEX_SPLIT_SENTENCES = r"(?<!\w\.\w.)(?<!\b[A-Z][a-z]\.)(?<![A-Z]\.)(?<=\.|\?)\
 TEXT_TOO_SHORT_LIMIT = 3 #minimal amount of sentences for the analysis to be made
 SENTENCES_TOO_SHORT_LIMIT = 3 #minimal amount of words/sentence on average to be considered a "valid" text
 TIME = None
+CUSTOM_PUNCTUATION = set(punctuation + '•"“”')
 
 #TODO : find the main bottleneck between extract_raw, Tokenizer and TokensStatsAndRearrangements (after first optimizations)
 #TODO : learn about numba Just-In-Time compiler (and its alternatives)
@@ -114,7 +117,7 @@ class Tokenizer:
         return array(all_syntagms, dtype=object), array(filtered_tokens_by_wordpunct) #TODO : Think about the usage of dtype
 
     def _is_only_punctuation(self, token) -> bool:
-        return all(char in punctuation for char in token)
+        return all(char in CUSTOM_PUNCTUATION for char in token)
 
     def get_tag_lemminflect(self, tag):
         if tag.startswith('J'):
@@ -384,18 +387,34 @@ class UnprocessableTextContent(Exception):
         super().__init__(self.message)
 
 
-def extract_raw_from_file(file_path: str) -> str:
+def extract_raw_from_file(file_path: str, file_format: str) -> str:
     if not path.exists(file_path):
         raise FileNotFoundError(f"{file_path} doesn't exist")
-
+    if file_format not in ("txt", "pdf"):
+        raise ValueError(f"Invalid file format: {file_format}")
+    
+    if file_format == "pdf":
+        temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        file_path = convert_pdf_to_txt(file_path, temp_dir)
     with open(file_path, 'rb') as file:  # Detects the encoding of file
         raw_data = file.read()
         result = chardet.detect(raw_data)
         file_encoding = result['encoding']
-
     with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
         return f.read().lower()
+        
 
+def convert_pdf_to_txt(file_path: str, temp_dir_path: str) -> str:
+    """
+    Returns the path of the pdf file converted to a txt file.
+    """
+    pdf_file = pymupdf.open(file_path)
+    converted_file_path = os.path.join(temp_dir_path, os.path.basename(file_path).replace(".pdf", ".txt"))
+    with open(converted_file_path, "wb") as out:
+        for page in pdf_file:
+            out.write(page.get_text().encode("utf-8"))
+    return converted_file_path
 """
 #FOR TESTING PURPOSES (feel free to uncomment and play around with this)
 def test_sentences_tokenized():
