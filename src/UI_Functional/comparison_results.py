@@ -17,14 +17,14 @@ class OneFileComparison:
     """
     progress_bar : QProgressBar
     source_file : str # file path
-    file_format: str # either "txt" or "pdf" for now
     comparison_type : str # either "simple" or "complex"
     content_stats : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TSAR]
     comparison_with : dict[str, TokensComparisonAlgorithms] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TPA]
 
     def __post_init__(self):
         #TODO : make this more explicit
-        self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file, self.file_format)))
+        file_format = os.path.splitext(self.source_file)[1][1:]
+        self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file, file_format)))
         source_file_keywords = {k: v for k, v in sorted(self.content_stats[self.source_file].syntagms_scores.items(), key=lambda item: item[1], reverse=True)[:1]}
         print(source_file_keywords.keys())
         for keyword in source_file_keywords.keys():
