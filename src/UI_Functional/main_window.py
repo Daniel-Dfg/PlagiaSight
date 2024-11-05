@@ -9,11 +9,7 @@ from UI_Styling.userTools import UserTools
 class MainWindow(SMainWindow):
     def __init__(self):
         super().__init__()
-        w = self.screen().size().width()
-        h = self.screen().size().height()
 
-        #Window can't be resized more then that
-        self.setMinimumSize(int(w/1.8), int(h/1.1))
         #Main Layout
         self.setWindowTitle("PlagiaSight")
 

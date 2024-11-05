@@ -210,6 +210,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step2_widget)
         self.main_window.help_window.expand_step(2)
 
+
 class Step2_AnalysisComplexityPick(QWidget):
     def __init__(self, main_window):
         super().__init__()
@@ -273,6 +274,7 @@ class Step2_AnalysisComplexityPick(QWidget):
         self.main_window.stacked_widget.addWidget(self.main_window.step3_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step3_widget)
         self.main_window.help_window.expand_step(3)
+
 
 class Step3_LoadResults(QWidget):
     done = Signal()
@@ -354,6 +356,7 @@ class Step3_LoadResults(QWidget):
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step4_widget)
         self.main_window.help_window.expand_step(4)
+
 
 class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
@@ -456,11 +459,14 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(char_values_line_layout)
 
+        results_interpretation_layout = QHBoxLayout()
         self.main_window.results_interpretation_window = ResultsInterpretationWindow()
         self.results_interpretation_button = SButtons("See results interpretation")
         self.results_interpretation_button.clicked.connect(self.main_window.results_interpretation_window.show)
-        layout.addWidget(self.results_interpretation_button)
-
+        self.results_interpretation_button.setFixedSize(250, 40)
+        results_interpretation_layout.addWidget(self.results_interpretation_button)
+        results_interpretation_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(results_interpretation_layout)
 
         bottom_layout = QHBoxLayout()
         graph_view_button = SButtons("View Graph")
@@ -513,10 +519,10 @@ class Step4_DisplayResults(QWidget):
         If there's a spot to work on in this code, it's here !
         """
         #these thresholds will probably be redefined with experience #TODO
-        critical_thresholds_indiv_characteristics = {"Text Richness" : 0.9, "average sentence length" : 0.85, "median sentence length" : 0.8} #Keys = INDIV_CHARACTERISTICS
-        suspicious_thresholds_indiv_characteristics = {"Text Richness" : 0.8, "average sentence length" : 0.75, "median sentence length" : 0.7}
-        critical_thresholds_common_characteristics = {"Cosine sim (words)" : 0.9, "Jaccard sim (words)" : 0.9 , "Cosine sim (pos)" : 0.95, "Jaccard sim (pos)" : 0.95} #Keys = COMMON_CHARS_COMPLEX
-        suspicious_thresholds_common_characteristics = {"Cosine sim (words)" : 0.65, "Jaccard sim (words)" : 0.65 , "Cosine sim (pos)" : 0.8, "Jaccard sim (pos)" : 0.8}
+        critical_thresholds_indiv_characteristics = {"Text Richness" : 0.95, "average sentence length" : 0.9, "median sentence length" : 0.9} #Keys = INDIV_CHARACTERISTICS
+        suspicious_thresholds_indiv_characteristics = {"Text Richness" : 0.875, "average sentence length" : 0.825, "median sentence length" : 0.825}
+        critical_thresholds_common_characteristics = {"Cosine sim (words)" : 0.8, "Jaccard sim (words)" : 0.8, "Cosine sim (pos)" : 0.95, "Jaccard sim (pos)" : 0.95} #Keys = COMMON_CHARS_COMPLEX
+        suspicious_thresholds_common_characteristics = {"Cosine sim (words)" : 0.6, "Jaccard sim (words)" : 0.6, "Cosine sim (pos)" : 0.8, "Jaccard sim (pos)" : 0.8}
 
         critical_results = []
         suspicious_results = []
@@ -554,9 +560,9 @@ class Step4_DisplayResults(QWidget):
 
         data_elems_text = ""
         if critical_results:
-            data_elems_text+= "The following values seem to show critical levels of plagiarism :\n" + '\n\t⤷'.join([c for c in critical_results])
+            data_elems_text+= "The following values seem to show critical levels of plagiarism :\n\t⤷" + '\n\t⤷'.join([c for c in critical_results])
         if suspicious_results:
-            data_elems_text +=  "\nThe following values allow us to suspect that there's some plagiarism here :\n" + '\n\t⤷'.join([s for s in suspicious_results])
+            data_elems_text +=  "\nThe following values allow us to suspect that there's some plagiarism here :\n\t⤷" + '\n\t⤷'.join([s for s in suspicious_results])
 
         if not critical_results and not suspicious_results:
             self.main_window.results_interpretation_window.data_interpretation_label.setVisible(False)
@@ -584,6 +590,7 @@ class Step4_DisplayResults(QWidget):
             advice_text += "Our computations don't reveal that there's much plagiarism here.\n"
         advice_text += "Whatshowever, make sure to take a look at the graphs ('Graphs' button) to refine your judgement.\n"
         self.main_window.results_interpretation_window.list_of_advices.setText(advice_text)
+        self.main_window.results_interpretation_window.resize_dynamically(len(critical_results), len(suspicious_results))
 
 
     def _sync_comboboxes(self, changed_combobox):
