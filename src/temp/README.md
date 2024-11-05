@@ -1,0 +1,1 @@
+ATTENTION! This file must not be deleted for the application to work correctly!
