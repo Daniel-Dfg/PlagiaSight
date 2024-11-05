@@ -147,7 +147,7 @@ class Step1_FileDropAndCheck(QWidget):
             self.update_current_content_validity()
 
     def _browse_single_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt/.pdf file", "", "Text Files (*.txt, *.pdf)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select a file", "", "Text Files (*.txt);;PDF Files (*.pdf)")
         if file_name:
             print("Selected file:", file_name)
             if self.drop_area.file_format_is_valid(file_name):
