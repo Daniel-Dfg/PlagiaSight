@@ -147,7 +147,7 @@ class Step1_FileDropAndCheck(QWidget):
             self.update_current_content_validity()
 
     def _browse_single_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select a file", "", "Text Files (*.txt);;PDF Files (*.pdf)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select a file (SUPPORTED : .txt / .pdf)", "", "Text Files (*.txt);;PDF Files (*.pdf)")
         if file_name:
             print("Selected file:", file_name)
             if self.drop_area.file_format_is_valid(file_name):
@@ -156,7 +156,7 @@ class Step1_FileDropAndCheck(QWidget):
                 self.update_current_content_validity()
             else:
                 pass
-                #self.show_warning("Please select only .txt files.")
+                #self.show_warning("Please select only .txt, .pdf files.")
 
     def add_file_to_correct_files_list_UI(self, file, file_is_valid=True):
         """
@@ -404,12 +404,12 @@ class Step4_DisplayResults(QWidget):
 
         switch_button = SButtons()
         switch_button.setStyleSheet(switch_button.styleSheet().replace("background-color:#3E3182;", "background-color:#aeabc2;").replace("background-color:#382F9C;", "background-color:#cccad8;"))
-        switch_button.setFixedSize(110, 32)
+        switch_button.setFixedSize(32, 32)
         switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
         file_selection_layout.addWidget(switch_button)
 
-        label2 = QLabel("File2 :")
+        label2 = QLabel("File 2:")
         label2.setStyleSheet("font-size:24px;")
         right_side_selection_layout.addWidget(label2)
         right_side_selection_layout.addWidget(self.right_content_title, Qt.AlignmentFlag.AlignLeft)
@@ -519,7 +519,7 @@ class Step4_DisplayResults(QWidget):
         If there's a spot to work on in this code, it's here !
         """
         #these thresholds will probably be redefined with experience #TODO
-        critical_thresholds_indiv_characteristics = {"Text Richness" : 0.95, "average sentence length" : 0.9, "median sentence length" : 0.9} #Keys = INDIV_CHARACTERISTICS
+        critical_thresholds_indiv_characteristics = {"Text Richness" : 0.975, "average sentence length" : 0.9, "median sentence length" : 0.9} #Keys = INDIV_CHARACTERISTICS
         suspicious_thresholds_indiv_characteristics = {"Text Richness" : 0.875, "average sentence length" : 0.825, "median sentence length" : 0.825}
         critical_thresholds_common_characteristics = {"Cosine sim (words)" : 0.8, "Jaccard sim (words)" : 0.8, "Cosine sim (pos)" : 0.95, "Jaccard sim (pos)" : 0.95} #Keys = COMMON_CHARS_COMPLEX
         suspicious_thresholds_common_characteristics = {"Cosine sim (words)" : 0.6, "Jaccard sim (words)" : 0.6, "Cosine sim (pos)" : 0.8, "Jaccard sim (pos)" : 0.8}

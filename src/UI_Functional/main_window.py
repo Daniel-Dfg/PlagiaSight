@@ -10,9 +10,6 @@ class MainWindow(SMainWindow):
     def __init__(self):
         super().__init__()
 
-        #Main Layout
-        self.setWindowTitle("PlagiaSight")
-
         self.stacked_widget = QStackedWidget()
         self.step0_widget = Step0_WelcomingMessage(self)
         self.stacked_widget.addWidget(self.step0_widget)
@@ -38,7 +35,6 @@ class MainWindow(SMainWindow):
     def init_sub_windows(self):
         self.get_in_touch_window = GetInTouchWindow()
         self.help_window = HelpWindow()
-        self.get_in_touch_window.full_init()
 
     def toggle_GetInTouchWindow(self):
         if self.get_in_touch_window is not None:
