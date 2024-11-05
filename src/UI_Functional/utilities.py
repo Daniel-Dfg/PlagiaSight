@@ -76,8 +76,8 @@ class DropArea(SDropArea):
 class HelpWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Help")
-        self.resize(400, 300)
+        self.setWindowTitle("Get help")
+        self.resize(600, 300)
 
         self.tree = QTreeWidget()
         self.tree.setHeaderHidden(True)
@@ -365,6 +365,32 @@ class GraphWindow(SMiniWindow):
             pixmap.save(file_path)
     """
 
+
+class ResultsInterpretationWindow(SMiniWindow):
+    def __init__(self):
+        super().__init__()
+        self.resize(700, 400)
+        self.data_interpretation_label = QLabel("Data Interpretation guidance :")
+        self.data_interpretation_label.setStyleSheet("font-size:24px;")
+        self.data_interpretation_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.meaningful_data_elems = QLabel()
+        self.meaningful_data_elems.setStyleSheet("color:grey;") #TODO : change this color to a more subtle white in the end
+        self.meaningful_data_elems.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.advice_label = QLabel("Our advice :")
+        self.advice_label.setStyleSheet("font-size:24px;")
+        self.advice_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.list_of_advices = QLabel()
+        self.list_of_advices.setStyleSheet("color:grey;")
+        self.list_of_advices.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        #TODO
+        self.main_layout.addWidget(self.data_interpretation_label)
+        self.main_layout.addWidget(self.meaningful_data_elems)
+        self.main_layout.addWidget(self.advice_label)
+        self.main_layout.addWidget(self.list_of_advices)
+        self.main_layout.addStretch()
+
+    def resize_dynamically(self, num_critical, num_suspicious):
+        self.resize(700, 350 + (num_critical * 20 + num_suspicious * 20))
 
 def simplify_path(file_path):
     parent_dir = os.path.basename(os.path.dirname(file_path))
