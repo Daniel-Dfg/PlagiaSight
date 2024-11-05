@@ -6,7 +6,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
 from text_analysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
-from .utilities import GraphWindow, DropArea, simplify_path
+from .utilities import GraphWindow, DropArea, simplify_path, ResultsInterpretationWindow
 from UI_Styling.filescontainer import FilesContainer
 from UI_Styling.sbuttons import SButtons
 from UI_Styling.sradiobuttons import SRadioButton
@@ -147,7 +147,7 @@ class Step1_FileDropAndCheck(QWidget):
             self.update_current_content_validity()
 
     def _browse_single_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt file", "", "Text Files (*.txt)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select a .txt/.pdf file", "", "Text Files (*.txt, *.pdf)")
         if file_name:
             print("Selected file:", file_name)
             if self.drop_area.file_format_is_valid(file_name):
@@ -456,21 +456,11 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(char_values_line_layout)
 
-        self.data_interpretation_label = QLabel("Data Interpretation guidance :")
-        self.data_interpretation_label.setStyleSheet("font-size=24px;")
-        self.data_interpretation_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.meaningful_data_elems = QListWidget()
-        self.meaningful_data_elems.setStyleSheet("color:grey;") #TODO : change this color to a more subtle white in the end
-        self.advice_label = QLabel("Our advice :")
-        self.advice_label.setStyleSheet("font-size:24px;")
-        self.advice_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.list_of_advices = QListWidget()
-        self.list_of_advices.setStyleSheet("color:grey;")
+        self.main_window.results_interpretation_window = ResultsInterpretationWindow()
+        self.results_interpretation_button = SButtons("See results interpretation")
+        self.results_interpretation_button.clicked.connect(self.main_window.results_interpretation_window.show)
+        layout.addWidget(self.results_interpretation_button)
 
-        layout.addWidget(self.data_interpretation_label)
-        layout.addWidget(self.meaningful_data_elems)
-        layout.addWidget(self.advice_label)
-        layout.addWidget(self.list_of_advices)
 
         bottom_layout = QHBoxLayout()
         graph_view_button = SButtons("View Graph")
@@ -483,7 +473,7 @@ class Step4_DisplayResults(QWidget):
         bottom_layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
         layout.addLayout(bottom_layout)
         self._sync_comboboxes(self.left_content_title)
-        #self._sync_comboboxes(self.right_content_title)
+        self._sync_comboboxes(self.right_content_title)
 
 
     def _reset_process_entirely(self):
@@ -559,40 +549,41 @@ class Step4_DisplayResults(QWidget):
                 else:
                     structural_similarity += 1
 
-        self.meaningful_data_elems.clear()
-        self.list_of_advices.clear()
-        if critical_results:
-            self.meaningful_data_elems.addItem("The following values seem to show critical levels of plagiarism :")
-            for critical_element in critical_results:
-                self.meaningful_data_elems.addItem("\t⤷" + critical_element + "\n")
-                ...
-        if suspicious_results:
-            self.meaningful_data_elems.addItem("\n\nThe following values allow us to suspect that there's some plagiarism here :")
-            for suspicious_element in suspicious_results:
-                self.meaningful_data_elems.addItem("\t⤷" + suspicious_element + "\n")
-        if not critical_results and not suspicious_results:
-            self.data_interpretation_label.setVisible(False)
-            self.meaningful_data_elems.addItem("\nNo suspicious values have been detected.")
-        else:
-            self.data_interpretation_label.setVisible(True)
+        self.main_window.results_interpretation_window.meaningful_data_elems.clear()
+        self.main_window.results_interpretation_window.list_of_advices.clear()
 
+        data_elems_text = ""
+        if critical_results:
+            data_elems_text+= "The following values seem to show critical levels of plagiarism :\n" + '\n\t⤷'.join([c for c in critical_results])
+        if suspicious_results:
+            data_elems_text +=  "\nThe following values allow us to suspect that there's some plagiarism here :\n" + '\n\t⤷'.join([s for s in suspicious_results])
+
+        if not critical_results and not suspicious_results:
+            self.main_window.results_interpretation_window.data_interpretation_label.setVisible(False)
+            self.main_window.results_interpretation_window.meaningful_data_elems.setText("\nNo suspicious values have been detected.")
+        else:
+            self.main_window.results_interpretation_window.data_interpretation_label.setVisible(True)
+            self.main_window.results_interpretation_window.meaningful_data_elems.setText(data_elems_text)
+
+        advice_text = ""
         if plagiarism_score >= 5:
             ...
-            self.list_of_advices.addItem("Our computations seem to reveal high levels of plagiarism.\n")
+            advice_text += "Our computations seem to reveal high levels of plagiarism.\n"
             if structural_similarity >= 2:
-                self.list_of_advices.addItem("Notable similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n")
+                advice_text += "Notable similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n"
             if words_similarity > 1:
-                self.list_of_advices.addItem("Major similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n")
+                advice_text += "Major similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
         elif plagiarism_score >= 3:
-            self.list_of_advices.addItem("Our computations seem to reveal moderate levels of plagiarism.\n")
+            advice_text += "Our computations seem to reveal moderate levels of plagiarism.\n"
             ...
             if structural_similarity >= 1:
-                self.list_of_advices.addItem("Some similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n")
+                advice_text += "Some similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n"
             if words_similarity > 0:
-                self.list_of_advices.addItem("Some similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n")
+                advice_text += "Some similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
         else:
-            self.list_of_advices.addItem("Our computations don't reveal that there's much plagiarism here.\n")
-        self.list_of_advices.addItem("Whatshowever, make sure to take a look at the graphs ('Graphs' button) to refine your judgement.\n")
+            advice_text += "Our computations don't reveal that there's much plagiarism here.\n"
+        advice_text += "Whatshowever, make sure to take a look at the graphs ('Graphs' button) to refine your judgement.\n"
+        self.main_window.results_interpretation_window.list_of_advices.setText(advice_text)
 
 
     def _sync_comboboxes(self, changed_combobox):
