@@ -1,4 +1,4 @@
-![screenshot](/Resources/Excess Files/TitleImage.png)
+![screenshot](Resources/Excess Files/TitleImage.png)
 
 Add badges from somewhere like: [shields.io](https://shields.io/)
 
@@ -16,8 +16,9 @@ Our tool aims to keep results clear and *interpretable* (so : the tool won't dra
 #📽️ Application Demo
 [insert GIFs...]
 
-#💡 Do you want... 
+# 💡 Do you want... 
 <u>**To GET STARTED using PlagiaSight ?**</u>
+
 
 Welcome ! Please follow these **installation instructions** :
 [installations instructions...]
@@ -25,9 +26,8 @@ Welcome ! Please follow these **installation instructions** :
 If you have trouble executing any of these steps, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 
-<span style="font-weight:700;font-size:20px">
-    To CONTRIBUTE to the developement of PlagiaSight ?
-</span>
+<u>**To CONTRIBUTE to the developement of PlagiaSight ?**</u>
+
 
 We're always glad to see new contributors ! Here's a roadmap to get you started : 
 
@@ -50,7 +50,8 @@ But we can't stress enough the idea that, in order to propose new features that 
 If you have questions or concerns regarding contributions, feel free to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 
-#💬 Contact the people behind the 1.0 version
+# 💬 Contact the people behind the 1.0 version
+
 [https://github.com/Daniel-Dfg](https://github.com/Daniel-Dfg)
 
 [https://github.com/LUCKYINS](https://github.com/Luckyyyin)
