@@ -345,7 +345,7 @@ class Step3_LoadResults(QWidget):
             else:
                 # Mark all as complete
                 self.current_file_processed_label.setText("Processing: Complete")
-                QTimer.singleShot(70, self.done.emit)
+                QTimer.singleShot(80, self.done.emit)
 
     def reset_process(self):
         self.main_window.final_results = None
@@ -355,7 +355,6 @@ class Step3_LoadResults(QWidget):
         self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step4_widget)
-        self.main_window.help_window.expand_step(4)
 
 
 class Step4_DisplayResults(QWidget):
@@ -513,8 +512,7 @@ class Step4_DisplayResults(QWidget):
         """
         #TODO !
         This function is barely a skeleton of what it's supposed to be.
-        It's only a temporary solution while we're crafting a more comprehensive, LLM-based conclusion maker that
-        should notably provide context awareness (it's currently being worked on, indeed !).
+        It's only a temporary solution while we're crafting a more comprehensive, context-aware LLM-based solution.
 
         If there's a spot to work on in this code, it's here !
         """
@@ -526,7 +524,7 @@ class Step4_DisplayResults(QWidget):
 
         critical_results = []
         suspicious_results = []
-        plagiarism_score = 0 #pretty arbitrairy, will be to change too...
+        plagiarism_score = 0 #pretty arbitrairy...
         structural_similarity = 0
         words_similarity = 0
         for char in sorted(individual_results.keys()):
@@ -536,7 +534,7 @@ class Step4_DisplayResults(QWidget):
                 plagiarism_score += 2
                 structural_similarity += 1
             elif ratio >= suspicious_thresholds_indiv_characteristics[char]:
-                suspicious_results.append(char)
+                suspicious_results.append("Ratio (min/max) for " + char)
                 plagiarism_score += 1
                 structural_similarity += 1
         for char in sorted(common_results.keys()):
@@ -560,9 +558,9 @@ class Step4_DisplayResults(QWidget):
 
         data_elems_text = ""
         if critical_results:
-            data_elems_text+= "The following values seem to show critical levels of plagiarism :\n\t⤷" + '\n\t⤷'.join([c for c in critical_results])
+            data_elems_text+= "Critical plagiarism indicators :\n\t⤷" + '\n\t⤷'.join([c for c in critical_results])
         if suspicious_results:
-            data_elems_text +=  "\nThe following values allow us to suspect that there's some plagiarism here :\n\t⤷" + '\n\t⤷'.join([s for s in suspicious_results])
+            data_elems_text +=  "\nPotential plagiarism indicators :\n\t⤷" + '\n\t⤷'.join([s for s in suspicious_results])
 
         if not critical_results and not suspicious_results:
             self.main_window.results_interpretation_window.data_interpretation_label.setVisible(False)
@@ -574,21 +572,21 @@ class Step4_DisplayResults(QWidget):
         advice_text = ""
         if plagiarism_score >= 5:
             ...
-            advice_text += "Our computations seem to reveal high levels of plagiarism.\n"
+            advice_text += "\nHigh plagiarism likelihood detected.\n"
             if structural_similarity >= 2:
-                advice_text += "Notable similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n"
+                advice_text += "\nMajor similarities have been found on a structural level.\nConsider varying sentence structures and vocabulary.\n"
             if words_similarity > 1:
-                advice_text += "Major similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
+                advice_text += "\nMajor similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
         elif plagiarism_score >= 3:
-            advice_text += "Our computations seem to reveal moderate levels of plagiarism.\n"
+            advice_text += "\nOur computations seem to reveal moderate levels of plagiarism.\n"
             ...
             if structural_similarity >= 1:
-                advice_text += "Some similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n"
+                advice_text += "\nSome similarities have been found on a structural level.\nWe suggest to rework your text by taking the aforementioned problematic stats into account.\n"
             if words_similarity > 0:
-                advice_text += "Some similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
+                advice_text += "\nSome similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
         else:
-            advice_text += "Our computations don't reveal that there's much plagiarism here.\n"
-        advice_text += "Whatshowever, make sure to take a look at the graphs ('Graphs' button) to refine your judgement.\n"
+            advice_text += "Low plagiarism likelihood detected.\n"
+        advice_text += "\nWhatshowever, please look at the graphs ('Graphs' button) to refine your judgement.\n"
         self.main_window.results_interpretation_window.list_of_advices.setText(advice_text)
         self.main_window.results_interpretation_window.resize_dynamically(len(critical_results), len(suspicious_results))
 
@@ -647,6 +645,7 @@ class Step4_DisplayResults(QWidget):
         return graphs_data
 
     def _view_graph(self):
+        self.main_window.help_window.expand_step(4)
         graphs_data = self._prepare_graphs_data()
         self.main_window.graph_window = GraphWindow()
 
