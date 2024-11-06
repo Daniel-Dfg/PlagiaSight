@@ -1,4 +1,4 @@
-![screenshot](./Resources/Excess Files/TitleImage.png)
+![Alt text](/Resources/Excess Files/TitleImage.png?raw=true "Optional Title")
 
 TODO : Add badges from [shields.io](https://shields.io/)
 
@@ -31,7 +31,7 @@ Welcome ! Please follow these **installation instructions** :
 
 If you have trouble executing any of these steps, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
-<ul>
+</ul>
 <u>**To CONTRIBUTE to the developement of PlagiaSight ?**</u>
 <ul>
 
