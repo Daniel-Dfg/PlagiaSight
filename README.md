@@ -1,4 +1,4 @@
-![Alt text](/Resources/Excess Files/TitleImage.png?raw=true "Optional Title")
+![Alt text](/Resources/ExcessFiles/TitleImage.png?raw=true)
 
 TODO : Add badges from [shields.io](https://shields.io/)
 
@@ -60,9 +60,18 @@ If you have questions or concerns regarding contributions, feel free to [**conta
 
 # 💬 Contact the people behind the 1.0 version
 
-[https://github.com/Daniel-Dfg](https://github.com/Daniel-Dfg)
+* Daniel-Dfg :
+  * [github.com/Daniel-Dfg](https://github.com/Daniel-Dfg)
+  * [danieldefoing@gmail.com](mailto:danieldefoing@gmail.com)
+  * [D:D](https://discord.com/users/720963652286414909) on Discord
 
-[https://github.com/LUCKYINS](https://github.com/Luckyyyin)
+* LUCKYINS :
+  * [github.com/LUCKYINS](https://github.com/LUCKYINS)
+  * [elhusseinabdalrahmanwork@gmail.com](mailto:elhusseinabdalrahmanwork@gmail.com)
+  * [LUCKYINS](https://discord.com/users/721008804300455978) on Discord
 
-[https://github.com/onuriscoding](https://github.com/onuriscoding)
+* onuriscoding :
+  * [github.com/onuriscoding](https://github.com/onuriscoding)
+  * [onurdogancs@gmail.com](mailto:onurdogancs@gmail.com)
+  * [ginorwhat](https://discord.com/users/332553376707510272) on Discord
 
