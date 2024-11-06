@@ -76,7 +76,7 @@ class DropArea(SDropArea):
 class HelpWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.resize(770, 480)
+        self.resize(720, 480)
         self.title_label = QLabel("Get help \n")
         self.title_label.setStyleSheet("font-size:24px;")
         self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -87,22 +87,22 @@ class HelpWindow(SMiniWindow):
         self.main_layout.addWidget(self.tree)
 
         self.add_help_step("Step 0: Pick a type of analysis",
-                            "Compare a single file with online data or files between each other\n (useful for students, for example : they can compare their texts that way)")
+                            "Comparing files between each other can be useful for students, for example :\n they can see overlaps between their texts that way.\n")
         self.add_help_step("Step 1: Choose your desired files",
-                            "We support drag & dropping and browsing files/folders.\nValid content will be automatically extracted from a provided folder,\n with its invalid files being shown in the \"invalid files\" section.")
+                            "Valid content will be automatically extracted from a provided folder,\n with its invalid files being shown in the \"invalid files\" section.\n")
         self.add_help_step("Step 2: Choose Analysis Type",
-                            "The difference between the simple and complex analysis stands\n in the fact that complex analysis extends the simple analysis,\n helping to provide more insights while being more computation-heavy.")
+                            "The difference between the simple and complex analysis stands\n in the fact that complex analysis extends the simple analysis,\n helping to provide more insights while being more computation-heavy.\n")
         self.add_help_step("Step 3: Results",
-                            "All of these numbers and terms can be overwhelming for many,\n so let's explain these one by one very simply :\n"
+                            "Seeing all of these numbers and terms can be overwhelming at first,\n so let's explain these one by one very simply :\n"
                             "- Text richness = number_of_different_terms / total_number_of_terms\n\n"
-                            "- Cosine and Jaccard similarity are similarity computations based on several factors :\n the position of words in a text, the amount of times they appear in total, etc.\n They're known to be among the most accurate text similarity algorithms we know today.\n\n"
-                            "You might've noticed than, if you decided to do a \"Complex Analysis\", Cosine and Jaccard\n similarities both appear twice : they're applied once on the 'words' of each pair of\n texts, and once on the 'pos' of each pair of texts...\n But what does 'pos' mean ?\n\n"
-                            "Well - POS is an abbreviation for \"Part(s) Of Speech\", which indicates the\n 'class' of a given word in a text (noun, pronoun, adjective, determinant...).\n\n"
-                            "So we compute similarity between the POS of each pair of text because,\n if two texts are structurally similar (their sentences are \"built the same way\",\n if you wish), it's going to show up in these computations !")
+                            "- Cosine and Jaccard similarity are similarity computations based on several factors,\n such as the positions of words in the text and their frequencies.\nThey are some of the most reliable methods available for determining textual similarity.\n\n"
+                            "If you've selected 'Complex Analysis', you'll see Cosine and Jaccard similarities twice :\n once for 'words' and once for 'POS' in each text pair.\n But what does 'POS' mean ?\n\n"
+                            "Well, POS is an abbreviation for \"Part(s) Of Speech\", which indicates the\n 'class' of a given word in a text (noun, pronoun, adjective...).\n\n"
+                            "By comparing POS similarity between texts, we can assess if they are similar in structure.\n This can reveal structural similarities beyond just word usage.\n\n")
         self.add_help_step("(Optional) Graph Window",
             "When looking at the results, if you click the 'show graphs' button,\n a button displaying some graphs will appear : they're here to help\n you visualize how the texts you provided are (dis)similar to each other.\n\n"
             "There is just one thing we must clarify in these :\n"
-            "The meaning of 'bigrams' (and 'trigrams' in the case of a complex analysis) :\n n-grams are sequences of n contiguous words in a text.\n\nExample : In the sentence \"I ate an apple\", the BIgrams are 'I ate', 'ate an', and 'an apple'.\n")
+            "the meaning of 'bigrams' (and 'trigrams' in the case of a complex analysis).\n n-grams are sequences of n contiguous words in a text.\n\nExample : In the sentence \"I ate an apple\", the BIgrams are 'I ate', 'ate an', and 'an apple'.\n")
 
     def add_help_step(self, step_title, step_details):
         font = QFont()
