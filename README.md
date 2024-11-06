@@ -1,6 +1,6 @@
-![screenshot](Resources/Excess Files/TitleImage.png)
+![screenshot](./Resources/Excess Files/TitleImage.png)
 
-Add badges from somewhere like: [shields.io](https://shields.io/)
+TODO : Add badges from [shields.io](https://shields.io/)
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
@@ -13,21 +13,27 @@ We decided to adress this issue by ourselves, by creating an app that would prov
 
 Our tool aims to keep results clear and *interpretable* (so : the tool won't draw *definitive conclusions*, but rather *provide useful stats and guidance*), allowing users to use their own critical thinking rather than having the tool forcefully impose a judgment.
 
-#📽️ Application Demo
+
+
+
+# 📽️ Application Demo
 [insert GIFs...]
 
-# 💡 Do you want... 
-<u>**To GET STARTED using PlagiaSight ?**</u>
 
+
+
+# 💡 Do you want... 
+- <u>**To GET STARTED using PlagiaSight ?**</u>
+<ul>
 
 Welcome ! Please follow these **installation instructions** :
 [installations instructions...]
 
 If you have trouble executing any of these steps, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
-
+<ul>
 <u>**To CONTRIBUTE to the developement of PlagiaSight ?**</u>
-
+<ul>
 
 We're always glad to see new contributors ! Here's a roadmap to get you started : 
 
@@ -48,6 +54,8 @@ We encourage you to contribute, even if your Pull Request gets closed without be
 But we can't stress enough the idea that, in order to propose new features that have a chance of being useful, *you should take a peek at the documentation directly present in the project to understand all contributors' vision first*. This will help ensure your proposals are cohesive with the project's goals.
 
 If you have questions or concerns regarding contributions, feel free to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
+
+</ul>
 
 
 # 💬 Contact the people behind the 1.0 version
