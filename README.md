@@ -23,7 +23,7 @@ Our tool aims to keep results clear and *interpretable* (so : the tool won't dra
 
 
 # 💡 Do you want... 
-- <u>**To GET STARTED using PlagiaSight ?**</u>
+- 	<ins>**To GET STARTED using PlagiaSight ?**	</ins>
 <ul>
 
 Welcome ! Please follow these **installation instructions** :
@@ -32,7 +32,8 @@ Welcome ! Please follow these **installation instructions** :
 If you have trouble executing any of these steps, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 </ul>
-<u>**To CONTRIBUTE to the developement of PlagiaSight ?**</u>
+
+- 	<ins>**To CONTRIBUTE to the developement of PlagiaSight ?**	</ins>
 <ul>
 
 We're always glad to see new contributors ! Here's a roadmap to get you started : 
@@ -60,17 +61,17 @@ If you have questions or concerns regarding contributions, feel free to [**conta
 
 # 💬 Contact the people behind the 1.0 version
 
-* Daniel-Dfg :
+* **Daniel-Dfg** :
   * [github.com/Daniel-Dfg](https://github.com/Daniel-Dfg)
   * [danieldefoing@gmail.com](mailto:danieldefoing@gmail.com)
   * [D:D](https://discord.com/users/720963652286414909) on Discord
 
-* LUCKYINS :
+* **LUCKYINS** :
   * [github.com/LUCKYINS](https://github.com/LUCKYINS)
   * [elhusseinabdalrahmanwork@gmail.com](mailto:elhusseinabdalrahmanwork@gmail.com)
   * [LUCKYINS](https://discord.com/users/721008804300455978) on Discord
 
-* onuriscoding :
+* **onuriscoding** :
   * [github.com/onuriscoding](https://github.com/onuriscoding)
   * [onurdogancs@gmail.com](mailto:onurdogancs@gmail.com)
   * [ginorwhat](https://discord.com/users/332553376707510272) on Discord
