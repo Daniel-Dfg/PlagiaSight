@@ -1,4 +1,3 @@
-from matplotlib.backends.backend_agg import RendererAgg
 from nltk.corpus.reader import toolbox
 from nltk.probability import SimpleGoodTuringProbDist
 from nltk.tokenize.api import overridden
