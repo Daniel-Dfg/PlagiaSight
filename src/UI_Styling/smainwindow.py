@@ -8,6 +8,11 @@ from UI_Styling.stitlebar import STitleBar
 class SMainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        w = self.screen().size().width()
+        h = self.screen().size().height()
+
+        #Window can't be resized more then that
+        self.setMinimumSize(int(w/1.5), int(h/1.1))
         self.get_in_touch_window = None
         self.help_window = None
         self.graph_window = None

@@ -4,8 +4,8 @@ from nltk.probability import SimpleGoodTuringProbDist
 from nltk.tokenize.api import overridden
 from typing_extensions import override
 from PySide6.QtWidgets import  QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFrame, QCheckBox
-from PySide6.QtCore import QTimer, Qt
-from PySide6.QtGui import  QColor, QIcon
+from PySide6.QtCore import QSize, QTimer, Qt
+from PySide6.QtGui import  QColor, QFont, QIcon
 from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QValueAxis, QBarCategoryAxis
 import os
 import webbrowser
@@ -76,37 +76,42 @@ class DropArea(SDropArea):
 class HelpWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Help")
-        self.resize(400, 300)
+        self.resize(720, 480)
+        self.title_label = QLabel("Get help \n")
+        self.title_label.setStyleSheet("font-size:24px;")
+        self.title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.main_layout.addWidget(self.title_label)
 
         self.tree = QTreeWidget()
         self.tree.setHeaderHidden(True)
         self.main_layout.addWidget(self.tree)
 
-
         self.add_help_step("Step 0: Pick a type of analysis",
-                            "Compare a single file with online data or files between each other (useful for students, for example : they can compare their texts that way)")
+                            "Comparing files between each other can be useful for students, for example :\n they can see overlaps between their texts that way.\n")
         self.add_help_step("Step 1: Choose your desired files",
-                            "We support drag & dropping and browsing files/folders.\nValid content will be automatically extracted from a provided folder, with its invalid files being shown in the \"invalid files\" section.")
+                            "Valid content will be automatically extracted from a provided folder,\n with its invalid files being shown in the \"invalid files\" section.\n")
         self.add_help_step("Step 2: Choose Analysis Type",
-                            "The difference between the simple and complex analysis stands in the fact that complex analysis extends the simple analysis, helping to provide more insights while being more computation-heavy.")
+                            "The difference between the simple and complex analysis stands\n in the fact that complex analysis extends the simple analysis,\n helping to provide more insights while being more computation-heavy.\n")
         self.add_help_step("Step 3: Results",
-                            "All of these numbers and terms can be overwhelming for many, so let's explain these one by one very simply :\n"
-                            "- Text richness = number_of_different_terms / total_number_of_terms\n"
-                            "Cosine and Jaccard similarity are similarity computations based on several factors : the position of words in a text, the amount of times they appear in total, etc. They're known to be among the most accurate text similarity algorithms we know today.\n"
-                            "You might've noticed than, if you decided to do a \"Complex Analysis\", Cosine and Jaccard similarity both appear twice : they're applied once on the 'words' of each pair of texts, and once on the 'pos' of each pair of text... But what does 'pos' mean ?\n"
-                            "Well - POS is an abbreviation for \"Part(s) Of Speech\", which indicates the 'class' of a given word in a text (noun, pronoun, adjective, determinant...).\n"
-                            "So we compute similarity between the POS of each pair of text because, if two texts are structurally similar (their sentences are \"built the same way\", if you wish), it's going to show up in these computations !")
+                            "Seeing all of these numbers and terms can be overwhelming at first,\n so let's explain these one by one very simply :\n"
+                            "- Text richness = number_of_different_terms / total_number_of_terms\n\n"
+                            "- Cosine and Jaccard similarity are similarity computations based on several factors,\n such as the positions of words in the text and their frequencies.\nThey are some of the most reliable methods available for determining textual similarity.\n\n"
+                            "If you've selected 'Complex Analysis', you'll see Cosine and Jaccard similarities twice :\n once for 'words' and once for 'POS' in each text pair.\n But what does 'POS' mean ?\n\n"
+                            "Well, POS is an abbreviation for \"Part(s) Of Speech\", which indicates the\n 'class' of a given word in a text (noun, pronoun, adjective...).\n\n"
+                            "By comparing POS similarity between texts, we can assess if they are similar in structure.\n This can reveal structural similarities beyond just word usage.\n\n")
         self.add_help_step("(Optional) Graph Window",
-            "When looking at the results, if you click the 'show graphs' button, a button displaying some graphs will appear : they're here to help you visualize how the texts you provided are (dis)similar to each other.\n"
+            "When looking at the results, if you click the 'show graphs' button,\n a button displaying some graphs will appear : they're here to help\n you visualize how the texts you provided are (dis)similar to each other.\n\n"
             "There is just one thing we must clarify in these :\n"
-            "The meaning of 'bigrams' (and 'trigrams' in the case of a complex analysis) : n-grams are sequences of n contiguous words in a text. In the sentence \"I ate an apple\", the BIgrams are 'I ate', 'ate an', and 'an apple'.\n")
+            "the meaning of 'bigrams' (and 'trigrams' in the case of a complex analysis).\n n-grams are sequences of n contiguous words in a text.\n\nExample : In the sentence \"I ate an apple\", the BIgrams are 'I ate', 'ate an', and 'an apple'.\n")
 
     def add_help_step(self, step_title, step_details):
+        font = QFont()
+        font.setPointSize(12)
         step_item = QTreeWidgetItem([step_title])
         self.tree.addTopLevelItem(step_item)
 
         details_item = QTreeWidgetItem([step_details])
+        details_item.setFont(0, font)
         step_item.addChild(details_item)
 
         step_item.setExpanded(False)
@@ -120,7 +125,7 @@ class HelpWindow(SMiniWindow):
 class GetInTouchWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(550, 580)
+        self.setFixedSize(580, 580)
         self.is_fully_init = False
         self.checkBoxs = []
         self.rolesWidget = []
@@ -131,28 +136,29 @@ class GetInTouchWindow(SMiniWindow):
 
         label = QLabel("Bug? Feature request? Commentary? Collab? We're all ears!")
         self.main_layout.addWidget(label)
-        #QTimer.singleShot(180, self.full_init)
+        QTimer.singleShot(180, self.full_init)
 
     def full_init(self):
-        self.add_contact_info(self.main_layout, "Daniel-Dfg", ["Lead developer", "Texts similarity computations", "UI design (functional)", "Documentation gathering and handling"],
-                              Mail="mailto:danieldefoing@gmail.com",
-                              GitHub="https://github.com/Daniel-Dfg",
-                              Discord="https://discord.com/users/720963652286414909")
+        if not self.is_fully_init:
+            self.add_contact_info(self.main_layout, "Daniel-Dfg", ["Lead developer", "Texts similarity computations", "UI design (functional)", "Documentation gathering and handling"],
+                                Mail="mailto:danieldefoing@gmail.com",
+                                GitHub="https://github.com/Daniel-Dfg",
+                                Discord="https://discord.com/users/720963652286414909")
 
-        self.add_contact_info(self.main_layout, "LUCKYINS", ["Repo manager and Bugs fixer","Web scraping", "UI design (styling)", "Documentation gathering"],
-                              Mail="mailto:elhusseinabdalrahmanwork@gmail.com",
-                              GitHub="https://github.com/LUCKYINS",
-                              Discord="https://discord.com/users/721008804300455978")
+            self.add_contact_info(self.main_layout, "LUCKYINS", ["Repo manager and Bugs fixer","Web scraping", "UI design (styling)", "Documentation gathering"],
+                                Mail="mailto:elhusseinabdalrahmanwork@gmail.com",
+                                GitHub="https://github.com/LUCKYINS",
+                                Discord="https://discord.com/users/721008804300455978")
 
-        self.add_contact_info(self.main_layout, "onuriscoding", ["UX Design", "GitHub workflows"],
-                              Mail="mailto:onurdogancs@gmail.com",
-                              GitHub="https://github.com/onuriscoding",
-                              Discord="https://discord.com/users/332553376707510272")
+            self.add_contact_info(self.main_layout, "onuriscoding", ["UX Design", "GitHub workflows"],
+                                Mail="mailto:onurdogancs@gmail.com",
+                                GitHub="https://github.com/onuriscoding",
+                                Discord="https://discord.com/users/332553376707510272")
 
-        self.add_contact_info(self.main_layout, "botEkrem", ["General Consultancy", "GitHub workflows", "Dockerization"],
-                              GitHub="https://github.com/BotEkrem")
+            self.add_contact_info(self.main_layout, "botEkrem", ["General Consultancy", "GitHub workflows", "Dockerization"],
+                                GitHub="https://github.com/BotEkrem")
 
-        self.is_fully_init = True
+            self.is_fully_init = True
 
     def add_contact_info(self, parent_layout, name, roles=[], *args, **kwargs):
         if len(kwargs) > 3 or not kwargs:
@@ -170,8 +176,8 @@ class GetInTouchWindow(SMiniWindow):
         all_socials = sorted(kwargs.keys())
         for social in all_socials:
             button = SButtons()
-            button.setIcon(QIcon(f"Resources/Excess Files/UI_elements/{social}_icon.png"))
-            button.setToolTip(social)
+            button.setIcon(QIcon(f"Resources/ExcessFiles/UI_elements/{social}_icon.png"))
+            button.setIconSize(QSize(32, 32))
             button.clicked.connect(lambda _, link=kwargs[social]: webbrowser.open(link))
             contact_header_layout.addWidget(button)
 
@@ -221,9 +227,9 @@ class GetInTouchWindow(SMiniWindow):
                     self.rolesWidget[i].setVisible(False)
             toggle_checkbox.setText("Hide roles")
             roles_widget.setVisible(True)
-            self.setFixedSize(550, 680)
+            self.setFixedSize(580, 680)
         else:
-            self.setFixedSize(550, 580)
+            self.setFixedSize(580, 580)
             toggle_checkbox.setText("Show roles")
             roles_widget.setVisible(False)
 
@@ -231,28 +237,31 @@ class GetInTouchWindow(SMiniWindow):
 class GraphWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Graphs")
+        self.setFixedSize(900, 650)
         self.is_dark_mode = False
 
-        next_previous_buttons_layout = QHBoxLayout()
+        buttons_layout = QHBoxLayout()
         self.previous_button = SButtons("Previous")
         self.previous_button.clicked.connect(self.show_previous_graph)
+        self.toggle_theme_button = SButtons()
+        self.toggle_theme_button.setIcon(QIcon(f"Resources/ExcessFiles/UI_elements/moon_icon.png"))
+        self.toggle_theme_button.setFixedSize(50, 50)
+        self.toggle_theme_button.setStyleSheet("background-color:white;")
         self.next_button = SButtons("Next")
         self.next_button.clicked.connect(self.show_next_graph)
+        self.toggle_theme_button.clicked.connect(self.toggle_theme)
 
         #self.save_button = SButtons("Save Graph")
         #self.save_button.clicked.connect(self.save_graph)
-        next_previous_buttons_layout.addWidget(self.previous_button)
-        next_previous_buttons_layout.addWidget(self.next_button)
+        buttons_layout.addWidget(self.previous_button)
+        buttons_layout.addWidget(self.toggle_theme_button)
+        buttons_layout.addWidget(self.next_button)
+
+
 
         #button_layout.addWidget(self.save_button)
 
-        self.main_layout.addLayout(next_previous_buttons_layout)
-        self.toggle_theme_button = SButtons("Dark Theme")
-
-        self.toggle_theme_button.clicked.connect(self.toggle_theme)
-        self.main_layout.addWidget(self.toggle_theme_button, alignment=Qt.AlignmentFlag.AlignCenter|Qt.AlignmentFlag.AlignTop) #TODO : remove this to let it be toggled by global dark theme, when ABCODIN will be done with UI implementation
-
+        self.main_layout.addLayout(buttons_layout)
         self.chart_view = QChartView()
         self.main_layout.addWidget(self.chart_view)
 
@@ -365,6 +374,32 @@ class GraphWindow(SMiniWindow):
             pixmap.save(file_path)
     """
 
+
+class ResultsInterpretationWindow(SMiniWindow):
+    def __init__(self):
+        super().__init__()
+        self.resize(700, 400)
+        self.data_interpretation_label = QLabel("Data Interpretation guidance :")
+        self.data_interpretation_label.setStyleSheet("font-size:24px;")
+        self.data_interpretation_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.meaningful_data_elems = QLabel()
+        self.meaningful_data_elems.setStyleSheet("color:grey;") #TODO : change this color to a more subtle white in the end
+        self.meaningful_data_elems.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.advice_label = QLabel("Our advice :")
+        self.advice_label.setStyleSheet("font-size:24px;")
+        self.advice_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.list_of_advices = QLabel()
+        self.list_of_advices.setStyleSheet("color:grey;")
+        self.list_of_advices.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        #TODO
+        self.main_layout.addWidget(self.data_interpretation_label)
+        self.main_layout.addWidget(self.meaningful_data_elems)
+        self.main_layout.addWidget(self.advice_label)
+        self.main_layout.addWidget(self.list_of_advices)
+        self.main_layout.addStretch()
+
+    def resize_dynamically(self, num_critical, num_suspicious):
+        self.resize(700, 350 + (num_critical * 20 + num_suspicious * 20))
 
 def simplify_path(file_path):
     parent_dir = os.path.basename(os.path.dirname(file_path))

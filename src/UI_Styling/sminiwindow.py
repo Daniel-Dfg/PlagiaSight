@@ -26,7 +26,7 @@ class SMiniWindow(QMainWindow):
         # Set Window to the center
         screen = self.screen().size()
         size = self.geometry()
-        self.move((screen.width() - size.width()) // 2 +100,(screen.height() - size.height())//2+100)
+        self.move((screen.width() - size.width()) // 2 - 50,(screen.height() - size.height())//2)
 
         # Window Flages
         self.setWindowFlags(Qt.FramelessWindowHint | Qt.CustomizeWindowHint)

@@ -6,7 +6,7 @@ from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
 from text_analysis import UnprocessableTextContent
 from .comparison_results import OneFileComparison, CrossCompare
-from .utilities import GraphWindow, DropArea, simplify_path
+from .utilities import GraphWindow, DropArea, simplify_path, ResultsInterpretationWindow
 from UI_Styling.filescontainer import FilesContainer
 from UI_Styling.sbuttons import SButtons
 from UI_Styling.sradiobuttons import SRadioButton
@@ -147,7 +147,7 @@ class Step1_FileDropAndCheck(QWidget):
             self.update_current_content_validity()
 
     def _browse_single_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select a file", "", "Text Files (*.txt);;PDF Files (*.pdf)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select a file (SUPPORTED : .txt / .pdf)", "", "Text Files (*.txt);;PDF Files (*.pdf)")
         if file_name:
             print("Selected file:", file_name)
             if self.drop_area.file_format_is_valid(file_name):
@@ -156,7 +156,7 @@ class Step1_FileDropAndCheck(QWidget):
                 self.update_current_content_validity()
             else:
                 pass
-                #self.show_warning("Please select only .txt files.")
+                #self.show_warning("Please select only .txt, .pdf files.")
 
     def add_file_to_correct_files_list_UI(self, file, file_is_valid=True):
         """
@@ -188,11 +188,15 @@ class Step1_FileDropAndCheck(QWidget):
 
     def remove_file(self, file, item, valid=True):
         if valid:
-            self.drop_area.correct_files.remove(file) #PROBLEM TODO : access to a public attribute !!
-            self.correct_files_list.takeItem(self.correct_files_list.row(item))
+            for f in self.drop_area.correct_files:
+                if f[len(f) - len(file):] == file:
+                    self.drop_area.correct_files.remove(f) #PROBLEM TODO : access to a public attribute !!
+                    self.correct_files_list.takeItem(self.correct_files_list.row(item))
         else:
-            self.drop_area.invalid_files.remove(file)
-            self.invalid_files_list.takeItem(self.invalid_files_list.row(item))
+            for f in self.drop_area.invalid_files:
+                if f[len(f) - len(file):] == file:
+                    self.drop_area.invalid_files.remove(f)
+                    self.invalid_files_list.takeItem(self.invalid_files_list.row(item))
         self.update_current_content_validity()
 
     @override #override of the default eventFilter provided by PySide6
@@ -209,6 +213,7 @@ class Step1_FileDropAndCheck(QWidget):
         self.main_window.stacked_widget.addWidget(self.main_window.step2_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step2_widget)
         self.main_window.help_window.expand_step(2)
+
 
 class Step2_AnalysisComplexityPick(QWidget):
     def __init__(self, main_window):
@@ -274,6 +279,7 @@ class Step2_AnalysisComplexityPick(QWidget):
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step3_widget)
         self.main_window.help_window.expand_step(3)
 
+
 class Step3_LoadResults(QWidget):
     done = Signal()
     def __init__(self, main_window, analysis_complexity):
@@ -284,7 +290,7 @@ class Step3_LoadResults(QWidget):
 
         layout = QVBoxLayout()
 
-        self.current_file_processed_label = QLabel("Processing: None")
+        self.current_file_processed_label = QLabel("Starting process...")
         self.current_file_processed_label.setStyleSheet("font-size:24px;")
         self.current_file_processed_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.current_file_processed_label)
@@ -317,33 +323,33 @@ class Step3_LoadResults(QWidget):
     def _process_files(self):
         valid_files_to_process = self.main_window.step1_widget.drop_area.correct_files
         if self.main_window.max_files_amount == 1:
-            #web scraping, etc
-            ...
             #CURRENT_TIME = time()
-            self.main_window.final_results = OneFileComparison(self.progress_bar, valid_files_to_process[0], self.analysis_complexity)
+            self.main_window.final_results = OneFileComparison(self.current_file_processed_label, progress_bar=self.progress_bar, source_file=valid_files_to_process[0], comparison_type=self.analysis_complexity)
             #print("OneFileComparison done in", time() - CURRENT_TIME)
+            self.check_for_problematic_files()
 
         else: #compare files between each other
             #CURRENT_TIME = time()
             self.main_window.final_results = CrossCompare(self.current_file_processed_label, progress_bar=self.progress_bar ,files_paths=valid_files_to_process, comparison_type=self.analysis_complexity)
-            if self.main_window.final_results.problematic_files :
-                ...
-                self.progress_bar.setVisible(False)
-                self.problematic_files_list.setVisible(True)
-                self.reset_button.setVisible(True)
-                for problematic_file in self.main_window.final_results.problematic_files:
-                    self.problematic_files_list.addItem(problematic_file[0])
-                    try:
-                        self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]).split(':')[2] + "\n\n") #trouver une solution + élégante
-                    except IndexError:
-                        self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]) + "\n\n")
-                self.current_file_processed_label.setText("Processing: Errors encountered")
-                #change
             #print("CrossCompare done in", time() - CURRENT_TIME)
-            else:
-                # Mark all as complete
-                self.current_file_processed_label.setText("Processing: Complete")
-                QTimer.singleShot(70, self.done.emit)
+            self.check_for_problematic_files()
+
+    def check_for_problematic_files(self):
+        if self.main_window.final_results.problematic_files:
+            self.progress_bar.setVisible(False)
+            self.problematic_files_list.setVisible(True)
+            self.reset_button.setVisible(True)
+            for problematic_file in self.main_window.final_results.problematic_files:
+                self.problematic_files_list.addItem(problematic_file[0])
+                try:
+                    self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]).split(':')[2] + "\n\n") #find smth more elegant...
+                except IndexError:
+                    self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]) + "\n\n")
+            self.current_file_processed_label.setText("Processing: Errors encountered")
+        else:
+            # Mark all as complete
+            self.current_file_processed_label.setText("Processing: Complete")
+            QTimer.singleShot(80, self.done.emit)
 
     def reset_process(self):
         self.main_window.final_results = None
@@ -353,7 +359,7 @@ class Step3_LoadResults(QWidget):
         self.main_window.step4_widget = Step4_DisplayResults(self.main_window)
         self.main_window.stacked_widget.addWidget(self.main_window.step4_widget)
         self.main_window.stacked_widget.setCurrentWidget(self.main_window.step4_widget)
-        self.main_window.help_window.expand_step(4)
+
 
 class Step4_DisplayResults(QWidget):
     def __init__(self, main_window):
@@ -401,12 +407,12 @@ class Step4_DisplayResults(QWidget):
 
         switch_button = SButtons()
         switch_button.setStyleSheet(switch_button.styleSheet().replace("background-color:#3E3182;", "background-color:#aeabc2;").replace("background-color:#382F9C;", "background-color:#cccad8;"))
-        switch_button.setFixedSize(110, 32)
-        switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
+        switch_button.setFixedSize(32, 32)
+        switch_button.setIcon(QIcon("Resources/ExcessFiles/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
         file_selection_layout.addWidget(switch_button)
 
-        label2 = QLabel("File2 :")
+        label2 = QLabel("File 2:")
         label2.setStyleSheet("font-size:24px;")
         right_side_selection_layout.addWidget(label2)
         right_side_selection_layout.addWidget(self.right_content_title, Qt.AlignmentFlag.AlignLeft)
@@ -456,21 +462,14 @@ class Step4_DisplayResults(QWidget):
 
             layout.addLayout(char_values_line_layout)
 
-        self.data_interpretation_label = QLabel("Data Interpretation guidance :")
-        self.data_interpretation_label.setStyleSheet("font-size=24px;")
-        self.data_interpretation_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.meaningful_data_elems = QListWidget()
-        self.meaningful_data_elems.setStyleSheet("color:grey;") #TODO : change this color to a more subtle white in the end
-        self.advice_label = QLabel("Our advice :")
-        self.advice_label.setStyleSheet("font-size:24px;")
-        self.advice_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.list_of_advices = QListWidget()
-        self.list_of_advices.setStyleSheet("color:grey;")
-
-        layout.addWidget(self.data_interpretation_label)
-        layout.addWidget(self.meaningful_data_elems)
-        layout.addWidget(self.advice_label)
-        layout.addWidget(self.list_of_advices)
+        results_interpretation_layout = QHBoxLayout()
+        self.main_window.results_interpretation_window = ResultsInterpretationWindow()
+        self.results_interpretation_button = SButtons("See results interpretation")
+        self.results_interpretation_button.clicked.connect(self.main_window.results_interpretation_window.show)
+        self.results_interpretation_button.setFixedSize(250, 40)
+        results_interpretation_layout.addWidget(self.results_interpretation_button)
+        results_interpretation_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addLayout(results_interpretation_layout)
 
         bottom_layout = QHBoxLayout()
         graph_view_button = SButtons("View Graph")
@@ -483,7 +482,7 @@ class Step4_DisplayResults(QWidget):
         bottom_layout.addWidget(self.reset_button, alignment=Qt.AlignmentFlag.AlignLeft)
         layout.addLayout(bottom_layout)
         self._sync_comboboxes(self.left_content_title)
-        #self._sync_comboboxes(self.right_content_title)
+        self._sync_comboboxes(self.right_content_title)
 
 
     def _reset_process_entirely(self):
@@ -517,20 +516,19 @@ class Step4_DisplayResults(QWidget):
         """
         #TODO !
         This function is barely a skeleton of what it's supposed to be.
-        It's only a temporary solution while we're crafting a more comprehensive, LLM-based conclusion maker that
-        should notably provide context awareness (it's currently being worked on, indeed !).
+        It's only a temporary solution while we're crafting a more comprehensive, context-aware LLM-based solution.
 
         If there's a spot to work on in this code, it's here !
         """
         #these thresholds will probably be redefined with experience #TODO
-        critical_thresholds_indiv_characteristics = {"Text Richness" : 0.9, "average sentence length" : 0.85, "median sentence length" : 0.8} #Keys = INDIV_CHARACTERISTICS
-        suspicious_thresholds_indiv_characteristics = {"Text Richness" : 0.8, "average sentence length" : 0.75, "median sentence length" : 0.7}
-        critical_thresholds_common_characteristics = {"Cosine sim (words)" : 0.9, "Jaccard sim (words)" : 0.9 , "Cosine sim (pos)" : 0.95, "Jaccard sim (pos)" : 0.95} #Keys = COMMON_CHARS_COMPLEX
-        suspicious_thresholds_common_characteristics = {"Cosine sim (words)" : 0.65, "Jaccard sim (words)" : 0.65 , "Cosine sim (pos)" : 0.8, "Jaccard sim (pos)" : 0.8}
+        critical_thresholds_indiv_characteristics = {"Text Richness" : 0.975, "average sentence length" : 0.9, "median sentence length" : 0.9} #Keys = INDIV_CHARACTERISTICS
+        suspicious_thresholds_indiv_characteristics = {"Text Richness" : 0.875, "average sentence length" : 0.825, "median sentence length" : 0.825}
+        critical_thresholds_common_characteristics = {"Cosine sim (words)" : 0.8, "Jaccard sim (words)" : 0.8, "Cosine sim (pos)" : 0.95, "Jaccard sim (pos)" : 0.95} #Keys = COMMON_CHARS_COMPLEX
+        suspicious_thresholds_common_characteristics = {"Cosine sim (words)" : 0.6, "Jaccard sim (words)" : 0.6, "Cosine sim (pos)" : 0.8, "Jaccard sim (pos)" : 0.8}
 
         critical_results = []
         suspicious_results = []
-        plagiarism_score = 0 #pretty arbitrairy, will be to change too...
+        plagiarism_score = 0 #pretty arbitrairy...
         structural_similarity = 0
         words_similarity = 0
         for char in sorted(individual_results.keys()):
@@ -540,7 +538,7 @@ class Step4_DisplayResults(QWidget):
                 plagiarism_score += 2
                 structural_similarity += 1
             elif ratio >= suspicious_thresholds_indiv_characteristics[char]:
-                suspicious_results.append(char)
+                suspicious_results.append("Ratio (min/max) for " + char)
                 plagiarism_score += 1
                 structural_similarity += 1
         for char in sorted(common_results.keys()):
@@ -559,40 +557,42 @@ class Step4_DisplayResults(QWidget):
                 else:
                     structural_similarity += 1
 
-        self.meaningful_data_elems.clear()
-        self.list_of_advices.clear()
-        if critical_results:
-            self.meaningful_data_elems.addItem("The following values seem to show critical levels of plagiarism :")
-            for critical_element in critical_results:
-                self.meaningful_data_elems.addItem("\t⤷" + critical_element + "\n")
-                ...
-        if suspicious_results:
-            self.meaningful_data_elems.addItem("\n\nThe following values allow us to suspect that there's some plagiarism here :")
-            for suspicious_element in suspicious_results:
-                self.meaningful_data_elems.addItem("\t⤷" + suspicious_element + "\n")
-        if not critical_results and not suspicious_results:
-            self.data_interpretation_label.setVisible(False)
-            self.meaningful_data_elems.addItem("\nNo suspicious values have been detected.")
-        else:
-            self.data_interpretation_label.setVisible(True)
+        self.main_window.results_interpretation_window.meaningful_data_elems.clear()
+        self.main_window.results_interpretation_window.list_of_advices.clear()
 
+        data_elems_text = ""
+        if critical_results:
+            data_elems_text+= "Critical plagiarism indicators :\n\t⤷" + '\n\t⤷'.join([c for c in critical_results])
+        if suspicious_results:
+            data_elems_text +=  "\nPotential plagiarism indicators :\n\t⤷" + '\n\t⤷'.join([s for s in suspicious_results])
+
+        if not critical_results and not suspicious_results:
+            self.main_window.results_interpretation_window.data_interpretation_label.setVisible(False)
+            self.main_window.results_interpretation_window.meaningful_data_elems.setText("\nNo suspicious values have been detected.")
+        else:
+            self.main_window.results_interpretation_window.data_interpretation_label.setVisible(True)
+            self.main_window.results_interpretation_window.meaningful_data_elems.setText(data_elems_text)
+
+        advice_text = ""
         if plagiarism_score >= 5:
             ...
-            self.list_of_advices.addItem("Our computations seem to reveal high levels of plagiarism.\n")
+            advice_text += "\nHigh plagiarism likelihood detected.\n"
             if structural_similarity >= 2:
-                self.list_of_advices.addItem("Notable similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n")
+                advice_text += "\nMajor similarities have been found on a structural level.\nConsider varying sentence structures and vocabulary.\n"
             if words_similarity > 1:
-                self.list_of_advices.addItem("Major similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n")
+                advice_text += "\nMajor similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
         elif plagiarism_score >= 3:
-            self.list_of_advices.addItem("Our computations seem to reveal moderate levels of plagiarism.\n")
+            advice_text += "\nOur computations seem to reveal moderate levels of plagiarism.\n"
             ...
             if structural_similarity >= 1:
-                self.list_of_advices.addItem("Some similarities have been found on a structural level.\nWe suggest to change things like the diversity of your vocabulary, sentence lengths, etc.\n")
+                advice_text += "\nSome similarities have been found on a structural level.\nWe suggest to rework your text by taking the aforementioned problematic stats into account.\n"
             if words_similarity > 0:
-                self.list_of_advices.addItem("Some similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n")
+                advice_text += "\nSome similarities have been found on the words used in both texts.\nWe suggest to change the vocabulary used to start editing your text.\n"
         else:
-            self.list_of_advices.addItem("Our computations don't reveal that there's much plagiarism here.\n")
-        self.list_of_advices.addItem("Whatshowever, make sure to take a look at the graphs ('Graphs' button) to refine your judgement.\n")
+            advice_text += "Low plagiarism likelihood detected.\n"
+        advice_text += "\nWhatshowever, please look at the graphs ('Graphs' button) to refine your judgement.\n"
+        self.main_window.results_interpretation_window.list_of_advices.setText(advice_text)
+        self.main_window.results_interpretation_window.resize_dynamically(len(critical_results), len(suspicious_results))
 
 
     def _sync_comboboxes(self, changed_combobox):
@@ -649,6 +649,7 @@ class Step4_DisplayResults(QWidget):
         return graphs_data
 
     def _view_graph(self):
+        self.main_window.help_window.expand_step(4)
         graphs_data = self._prepare_graphs_data()
         self.main_window.graph_window = GraphWindow()
 

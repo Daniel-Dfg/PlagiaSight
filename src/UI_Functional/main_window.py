@@ -9,13 +9,6 @@ from UI_Styling.userTools import UserTools
 class MainWindow(SMainWindow):
     def __init__(self):
         super().__init__()
-        w = self.screen().size().width()
-        h = self.screen().size().height()
-
-        #Window can't be resized more then that
-        self.setMinimumSize(int(w/1.8), int(h/1.1))
-        #Main Layout
-        self.setWindowTitle("PlagiaSight")
 
         self.stacked_widget = QStackedWidget()
         self.step0_widget = Step0_WelcomingMessage(self)
@@ -42,7 +35,6 @@ class MainWindow(SMainWindow):
     def init_sub_windows(self):
         self.get_in_touch_window = GetInTouchWindow()
         self.help_window = HelpWindow()
-        self.get_in_touch_window.full_init()
 
     def toggle_GetInTouchWindow(self):
         if self.get_in_touch_window is not None:
