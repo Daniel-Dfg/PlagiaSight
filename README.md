@@ -14,7 +14,7 @@ Our tool aims to keep results clear and *interpretable* (so : the tool won't dra
 
 
 # 📽️ Application Demo
-[insert GIFs...]
+![Alt text](/Resources/ExcessFiles/Demo.gif?raw=true)
 
 
 
@@ -28,25 +28,34 @@ Welcome ! Please follow these **installation instructions** :
 First, install and unzip [**our latest release**](link here). Then:
 
 - **Windows**
-<ul>
-In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal** **(cmd/Powershell on Windows)**.
 
-In other words, open your cmd/Powershell and type this :
-```bash
-path\to\plagiasight_folder\PlagiaSight_Windows.bat (commande à corriger)
-```
-If it fails, please retry while being in administrator mode.
-</ul>
+    In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal** (cmd/Powershell on Windows).
+
+
+    In other words, you open your cmd/Powershell and type this :
+    
+    ```bash
+    path\to\plagiasight_folder\PlagiaSight_Windows.bat
+    ```
+    Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal".
+
+
+    If it fails, please retry while being in administrator mode.
 
 - **MacOS / Linux**
-<ul>
-In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI**.
-In other words, open your terminal/CLI and type this :
-- Mac : `path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh` (commande à corriger)
-- Linux : `path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`
 
-If it fails, retry the process in in `sudo/superuser` mode (e.g type `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`).
-</ul>
+
+    In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI**.
+    
+    
+    In other words, open your terminal/CLI and type this :
+    ```py
+    path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh
+    ```
+
+    If it fails, retry the process in in `sudo/superuser` mode (e.g type `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`).
+
+
 
 
 
@@ -62,10 +71,13 @@ We're always glad to see new contributors ! Here's a roadmap to get you started 
 
 **1) MANIFESTO** : The #1 thing you must read before contributing is [our short **manifesto**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md). 
 
+
 It contains the principles guiding PlagiaSight's developement, the structure of our codebase, and much more. In essence, it is the map that will guide you when you'll browse through the project's files.
 
 
+
 **2) FIRST PULL REQUEST** : Once you read and understood the manifesto, take a look at the codebase. [Make a Pull Request](https://github.com/LUCKYINS/PlagiarismDetectionProject/pulls) or [Open an Issue](https://github.com/LUCKYINS/PlagiarismDetectionProject/issues) if you spot any areas for improvement. 
+
 
 We encourage you to contribute, even if your Pull Request gets closed without being implemented : in PlagiaSight's case, *it's better to try and fail to improve something rather than be scared to tell that something's wrong*.
 
