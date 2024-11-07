@@ -12,6 +12,8 @@ from UI_Styling.sdroparea import SDropArea
 from UI_Styling.smainwindow import SMainWindow
 from UI_Styling.sminiwindow import SMiniWindow
 from UI_Styling.sbuttons import SButtons
+
+
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
 
 
@@ -175,7 +177,7 @@ class GetInTouchWindow(SMiniWindow):
         all_socials = sorted(kwargs.keys())
         for social in all_socials:
             button = SButtons()
-            button.setIcon(QIcon(f"Resources/ExcessFiles/UI_elements/{social}_icon.png"))
+            button.setIcon(QIcon(os.path.join("Resources", "ExcessFiles", "UI_elements", f"{social}_icon.png")))
             button.setIconSize(QSize(32, 32))
             button.clicked.connect(lambda _, link=kwargs[social]: webbrowser.open(link))
             contact_header_layout.addWidget(button)
@@ -243,7 +245,7 @@ class GraphWindow(SMiniWindow):
         self.previous_button = SButtons("Previous")
         self.previous_button.clicked.connect(self.show_previous_graph)
         self.toggle_theme_button = SButtons()
-        self.toggle_theme_button.setIcon(QIcon(f"Resources/ExcessFiles/UI_elements/moon_icon.png"))
+        self.toggle_theme_button.setIcon(QIcon(os.path.join("Resources", "ExcessFiles", "UI_elements", "switch_icon.png")))
         self.toggle_theme_button.setFixedSize(50, 50)
         self.toggle_theme_button.setStyleSheet("background-color:white;")
         self.next_button = SButtons("Next")

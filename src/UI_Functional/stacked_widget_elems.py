@@ -10,6 +10,7 @@ from .utilities import GraphWindow, DropArea, simplify_path, ResultsInterpretati
 from UI_Styling.filescontainer import FilesContainer
 from UI_Styling.sbuttons import SButtons
 from UI_Styling.sradiobuttons import SRadioButton
+import os
 
 #from time import time
 
@@ -408,7 +409,7 @@ class Step4_DisplayResults(QWidget):
         switch_button = SButtons()
         switch_button.setStyleSheet(switch_button.styleSheet().replace("background-color:#3E3182;", "background-color:#aeabc2;").replace("background-color:#382F9C;", "background-color:#cccad8;"))
         switch_button.setFixedSize(32, 32)
-        switch_button.setIcon(QIcon("Resources/ExcessFiles/UI_elements/switch_icon.png"))
+        switch_button.setIcon(QIcon(os.path.join("Resources", "ExcessFiles", "UI_elements", "switch_icon.png")))
         switch_button.clicked.connect(self._switch_contents)
         file_selection_layout.addWidget(switch_button)
 
