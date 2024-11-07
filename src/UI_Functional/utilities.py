@@ -238,14 +238,14 @@ class GetInTouchWindow(SMiniWindow):
 class GraphWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(900, 650)
+        self.setFixedSize(700, 500)
         self.is_dark_mode = False
 
         buttons_layout = QHBoxLayout()
         self.previous_button = SButtons("Previous")
         self.previous_button.clicked.connect(self.show_previous_graph)
         self.toggle_theme_button = SButtons()
-        self.toggle_theme_button.setIcon(QIcon(os.path.join("Resources", "ExcessFiles", "UI_elements", "switch_icon.png")))
+        self.toggle_theme_button.setIcon(QIcon(os.path.join("Resources", "ExcessFiles", "UI_elements", "moon_icon.png")))
         self.toggle_theme_button.setFixedSize(50, 50)
         self.toggle_theme_button.setStyleSheet("background-color:white;")
         self.next_button = SButtons("Next")
@@ -347,7 +347,7 @@ class GraphWindow(SMiniWindow):
             self.show_graph(self.graph_names[self.current_graph_index])
     def toggle_theme(self):
             self.is_dark_mode = not self.is_dark_mode
-            self.show_graph(self.graph_names[self.current_graph_index])  # Recharger le graphique pour appliquer le thème
+            self.show_graph(self.graph_names[self.current_graph_index])
 
     def apply_theme(self, chart):
         if self.is_dark_mode:
