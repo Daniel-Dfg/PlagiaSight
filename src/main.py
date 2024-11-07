@@ -19,6 +19,7 @@ if __name__ == "__main__":
     window.show()
     window.raise_()
     #print(f"Startup time: {time()-CURRENT_TIME}")
+    #Bonjour
     qapp.exec()
     temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
     for filename in os.listdir(temp_dir):
