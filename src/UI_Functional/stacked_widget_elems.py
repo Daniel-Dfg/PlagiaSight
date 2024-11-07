@@ -188,11 +188,15 @@ class Step1_FileDropAndCheck(QWidget):
 
     def remove_file(self, file, item, valid=True):
         if valid:
-            self.drop_area.correct_files.remove(file) #PROBLEM TODO : access to a public attribute !!
-            self.correct_files_list.takeItem(self.correct_files_list.row(item))
+            for f in self.drop_area.correct_files:
+                if f[len(f) - len(file):] == file:
+                    self.drop_area.correct_files.remove(f) #PROBLEM TODO : access to a public attribute !!
+                    self.correct_files_list.takeItem(self.correct_files_list.row(item))
         else:
-            self.drop_area.invalid_files.remove(file)
-            self.invalid_files_list.takeItem(self.invalid_files_list.row(item))
+            for f in self.drop_area.invalid_files:
+                if f[len(f) - len(file):] == file:
+                    self.drop_area.invalid_files.remove(f)
+                    self.invalid_files_list.takeItem(self.invalid_files_list.row(item))
         self.update_current_content_validity()
 
     @override #override of the default eventFilter provided by PySide6
@@ -286,7 +290,7 @@ class Step3_LoadResults(QWidget):
 
         layout = QVBoxLayout()
 
-        self.current_file_processed_label = QLabel("Processing: None")
+        self.current_file_processed_label = QLabel("Starting process...")
         self.current_file_processed_label.setStyleSheet("font-size:24px;")
         self.current_file_processed_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.current_file_processed_label)
@@ -319,33 +323,33 @@ class Step3_LoadResults(QWidget):
     def _process_files(self):
         valid_files_to_process = self.main_window.step1_widget.drop_area.correct_files
         if self.main_window.max_files_amount == 1:
-            #web scraping, etc
-            ...
             #CURRENT_TIME = time()
-            self.main_window.final_results = OneFileComparison(self.progress_bar, valid_files_to_process[0], self.analysis_complexity)
+            self.main_window.final_results = OneFileComparison(self.current_file_processed_label, progress_bar=self.progress_bar, source_file=valid_files_to_process[0], comparison_type=self.analysis_complexity)
             #print("OneFileComparison done in", time() - CURRENT_TIME)
+            self.check_for_problematic_files()
 
         else: #compare files between each other
             #CURRENT_TIME = time()
             self.main_window.final_results = CrossCompare(self.current_file_processed_label, progress_bar=self.progress_bar ,files_paths=valid_files_to_process, comparison_type=self.analysis_complexity)
-            if self.main_window.final_results.problematic_files :
-                ...
-                self.progress_bar.setVisible(False)
-                self.problematic_files_list.setVisible(True)
-                self.reset_button.setVisible(True)
-                for problematic_file in self.main_window.final_results.problematic_files:
-                    self.problematic_files_list.addItem(problematic_file[0])
-                    try:
-                        self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]).split(':')[2] + "\n\n") #trouver une solution + élégante
-                    except IndexError:
-                        self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]) + "\n\n")
-                self.current_file_processed_label.setText("Processing: Errors encountered")
-                #change
             #print("CrossCompare done in", time() - CURRENT_TIME)
-            else:
-                # Mark all as complete
-                self.current_file_processed_label.setText("Processing: Complete")
-                QTimer.singleShot(80, self.done.emit)
+            self.check_for_problematic_files()
+
+    def check_for_problematic_files(self):
+        if self.main_window.final_results.problematic_files:
+            self.progress_bar.setVisible(False)
+            self.problematic_files_list.setVisible(True)
+            self.reset_button.setVisible(True)
+            for problematic_file in self.main_window.final_results.problematic_files:
+                self.problematic_files_list.addItem(problematic_file[0])
+                try:
+                    self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]).split(':')[2] + "\n\n") #find smth more elegant...
+                except IndexError:
+                    self.problematic_files_list.addItem("\t⤷" + str(problematic_file[1]) + "\n\n")
+            self.current_file_processed_label.setText("Processing: Errors encountered")
+        else:
+            # Mark all as complete
+            self.current_file_processed_label.setText("Processing: Complete")
+            QTimer.singleShot(80, self.done.emit)
 
     def reset_process(self):
         self.main_window.final_results = None
@@ -404,7 +408,7 @@ class Step4_DisplayResults(QWidget):
         switch_button = SButtons()
         switch_button.setStyleSheet(switch_button.styleSheet().replace("background-color:#3E3182;", "background-color:#aeabc2;").replace("background-color:#382F9C;", "background-color:#cccad8;"))
         switch_button.setFixedSize(32, 32)
-        switch_button.setIcon(QIcon("Resources/Excess Files/UI_elements/switch_icon.png"))
+        switch_button.setIcon(QIcon("Resources/ExcessFiles/UI_elements/switch_icon.png"))
         switch_button.clicked.connect(self._switch_contents)
         file_selection_layout.addWidget(switch_button)
 

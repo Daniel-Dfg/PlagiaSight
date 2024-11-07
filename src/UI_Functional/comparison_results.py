@@ -2,12 +2,14 @@ from .utilities import simplify_path
 from text_analysis import Tokenizer, TokensComparisonAlgorithms, TokensStatsAndRearrangements, extract_raw_from_file, dataclass, field
 from web_scraper import URLs, HtmlText
 from PySide6.QtWidgets import QLabel, QProgressBar
+from PySide6.QtCore import QTimer
 import os # to get the file format
 #from time import time
 
+#NOTE : the OneFileComparison and CrossCompare classes share (too) many things in common, they could benefit from being grouped into a single class (with eventual derivatives)
 
 #CURRENT_TIME = time()
-GATHERED_URLS = 1
+GATHERED_URLS = 2
 
 @dataclass
 class OneFileComparison:
@@ -15,28 +17,45 @@ class OneFileComparison:
     - Used when 1 file is provided (step 0)
     - In charge of web scraping and analysis with the resulting texts.
     """
+    current_status_label : QLabel
     progress_bar : QProgressBar
     source_file : str # file path
     comparison_type : str # either "simple" or "complex"
+    problematic_files : list[tuple[str, Exception]] = field(init=False, repr=False, default_factory=list)
     content_stats : dict[str, TokensStatsAndRearrangements] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TSAR]
     comparison_with : dict[str, TokensComparisonAlgorithms] = field(init=False, repr=False, default_factory=dict) #dict[site_name, TPA]
 
     def __post_init__(self):
         #TODO : make this more explicit
+        QTimer.singleShot(80, lambda : self.current_status_label.setText("Processing source file..."))
+        progress_bar_small_increment = 15
+        progress_bar_big_increment = 30
         file_format = os.path.splitext(self.source_file)[1][1:]
-        self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file, file_format)))
+        try:
+            self.content_stats[self.source_file] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(self.source_file, file_format)))
+        except Exception as e:
+            self.problematic_files.append((self.source_file, e))
+            return #bad practice...
+        self.current_status_label.setText("Extracting keywords from source text...")
         source_file_keywords = {k: v for k, v in sorted(self.content_stats[self.source_file].syntagms_scores.items(), key=lambda item: item[1], reverse=True)[:1]}
-        print(source_file_keywords.keys())
+
         for keyword in source_file_keywords.keys():
+            self.current_status_label.setText("Gathering URLs for the extracted keywords,\n this can take some time...")
             u = URLs(keyword, GATHERED_URLS)
             associated_urls = u.response_array
+            self.current_status_label.setText(f"Found the necessary URLs !")
+            self.progress_bar.setValue(self.progress_bar.value() + progress_bar_big_increment)
             for response in associated_urls:
                 site_name = response.url
                 text = HtmlText(response).makeTempText()
-                self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(text))
-                self.comparison_with[site_name] = TokensComparisonAlgorithms(self.content_stats[self.source_file], self.content_stats[site_name])
+                self.current_status_label.setText(f"Computing similarity values between source file and {site_name}")
+                try:
+                    self.content_stats[site_name] = TokensStatsAndRearrangements(Tokenizer(text))
+                    self.comparison_with[site_name] = TokensComparisonAlgorithms(self.content_stats[self.source_file], self.content_stats[site_name])
+                except Exception as e:
+                    self.problematic_files.append((site_name, e))
+                self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
 
-        ...
     def get_comparison(self, to_be_compared: str) -> TokensComparisonAlgorithms:
         if to_be_compared in self.comparison_with:
             return self.comparison_with[to_be_compared]
@@ -66,11 +85,10 @@ class CrossCompare:
         if self.comparison_type not in ["simple", "complex"]:
             raise ValueError(f"Invalid comparison type. Must be either 'simple' or 'complex'. It is currently {self.comparison_type}.")
 
-        #print(self.files_paths, "FILES PATHS")
         self.progress_bar.setValue(0)
         #CURRENT_TIME = time()
         file_counter = 1
-        for file in self.files_paths: #Linear treatment, could benefit from parallelization once I get how to do it
+        for file in self.files_paths: #Linear treatment, could benefit from parallelization
             simplified_path = simplify_path(file)
             file_format = os.path.splitext(file)[1][1:]
             self.current_file_processed_label.setText(f"Processing {simplified_path} ({file_counter}/{len(self.files_paths)})")
@@ -78,7 +96,6 @@ class CrossCompare:
                 self.content_stats[simplified_path] = TokensStatsAndRearrangements(Tokenizer(extract_raw_from_file(file, file_format))) #BOTTLENECK
             except Exception as e:
                 self.problematic_files.append((simplified_path, e))
-                ... #do what's needed visually, interrupt the process entirely ? Or maybe keep going to look for all invalid files at once ?
             self.progress_bar.setValue(self.progress_bar.value() + progress_bar_small_increment)
             file_counter += 1
         #print("Stats generation time:", time() - CURRENT_TIME)
