@@ -1,7 +1,6 @@
 ![Alt text](/Resources/ExcessFiles/TitleImage.png?raw=true)
 
-TODO : Add badges from [shields.io](https://shields.io/)
-![Static Badge](https://img.shields.io/badge/FOSS-black)
+![Static Badge](https://img.shields.io/badge/FOSS-white)
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
 # 🤔 Why PlagiaSight ?
@@ -30,22 +29,28 @@ First, install and unzip [**our latest release**](link here). Then:
 
 - **Windows**
 <ul>
-In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal (cmd/Powershell on Windows)** (in administrator mode). 
+In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal** **(cmd/Powershell on Windows)**.
 
 In other words, open your cmd/Powershell and type this :
 ```bash
-sudo path/to/plagiasight_folder/PlagiaSight_Windows.bat (commande à corriger)
+path\to\plagiasight_folder\PlagiaSight_Windows.bat (commande à corriger)
 ```
+If it fails, please retry while being in administrator mode.
 </ul>
 
 - **MacOS / Linux**
-
-In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI** (in `sudo/superuser` mode).
+<ul>
+In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI**.
 In other words, open your terminal/CLI and type this :
-- Mac : `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh` (commande à corriger)
-- Linux : `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`
+- Mac : `path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh` (commande à corriger)
+- Linux : `path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`
 
-If you have trouble executing any of these steps, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
+If it fails, retry the process in in `sudo/superuser` mode (e.g type `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`).
+</ul>
+
+
+
+*If you have trouble executing any of these steps*, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 </ul>
 
@@ -68,9 +73,12 @@ We encourage you to contribute, even if your Pull Request gets closed without be
 
 **3) OTHER DOCUMENTATION** : Suggesting new features is often challenging, notably because predicting how *useful* a new feature will be is not an exact science. In order to maximize the chances to see your idea being approved, please check out the [resources that inspired us](https://github.com/LUCKYINS/PlagiarismDetectionProject/tree/main/Resources/Learning%20Material) first, and consider contributing there if it seems to align with the project's vision.
 
+
 But we can't stress enough the idea that, in order to propose new features that have a chance of being useful, *you should take a peek at the documentation directly present in the project to understand all contributors' vision first*. This will help ensure your proposals are cohesive with the project's goals.
 
-If you have questions or concerns regarding contributions, feel free to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
+
+
+*If you have questions or concerns regarding contributions*, feel free to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 </ul>
 
