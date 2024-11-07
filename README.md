@@ -1,12 +1,10 @@
 ![Alt text](/Resources/ExcessFiles/TitleImage.png?raw=true)
 
 TODO : Add badges from [shields.io](https://shields.io/)
-
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
+![Static Badge](https://img.shields.io/badge/FOSS-black)
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-[![AGPL License](https://img.shields.io/badge/license-AGPL-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
 
-# 🤔 Why does it exist ?
+# 🤔 Why PlagiaSight ?
 Too many existing "plagiarism detection" tools just output a rather meaningless "plagiarism percentage" when the user provides them text. 
 
 We decided to adress this issue by ourselves, by creating an app that would provide comprehensive insights by analyzing given text(s) under different perspectives, hence the existence of PlagiaSight !
@@ -23,17 +21,35 @@ Our tool aims to keep results clear and *interpretable* (so : the tool won't dra
 
 
 # 💡 Do you want... 
-- 	<ins>**To GET STARTED using PlagiaSight ?**	</ins>
+- ⬇️	<ins>**To GET STARTED using PlagiaSight ?**	</ins>
 <ul>
 
 Welcome ! Please follow these **installation instructions** :
-[installations instructions...]
+
+First, install and unzip [**our latest release**](link here). Then:
+
+- **Windows**
+<ul>
+In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal (cmd/Powershell on Windows)** (in administrator mode). 
+
+In other words, open your cmd/Powershell and type this :
+```bash
+sudo path/to/plagiasight_folder/PlagiaSight_Windows.bat (commande à corriger)
+```
+</ul>
+
+- **MacOS / Linux**
+
+In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI** (in `sudo/superuser` mode).
+In other words, open your terminal/CLI and type this :
+- Mac : `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh` (commande à corriger)
+- Linux : `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`
 
 If you have trouble executing any of these steps, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 </ul>
 
-- 	<ins>**To CONTRIBUTE to the developement of PlagiaSight ?**	</ins>
+- 🤝 <ins>**To CONTRIBUTE to the developement of PlagiaSight ?**	</ins>
 <ul>
 
 We're always glad to see new contributors ! Here's a roadmap to get you started : 
