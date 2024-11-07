@@ -84,6 +84,7 @@ class CrossCompare:
         self.comparisons = {}
         if self.comparison_type not in ["simple", "complex"]:
             raise ValueError(f"Invalid comparison type. Must be either 'simple' or 'complex'. It is currently {self.comparison_type}.")
+            #hello
 
         self.progress_bar.setValue(0)
         #CURRENT_TIME = time()
