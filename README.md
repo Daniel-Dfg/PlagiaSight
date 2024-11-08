@@ -67,7 +67,14 @@ First, install and unzip [**our latest release**](link here). Then:
 
 *If you have trouble executing any of these steps*, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
+
+
+
+If you currently don't have data to test PlagiaSight with, you can find some of our [sample data](https://github.com/LUCKYINS/PlagiarismDetectionProject/tree/main/Resources/Sample%20Data)
+
 </ul>
+
+
 
 - 🤝 <ins>**To CONTRIBUTE to the developement of PlagiaSight ?**	</ins>
 <ul>
