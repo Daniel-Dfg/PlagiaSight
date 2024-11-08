@@ -464,9 +464,9 @@ class Step4_DisplayResults(QWidget):
             layout.addLayout(char_values_line_layout)
 
         results_interpretation_layout = QHBoxLayout()
-        self.main_window.results_interpretation_window = ResultsInterpretationWindow()
+        self.main_window.results_window = ResultsInterpretationWindow()
         self.results_interpretation_button = SButtons("See results interpretation")
-        self.results_interpretation_button.clicked.connect(self.main_window.results_interpretation_window.show)
+        self.results_interpretation_button.clicked.connect(self.main_window.results_window.show)
         self.results_interpretation_button.setFixedSize(250, 40)
         results_interpretation_layout.addWidget(self.results_interpretation_button)
         results_interpretation_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -558,8 +558,8 @@ class Step4_DisplayResults(QWidget):
                 else:
                     structural_similarity += 1
 
-        self.main_window.results_interpretation_window.meaningful_data_elems.clear()
-        self.main_window.results_interpretation_window.list_of_advices.clear()
+        self.main_window.results_window.meaningful_data_elems.clear()
+        self.main_window.results_window.list_of_advices.clear()
 
         data_elems_text = ""
         if critical_results:
@@ -568,11 +568,11 @@ class Step4_DisplayResults(QWidget):
             data_elems_text +=  "\nPotential plagiarism indicators :\n\t⤷" + '\n\t⤷'.join([s for s in suspicious_results])
 
         if not critical_results and not suspicious_results:
-            self.main_window.results_interpretation_window.data_interpretation_label.setVisible(False)
-            self.main_window.results_interpretation_window.meaningful_data_elems.setText("\nNo suspicious values have been detected.")
+            self.main_window.results_window.data_interpretation_label.setVisible(False)
+            self.main_window.results_window.meaningful_data_elems.setText("\nNo suspicious values have been detected.")
         else:
-            self.main_window.results_interpretation_window.data_interpretation_label.setVisible(True)
-            self.main_window.results_interpretation_window.meaningful_data_elems.setText(data_elems_text)
+            self.main_window.results_window.data_interpretation_label.setVisible(True)
+            self.main_window.results_window.meaningful_data_elems.setText(data_elems_text)
 
         advice_text = ""
         if plagiarism_score >= 5:
@@ -592,8 +592,8 @@ class Step4_DisplayResults(QWidget):
         else:
             advice_text += "Low plagiarism likelihood detected.\n"
         advice_text += "\nWhatshowever, please look at the graphs ('Graphs' button) to refine your judgement.\n"
-        self.main_window.results_interpretation_window.list_of_advices.setText(advice_text)
-        self.main_window.results_interpretation_window.resize_dynamically(len(critical_results), len(suspicious_results))
+        self.main_window.results_window.list_of_advices.setText(advice_text)
+        self.main_window.results_window.resize_dynamically(len(critical_results), len(suspicious_results))
 
 
     def _sync_comboboxes(self, changed_combobox):

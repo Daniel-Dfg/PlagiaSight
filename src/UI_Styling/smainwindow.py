@@ -16,6 +16,7 @@ class SMainWindow(QMainWindow):
         self.get_in_touch_window = None
         self.help_window = None
         self.graph_window = None
+        self.results_window = None
         self.setStyleSheet("""
                             *{
                             background-color: rgba(0,0, 0, 0);
@@ -96,3 +97,5 @@ class SMainWindow(QMainWindow):
             self.help_window.close()
         if (self.graph_window):
             self.graph_window.close()
+        if (self.results_window):
+            self.results_window.close()
