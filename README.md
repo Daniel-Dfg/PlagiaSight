@@ -27,6 +27,25 @@ Welcome ! Please follow these **installation instructions** :
 
 First, install and unzip [**our latest release**](link here). Then:
 
+- **MacOS / Linux**
+
+
+    In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI the first time**.
+
+
+    In other words, open your terminal/CLI and type this :
+    ```py
+    path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh
+    ```
+    Or just right click on the file and select the option to run it in your terminal. The first time, it can take up to 2-3 minutes to download everything and launch the app, depending of your internet connection.
+
+    If it fails, retry the process in in `sudo/superuser` mode (e.g type `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`).
+
+
+    The next time you'll want to run PlagiaSight, just run `PlagiaSight_MacOS_Linux.sh` (not necessarily in your terminal), and it should launch in seconds :)
+
+
+
 - **Windows**
 
     In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal the first time** (cmd/Powershell on Windows).
@@ -45,22 +64,6 @@ First, install and unzip [**our latest release**](link here). Then:
 
     The next time you'll want to run PlagiaSight, just run `PlagiaSight_Windows.bat` (not necessarily in your terminal), and it should launch in seconds :)
 
-- **MacOS / Linux**
-
-
-    In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI the first time**.
-
-
-    In other words, open your terminal/CLI and type this :
-    ```py
-    path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh
-    ```
-    Or just right click on the file and select the option to run it in your terminal. The first time, it can take up to 2-3 minutes to download everything and launch the app, depending of your internet connection.
-
-    If it fails, retry the process in in `sudo/superuser` mode (e.g type `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`).
-
-
-    The next time you'll want to run PlagiaSight, just run `PlagiaSight_MacOS_Linux.sh` (not necessarily in your terminal), and it should launch in seconds :)
 
 
 
