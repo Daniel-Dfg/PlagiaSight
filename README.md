@@ -65,7 +65,7 @@ First, install and unzip [**our latest release**](link here). Then:
     The next time you'll want to run PlagiaSight, just run `PlagiaSight_Windows.bat` (not necessarily in your terminal), and it should launch in seconds :)
 
 
-
+IMPORTANT : after you unzipped and executed the release you donwloaded for the first time, a folder named `venv` will appear. If you wish to move PlagiaSight's application folder afterwards, you MUST delete the `venv` folder before launching the application again !
 
 
 *If you have trouble executing any of these steps*, don't hesitate to [**contact us**](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !

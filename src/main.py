@@ -10,6 +10,7 @@ import os
 #from time import time
 #CURRENT_TIME = None
 def download_additional_resources():
+    print("Checking if downloaded packages are still present...")
     resources = [
         'punkt',
         'punkt_tab',
@@ -23,8 +24,8 @@ def download_additional_resources():
         try:
             nltk.data.find(f'corpora/{resource}')
         except LookupError:
-            print("An additional package needs to be donwloaded (only happens once per package)")
             nltk.download(resource)
+    print("Done. Launching PlagiaSight...")
 
 
 if __name__ == "__main__":
