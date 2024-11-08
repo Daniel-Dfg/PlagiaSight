@@ -39,6 +39,7 @@ if __name__ == "__main__":
     window.raise_()
     #print(f"Startup time: {time()-CURRENT_TIME}")
     #Bonjour
+    QTimer.singleShot(800, download_additional_resources)
     qapp.exec()
     temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
     for filename in os.listdir(temp_dir):
@@ -51,4 +52,3 @@ if __name__ == "__main__":
                     os.rmdir(file_path)
             except Exception as e:
                 print(f"Failed to delete {file_path}. Reason: {e}")
-    QTimer.singleShot(800, download_additional_resources)
