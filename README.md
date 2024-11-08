@@ -27,24 +27,6 @@ Welcome ! Please follow these **installation instructions** :
 
 First, install and unzip [**our latest release**](link here). Then:
 
-- **Windows**
-
-    In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal the first time** (cmd/Powershell on Windows).
-
-
-    In other words, you open your cmd/Powershell and type this :
-
-    ```py
-    path\to\plagiasight_folder\PlagiaSight_Windows.bat
-    ```
-    Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal". It can take up to 2-3 minutes for everything to be installed and for the app to start running the first time, depending on your internet connection.
-
-
-    If it fails, please retry while being in administrator mode.
-
-
-    The next time you'll want to run PlagiaSight, just run `PlagiaSight_Windows.bat` (not necessarily in your terminal), and it should launch in seconds :)
-
 - **MacOS / Linux**
 
 
@@ -64,13 +46,32 @@ First, install and unzip [**our latest release**](link here). Then:
 
 
 
+- **Windows**
+
+    In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal the first time** (cmd/Powershell on Windows).
+
+
+    In other words, you open your cmd/Powershell and type this :
+
+    ```py
+    path\to\plagiasight_folder\PlagiaSight_Windows.bat
+    ```
+    Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal". It can take up to 2-3 minutes for everything to be installed and for the app to start running the first time, depending on your internet connection.
+
+
+    If it fails, please retry while being in administrator mode.
+
+
+    The next time you'll want to run PlagiaSight, just run `PlagiaSight_Windows.bat` (not necessarily in your terminal), and it should launch in seconds :)
+
+
+
+
 
 *If you have trouble executing any of these steps*, don't hesitate to [**contact us**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 
 
-
-If you currently don't have data to test PlagiaSight with, feel free to use texts from [our sample data](https://github.com/LUCKYINS/PlagiarismDetectionProject/tree/main/Resources/Sample%20Data).
 
 </ul>
 
