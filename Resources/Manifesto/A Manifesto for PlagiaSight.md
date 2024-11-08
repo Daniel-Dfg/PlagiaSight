@@ -7,14 +7,14 @@ So hop in the `/src`​ folder, and embark in your journey with us !
 Note : Number between parenthesis are references to [our bibliography](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md) (e.g [`(1)`](https://codegnan.com/blogs/data-structure-and-algorithm-project-ideas/)​ links to the first source cited in it).  
 In general, we'd advise you to take a peek at our [Research resources](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Learning%20Material/ResearchResources.md) and [Inspiring projects](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Learning%20Material/InspiringProjects.md) to see what we took inspiration from.
 
-<u>Brief history of the project</u>
+## Brief history of the project
 
 It just started as a small project in duo (by [Daniel-Dfg](https://github.com/Daniel-Dfg) and [LUCKYINS](https://github.com/LUCKYINS)) to learn how to work in teams using GitHub, that kept growing as our interest in Natural Language Processing did.  
 We feel like PlagiaSight has great potential, but since it was our first real personal project, it has its flaws. That's why we decided early to make our project free and as accessible as possible for open source contributors. Other people came before the first version was released ([onuriscoding](https://github.com/onuriscoding) and [BotEkrem](https://github.com/BotEkrem)) to give us their expertise.
 
 ‍
 
-<u>The principles that guide our development</u>
+## The principles that guide our development
 
 1. **Transparency**. PlagiaSight is FOSS (*Free and Open Source Software*), the results shown to the user are made to be the most explicit possible, and the mere existence of this manifesto shows that we're truly invested in explaining our design decisions and welcoming new contributors.
 2. **Critical Thinking**. The goal of our app is not to *tell* people if they plagiarized or not, but rather to *provide insightful data* about their text to help them correct what they possibly did wrong. At the end of the day, it's up to the user to decide if they want to edit their text or even trust us.  
@@ -22,11 +22,11 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
 3. **User Friendliness**. Probably a no-brainer, we aim to deliver an application to the widest range of people possible. High-schoolers, students, workers... All have a thing in common : no one is protected from plagiarizing/getting plagiarized, and therefore everyone should be able to use our app easily.
 4. **Contributor Friendliness**. We consider that just allowing new contributors on our GitHub repo freely without providing them guidance doesn't mean that the project is really "open-source". That's why we're doing our best to provide detailed documentation, in order to help new contributors to get started on our project in the most seamless way possible.
 
-<u>Project files explaination</u>
+## Project files explaination
 
-* ​`TextAnalysis.py`​
+### * ​`TextAnalysis.py`​
 
-  * Questions that lead to the creation of this file
+  * **Questions that lead to the creation of this file**
 
     1. How are you supposed to *treat* a given text ? It brings up several sub-questions :
 
@@ -35,16 +35,17 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
     2. What statistics and informations are relevant to the treated text ?
     3. Regarding the comparison process itself : what text comparision algorithms are known, and which ones should we pick ?
     4. If we want to compare our text with websites', how to know which terms to research on the web ? We must find the keywords/kerphrases from the source text first, but how to accomplish that ?
-  * General Overview
+  * **General Overview**
 
     * This file aims to contain the "text treatment + plagiarism detection" part of the project. It includes text extraction from files, text splitting in *tokens* (more on that later) [`(6-9)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​, getting a few statistics from a given text and comparing two texts together using well-known text similarity algorithms [`(10, 11, 13)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​.
   * Fundamental definitions [`(2,3, 5-9, 13)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​
 
     There's no need to memorize all of this by heart, but these definitions are extremely important for understanding our project nonetheless (you'll see how when reading the file descriptions of this manifesto)
 
+    This section doesn't put the focus on *how* all of this stuff is *concretely* implemented in PlagiaSight. For now, just focus on understanding the *core concepts* that lead this part of the project.
+
     * To describe the following concepts, we're going to use this text as an example :  
       ​`"I ate an apple. It felt good, I liked its freshness."`​  
-      (Footnote : This section doesn't put the focus on *how* all of this stuff is *concretely* implemented in [PlagiaSight]. For now, just focus on understanding the *core concepts* that lead this part of the project.)
     * A *token* is typically defined as a *traduction unit*. It's up to you to choose what you consider to be a traduction unit, e.g with which criteria you decide to split your text with.  
       Example :
 
@@ -96,7 +97,7 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
         ```
     * A *part of speech* (or POS) is a category to which a word is assigned in accordance with its syntactic functions. In the sentence `I ate an apple`​, `I`​'s POS is "noun", `ate`​'s POS is "verb", etc. More refined *POS tagging* (e.g assigning words to categories) exists, but we decided to stick to the most fundamental categories that exist in English for this project.
     * A $n$​ *-gram* is a group of $n$ contiguous words within a sentence. In the sentence `I ate an apple`​, the **bi**grams are : `"I ate", "ate an", "an apple"`​.
-  * Classes
+  * **Classes**
 
     * ​`Tokenizer`​ : tokenizes a given text (parameter `_raw_data`​) in several ways (by word, sentence, syntagm...) and POS tags every term.
     * ​`TokensStatsAndRearrangements`​ (abbreviated as `TSAR`​) : gets basic statistics from a set of tokens given as a parameter (a `Tokenizer`​ named `base`​), as well as some basic rearrangements for comparisons between texts (notably $n$-grams).
@@ -104,7 +105,7 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
       Works as a "on-demand" class (meaning that the results are computed only when needed) for modularity purposes.
     * ​![image](assets/image-20240920162215-6jv2pj4.png)​  
       A synthetic view of what a text goes through via the aformentioned classes.
-  * Conclusion : answer to the fundamental questions seen above
+  * **Conclusion : answer to the fundamental questions seen above**
 
     1. How are you supposed to *treat* a given text ? It brings up several sub-questions :
 
@@ -128,7 +129,7 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
     3. Regarding the comparison process itself : what text comparision algorithms are known, and which ones should we pick ?
 
         * We're not going to write the whole list of algorithms used, but rather a set of *principles* that we followed when choosing the algorithms we wanted to put into place.  
-          An ideal algorithm should be...
+          *An ideal algorithm should be...*
 
           1. *Easily* *Explainable, with few prerequisites* : It's on top of this list for a reason. As *accurate* as an algorithm may be, if the user is not able to understand its results or if we're not able to explain him them in simple terms, the user will simply neglect it and our work will go to waste. (à reformuler)
           2. *Adaptable/extensible* : we should be able to edit it to make our own algorithms *based* on the original to make them correspond to our vision better.
@@ -137,54 +138,52 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
     4. If we want to compare our text with websites', how to know what to make our code research on the web ? We must find the keywords/kerphrases from the source text first, but how to accomplish that ?
 
         * Searching the web using the most common $n$-grams in the input text are a step in the right direction, but at the end of the day the RAKE algorithm [`(10, 11)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​ is more accurate in practice, as it is more "flexible" than $n$-grams (less strictly defined size, not only based on frequency but on a certain *score* that takes into account the actual *distribution* of the most common syntagms throughout the text).
-* ​`WebScraping.py`​
+### * ​`WebScraping.py`​
 
   * Our app's web scraping is still very experimental. That's why we didn't try to provide answers to the questions below : we did try to implement a solution, but there still are many things we don't know right now.
-  * Questions that lead to the creation of this file
+  * **Questions that lead to the creation of this file**
 
     * How to scrape text from the web to compare theirs with ours ?
     * How to check if web scraping is allowed on a given website ?
     * How to get the actual text from a website, since they all are so visually different and contain possibly irrelevant pieces of text (like titles of "related articles" in a newspaper) ?
-* ​`[Folder] UI_Functional`​
+### * ​`[Folder] UI_Functional`​
 
-  * Lots of images, but few words : flowcharts, quick descs, that's it.
-  * Questions that lead our development
+  * **Questions that lead our development of this**
 
     * Once we made the necessary computations regarding plagiarism detection, to what extent should we be *explicit* about the results we show ? Like, it is probably not a good idea to be 100% transparent and show every little statistic with explainations, so how much should we purposefully hide "less relevant" information to keep the UX fluid ?
     * Following what has just been asked, to what extent should *we* draw conclusions about potential plagiarism once we made our computations ?  
       Shouldn't we let the user be critical about our results *before* telling them "You did (not) plagiarized because of this, this and this result" ?
-  * ​`utilities.py`​
+  * **​`utilities.py`**​
 
     * Various, one-time use classes that include stuff like the `Help`​ and `Get in touch`​ windows, a *drag &amp; drop* area to allow the user to drop their files, etc.
     * ​![Untitled design](assets/Untitled%20design-20241104111300-e775pnb.jpg)​
 
       ​![Refer](assets/Refer-20241104112808-5bd1rr0.jpg)  
       Examples of UI utilities linked to their placement in PlagiaSight
-  * ​`main_window.py`​
+  * **​`main_window.py`**​
 
     * The main utility to setup the *skeleton* of our app.  
       The main layout is given by this class : the bottom bar with action buttons, the idea of using a `QStackedWidget`​ to structure the different *phases* the user will have to go through when using the app, certain attributes that must be used by diffents parts of the `QStackedWidget`​ etc.  
       ​![Refer](assets/Refer-20241104113502-5mu2z1q.png)  
       Image : how the `MainWindow`​ class defines the *skeleton* of our UI (by dividing it in 3 distinct parts)
-  * ​`stacked_widget_elems.py`​
+  * ​**`stacked_widget_elems.py`**​
 
     * This file defines the UI elements of each window the user will go through when using the application.  
       Contains the different classes of the aforementioned `QStackedWidget`​, one per stack element.  
       The logic in the classes provided here is only related to UI components themselves, not to the actual handling of the files provided by the user and the resulting text analysis.
-  * ​`comparison_results.py`​
+  * **​`comparison_results.py`**​
 
     * Contains 2 classes, 2 ways to store results computed via `TextAnalysis.py`​ (href here please).  
       The first one, `OneFileComparison`​, stores the data when the user chooses to compare a single file with related online data, and the second one, `CrossComparison`​, is used when the user wants to compare a set of given files between eachother.  
       The way we access results stored in these classes is via the `final_results`​ attribute found in the `MainWindow`​. Checking the type of this attribute (`OneFileComparison`​ or `CrossCompare`​) allows to know what type of comparison the user wanted.  
       ​![Refer (1)](assets/Refer%201-20241104120024-bz7q7xw.jpg)​
 
-      Note that there's two *types* of analysis - `OneFileComparison`​ and `CrossComparison`​ - but there's also two *complexities* of analysis, names "simple" and "complex". The global constants found in this file should give you a good idea of what differs between the two.  
-      [TODO : give at least a rough idea, a picture, anything - that shows how both complexities differ...]
+      Note that there's two *types* of analysis - `OneFileComparison`​ and `CrossComparison`​ - but there's also two *complexities* of analysis, names "simple" and "complex".
 
-<u>Conclusion</u>
+## Conclusion
 
 So, we haven't discussed the entirety of the project, but what you read should give you a good grasp on how the project is structured, the principles that lead it, and what we're trying to achieve. Happy coding :)
 
-If any questions remain, or if you wish to provide feedback, [we&apos;re open to conversation](https://github.com/LUCKYINS/PlagiarismDetectionProject/discussions)
+If any questions remain, or if you wish to provide feedback, [we&apos;re open to conversation](https://github.com/LUCKYINS/PlagiarismDetectionProject/discussions) !
 
 ‍
