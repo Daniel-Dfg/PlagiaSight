@@ -33,8 +33,9 @@ First, install and unzip [**our latest release**](link here). Then:
     In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI the first time**.
 
 
-    In other words, open your terminal/CLI and type this :
+    In other words, open your terminal/CLI and type the full file path :
     ```py
+    #should resemble something like this
     path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh
     ```
     Or just right click on the file and select the option to run it in your terminal. The first time, it can take up to 2-3 minutes to download everything and launch the app, depending of your internet connection.
@@ -51,9 +52,10 @@ First, install and unzip [**our latest release**](link here). Then:
     In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal the first time** (cmd/Powershell on Windows).
 
 
-    In other words, you open your cmd/Powershell and type this :
+    In other words, you open your cmd/Powershell and type the full path towards the path :
 
     ```py
+    #should resemble something like this
     path\to\plagiasight_folder\PlagiaSight_Windows.bat
     ```
     Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal". It can take up to 2-3 minutes for everything to be installed and for the app to start running the first time, depending on your internet connection.
