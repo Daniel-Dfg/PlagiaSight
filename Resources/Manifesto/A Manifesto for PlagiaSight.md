@@ -38,7 +38,7 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
   * **General Overview**
 
     * This file aims to contain the "text treatment + plagiarism detection" part of the project. It includes text extraction from files, text splitting in *tokens* (more on that later) [`(6-9)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​, getting a few statistics from a given text and comparing two texts together using well-known text similarity algorithms [`(10, 11, 13)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​.
-  * Fundamental definitions [`(2,3, 5-9, 13)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​
+  * **Fundamental definitions** [`(2,3, 5-9, 13)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​
 
     There's no need to memorize all of this by heart, but these definitions are extremely important for understanding our project nonetheless (you'll see how when reading the file descriptions of this manifesto)
 
@@ -153,25 +153,25 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
     * Once we made the necessary computations regarding plagiarism detection, to what extent should we be *explicit* about the results we show ? Like, it is probably not a good idea to be 100% transparent and show every little statistic with explainations, so how much should we purposefully hide "less relevant" information to keep the UX fluid ?
     * Following what has just been asked, to what extent should *we* draw conclusions about potential plagiarism once we made our computations ?  
       Shouldn't we let the user be critical about our results *before* telling them "You did (not) plagiarized because of this, this and this result" ?
-  * **​`utilities.py`**​
+  * ​`utilities.py`​
 
     * Various, one-time use classes that include stuff like the `Help`​ and `Get in touch`​ windows, a *drag &amp; drop* area to allow the user to drop their files, etc.
     * ​![Untitled design](assets/Untitled%20design-20241104111300-e775pnb.jpg)​
 
       ​![Refer](assets/Refer-20241104112808-5bd1rr0.jpg)  
       Examples of UI utilities linked to their placement in PlagiaSight
-  * **​`main_window.py`**​
+  * `main_window.py`​
 
     * The main utility to setup the *skeleton* of our app.  
       The main layout is given by this class : the bottom bar with action buttons, the idea of using a `QStackedWidget`​ to structure the different *phases* the user will have to go through when using the app, certain attributes that must be used by diffents parts of the `QStackedWidget`​ etc.  
       ​![Refer](assets/Refer-20241104113502-5mu2z1q.png)  
       Image : how the `MainWindow`​ class defines the *skeleton* of our UI (by dividing it in 3 distinct parts)
-  * ​**`stacked_widget_elems.py`**​
+  * ​`stacked_widget_elems.py`​
 
     * This file defines the UI elements of each window the user will go through when using the application.  
       Contains the different classes of the aforementioned `QStackedWidget`​, one per stack element.  
       The logic in the classes provided here is only related to UI components themselves, not to the actual handling of the files provided by the user and the resulting text analysis.
-  * **​`comparison_results.py`**​
+  * ​`comparison_results.py`
 
     * Contains 2 classes, 2 ways to store results computed via `TextAnalysis.py`​ (href here please).  
       The first one, `OneFileComparison`​, stores the data when the user chooses to compare a single file with related online data, and the second one, `CrossComparison`​, is used when the user wants to compare a set of given files between eachother.  
