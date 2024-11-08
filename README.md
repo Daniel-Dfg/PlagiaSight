@@ -4,11 +4,11 @@
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
 
 # 🤔 Why PlagiaSight ?
-Too many existing "plagiarism detection" tools just output a rather meaningless "plagiarism percentage" when the user provides them text. 
+Too many existing "plagiarism detection" tools just output a rather meaningless "plagiarism percentage" when the user provides them text.
 
 We decided to adress this issue by ourselves, by creating an app that would provide comprehensive insights by analyzing given text(s) under different perspectives, hence the existence of PlagiaSight !
 
-Our tool aims to keep results clear and *interpretable* (so : the tool won't draw *definitive conclusions*, but rather *provide useful stats and guidance*), allowing users to use their own critical thinking rather than having the tool forcefully impose a judgment.
+Our tool aims to keep results clear and *interpretable* (so : the tool won't draw *definitive conclusions*, but rather *provide useful stats and guidance*), allowing users to use their own critical thinking rather than letting the tool forcefully impose a judgment.
 
 
 
@@ -19,7 +19,7 @@ Our tool aims to keep results clear and *interpretable* (so : the tool won't dra
 
 
 
-# 💡 Do you want... 
+# 💡 Do you want...
 - ⬇️	<ins>**To GET STARTED using PlagiaSight ?**	</ins>
 <ul>
 
@@ -29,32 +29,38 @@ First, install and unzip [**our latest release**](link here). Then:
 
 - **Windows**
 
-    In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal** (cmd/Powershell on Windows).
+    In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal the first time** (cmd/Powershell on Windows).
 
 
     In other words, you open your cmd/Powershell and type this :
-    
-    ```bash
+
+    ```py
     path\to\plagiasight_folder\PlagiaSight_Windows.bat
     ```
-    Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal".
+    Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal". It can take up to 2-3 minutes for everything to be installed and for the app to start running the first time, depending on your internet connection.
 
 
     If it fails, please retry while being in administrator mode.
 
+
+    The next time you'll want to run PlagiaSight, just run `PlagiaSight_Windows.bat` (not necessarily in your terminal), and it should launch in seconds :)
+
 - **MacOS / Linux**
 
 
-    In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI**.
-    
-    
+    In the folder you just unzipped, simply run `PlagiaSight_MacOS_Linux` **in your terminal/CLI the first time**.
+
+
     In other words, open your terminal/CLI and type this :
     ```py
     path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh
     ```
+    Or just right click on the file and select the option to run it in your terminal. The first time, it can take up to 2-3 minutes to download everything and launch the app, depending of your internet connection.
 
     If it fails, retry the process in in `sudo/superuser` mode (e.g type `sudo path/to/plagiasight_folder/PlagiaSight_MacOS_Linux.sh`).
 
+
+    The next time you'll want to run PlagiaSight, just run `PlagiaSight_MacOS_Linux.sh` (not necessarily in your terminal), and it should launch in seconds :)
 
 
 
@@ -66,17 +72,17 @@ First, install and unzip [**our latest release**](link here). Then:
 - 🤝 <ins>**To CONTRIBUTE to the developement of PlagiaSight ?**	</ins>
 <ul>
 
-We're always glad to see new contributors ! Here's a roadmap to get you started : 
+We're always glad to see new contributors ! Here's a roadmap to get you started :
 
 
-**1) MANIFESTO** : The #1 thing you must read before contributing is [our short **manifesto**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md). 
+**1) MANIFESTO** : The #1 thing you must read before contributing is [our short **manifesto**](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md).
 
 
 It contains the principles guiding PlagiaSight's developement, the structure of our codebase, and much more. In essence, it is the map that will guide you when you'll browse through the project's files.
 
 
 
-**2) FIRST PULL REQUEST** : Once you read and understood the manifesto, take a look at the codebase. [Make a Pull Request](https://github.com/LUCKYINS/PlagiarismDetectionProject/pulls) or [Open an Issue](https://github.com/LUCKYINS/PlagiarismDetectionProject/issues) if you spot any areas for improvement. 
+**2) FIRST PULL REQUEST** : Once you read and understood the manifesto, take a look at the codebase. [Make a Pull Request](https://github.com/LUCKYINS/PlagiarismDetectionProject/pulls) or [Open an Issue](https://github.com/LUCKYINS/PlagiarismDetectionProject/issues) if you spot any areas for improvement.
 
 
 We encourage you to contribute, even if your Pull Request gets closed without being implemented : in PlagiaSight's case, *it's better to try and fail to improve something rather than be scared to tell that something's wrong*.
@@ -102,13 +108,14 @@ But we can't stress enough the idea that, in order to propose new features that 
   * [danieldefoing@gmail.com](mailto:danieldefoing@gmail.com)
   * [D:D](https://discord.com/users/720963652286414909) on Discord
 
+
 * **LUCKYINS** :
   * [github.com/LUCKYINS](https://github.com/LUCKYINS)
   * [elhusseinabdalrahmanwork@gmail.com](mailto:elhusseinabdalrahmanwork@gmail.com)
   * [LUCKYINS](https://discord.com/users/721008804300455978) on Discord
 
+
 * **onuriscoding** :
   * [github.com/onuriscoding](https://github.com/onuriscoding)
   * [onurdogancs@gmail.com](mailto:onurdogancs@gmail.com)
   * [ginorwhat](https://discord.com/users/332553376707510272) on Discord
-

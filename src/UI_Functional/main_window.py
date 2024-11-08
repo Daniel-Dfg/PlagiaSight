@@ -9,7 +9,6 @@ from UI_Styling.userTools import UserTools
 class MainWindow(SMainWindow):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(680, 540)
         self.stacked_widget = QStackedWidget()
         self.step0_widget = Step0_WelcomingMessage(self)
         self.stacked_widget.addWidget(self.step0_widget)
