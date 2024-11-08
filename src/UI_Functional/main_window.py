@@ -19,7 +19,7 @@ class MainWindow(SMainWindow):
         # Buttons tooltip + functions
         buttons = {self.usertools.contact: ("Get in touch",self.toggle_GetInTouchWindow),
             self.usertools.help:("Help", self.toggle_HelpWindow),
-            self.usertools.setting: ("View project on GitHub", lambda: webbrowser.open("https://github.com/Daniel-Dfg/PlagiarismDetectionProject"))}
+            self.usertools.setting: ("View project on GitHub", lambda: webbrowser.open("https://github.com/Daniel-Dfg/PlagiaSight"))}
 
         # Set Buttons
         for button,func in buttons.items():

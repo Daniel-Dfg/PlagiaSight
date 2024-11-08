@@ -68,7 +68,7 @@ First, install and unzip [**our latest release**](link here). Then:
 IMPORTANT : after you unzipped and executed the release you donwloaded for the first time, a folder named `venv` will appear. If you wish to move PlagiaSight's application folder afterwards, you MUST delete the `venv` folder before launching the application again !
 
 
-*If you have trouble executing any of these steps*, don't hesitate to [**contact us**](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
+*If you have trouble executing any of these steps*, don't hesitate to [**contact us**](https://github.com/Daniel-Dfg/PlagiaSight/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 
 
@@ -83,28 +83,28 @@ IMPORTANT : after you unzipped and executed the release you donwloaded for the f
 We're always glad to see new contributors ! Here's a roadmap to get you started :
 
 
-**1) MANIFESTO** : The #1 thing you must read before contributing is [our short **manifesto**](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md).
+**1) MANIFESTO** : The #1 thing you must read before contributing is [our short **manifesto**](https://github.com/Daniel-Dfg/PlagiaSight/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md).
 
 
 It contains the principles guiding PlagiaSight's developement, the structure of our codebase, and much more. In essence, it is the map that will guide you when you'll browse through the project's files.
 
 
 
-**2) FIRST PULL REQUEST** : Once you read and understood the manifesto, take a look at the codebase. [Make a Pull Request](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/pulls) or [Open an Issue](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/issues) if you spot any areas for improvement.
+**2) FIRST PULL REQUEST** : Once you read and understood the manifesto, take a look at the codebase. [Make a Pull Request](https://github.com/Daniel-Dfg/PlagiaSight/pulls) or [Open an Issue](https://github.com/Daniel-Dfg/PlagiaSight/issues) if you spot any areas for improvement.
 
 
 We encourage you to contribute, even if your Pull Request gets closed without being implemented : in PlagiaSight's case, *it's better to try and fail to improve something rather than be scared to tell that something's wrong*.
 
 
 
-**3) OTHER DOCUMENTATION** : Suggesting new features is often challenging, notably because predicting how *useful* a new feature will be is not an exact science. In order to maximize the chances to see your idea being approved, please check out the [resources that inspired us](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/tree/main/Resources/Learning%20Material) first, and consider contributing there if it seems to align with the project's vision.
+**3) OTHER DOCUMENTATION** : Suggesting new features is often challenging, notably because predicting how *useful* a new feature will be is not an exact science. In order to maximize the chances to see your idea being approved, please check out the [resources that inspired us](https://github.com/Daniel-Dfg/PlagiaSight/tree/main/Resources/Learning%20Material) first, and consider contributing there if it seems to align with the project's vision.
 
 
 But we can't stress enough the idea that, in order to propose new features that have a chance of being useful, *you should take a peek at the documentation directly present in the project to understand all contributors' vision first*. This will help ensure your proposals are cohesive with the project's goals.
 
 
 
-*If you have questions or concerns regarding contributions*, feel free to [**contact us**](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/README.md#contact-the-people-behind-the-10-version) !
+*If you have questions or concerns regarding contributions*, feel free to [**contact us**](https://github.com/Daniel-Dfg/PlagiaSight/blob/main/README.md#contact-the-people-behind-the-10-version) !
 
 </ul>
 

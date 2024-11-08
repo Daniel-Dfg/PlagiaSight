@@ -1,6 +1,6 @@
 ######
 # ALL EXPLAINATIONS ARE IN OUR MANIFESTO :
-# https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md
+# https://github.com/Daniel-Dfg/PlagiaSight/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md
 ######
 
 #Language processing related ↴
