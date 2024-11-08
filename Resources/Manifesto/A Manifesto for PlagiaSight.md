@@ -4,8 +4,8 @@ This file will depict how the project has been structured and *why* it has been 
 
 So hop in the `/src`​ folder, and embark in your journey with us !
 
-Note : Number between parenthesis are references to [our bibliography](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md) (e.g [`(1)`](https://codegnan.com/blogs/data-structure-and-algorithm-project-ideas/)​ links to the first source cited in it).  
-In general, we'd advise you to take a peek at our [Research resources](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Learning%20Material/ResearchResources.md) and [Inspiring projects](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Learning%20Material/InspiringProjects.md) to see what we took inspiration from.
+Note : Number between parenthesis are references to [our bibliography](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md) (e.g [`(1)`](https://codegnan.com/blogs/data-structure-and-algorithm-project-ideas/)​ links to the first source cited in it).  
+In general, we'd advise you to take a peek at our [Research resources](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Learning%20Material/ResearchResources.md) and [Inspiring projects](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Learning%20Material/InspiringProjects.md) to see what we took inspiration from.
 
 ## Brief history of the project
 
@@ -37,8 +37,8 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
     4. If we want to compare our text with websites', how to know which terms to research on the web ? We must find the keywords/kerphrases from the source text first, but how to accomplish that ?
   * **General Overview**
 
-    * This file aims to contain the "text treatment + plagiarism detection" part of the project. It includes text extraction from files, text splitting in *tokens* (more on that later) [`(6-9)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​, getting a few statistics from a given text and comparing two texts together using well-known text similarity algorithms [`(10, 11, 13)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​.
-  * **Fundamental definitions** [`(2,3, 5-9, 13)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​
+    * This file aims to contain the "text treatment + plagiarism detection" part of the project. It includes text extraction from files, text splitting in *tokens* (more on that later) [`(6-9)`](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​, getting a few statistics from a given text and comparing two texts together using well-known text similarity algorithms [`(10, 11, 13)`](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​.
+  * **Fundamental definitions** [`(2,3, 5-9, 13)`](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​
 
     There's no need to memorize all of this by heart, but these definitions are extremely important for understanding our project nonetheless (you'll see how when reading the file descriptions of this manifesto)
 
@@ -137,7 +137,7 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
         * Of course, this list is only a guidance, not an order : some algorithms we chose don't necessarily respect all of these criterias.
     4. If we want to compare our text with websites', how to know what to make our code research on the web ? We must find the keywords/kerphrases from the source text first, but how to accomplish that ?
 
-        * Searching the web using the most common $n$-grams in the input text are a step in the right direction, but at the end of the day the RAKE algorithm [`(10, 11)`](https://github.com/LUCKYINS/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​ is more accurate in practice, as it is more "flexible" than $n$-grams (less strictly defined size, not only based on frequency but on a certain *score* that takes into account the actual *distribution* of the most common syntagms throughout the text).
+        * Searching the web using the most common $n$-grams in the input text are a step in the right direction, but at the end of the day the RAKE algorithm [`(10, 11)`](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Bibliography.md)​ is more accurate in practice, as it is more "flexible" than $n$-grams (less strictly defined size, not only based on frequency but on a certain *score* that takes into account the actual *distribution* of the most common syntagms throughout the text).
 ### * ​`WebScraping.py`​
 
   * Our app's web scraping is still very experimental. That's why we didn't try to provide answers to the questions below : we did try to implement a solution, but there still are many things we don't know right now.
@@ -184,6 +184,6 @@ We feel like PlagiaSight has great potential, but since it was our first real pe
 
 So, we haven't discussed the entirety of the project, but what you read should give you a good grasp on how the project is structured, the principles that lead it, and what we're trying to achieve. Happy coding :)
 
-If any questions remain, or if you wish to provide feedback, [we&apos;re open to conversation](https://github.com/LUCKYINS/PlagiarismDetectionProject/discussions) !
+If any questions remain, or if you wish to provide feedback, [we&apos;re open to conversation](https://github.com/Daniel-Dfg/PlagiarismDetectionProject/discussions) !
 
 ‍
