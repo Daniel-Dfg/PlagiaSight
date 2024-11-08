@@ -1,6 +1,6 @@
 ######
-#ALL EXPLAINATIONS ARE IN OUR MANIFESTO :
-# https://github.com/LUCKYINS/PlagiarismDetectionProject/...
+# ALL EXPLAINATIONS ARE IN OUR MANIFESTO :
+# https://github.com/Daniel-Dfg/PlagiarismDetectionProject/blob/main/Resources/Manifesto/A%20Manifesto%20for%20PlagiaSight.md
 ######
 
 #Language processing related ↴
@@ -392,7 +392,7 @@ def extract_raw_from_file(file_path: str, file_format: str) -> str:
         raise FileNotFoundError(f"{file_path} doesn't exist")
     if file_format not in ("txt", "pdf"):
         raise ValueError(f"Invalid file format: {file_format}")
-    
+
     if file_format == "pdf":
         temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
         os.makedirs(temp_dir, exist_ok=True)
@@ -403,7 +403,7 @@ def extract_raw_from_file(file_path: str, file_format: str) -> str:
         file_encoding = result['encoding']
     with open(file_path, 'r', encoding=file_encoding, errors='ignore') as f:
         return f.read().lower()
-        
+
 
 def convert_pdf_to_txt(file_path: str, temp_dir_path: str) -> str:
     """

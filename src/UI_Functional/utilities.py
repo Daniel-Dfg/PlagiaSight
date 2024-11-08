@@ -126,7 +126,9 @@ class HelpWindow(SMiniWindow):
 class GetInTouchWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(580, 580)
+        self.base_width = int(self.width())
+        self.base_height = int(self.height() * 1.3)
+        self.setFixedSize(self.base_width, self.base_height)
         self.is_fully_init = False
         self.checkBoxs = []
         self.rolesWidget = []
@@ -141,7 +143,7 @@ class GetInTouchWindow(SMiniWindow):
 
     def full_init(self):
         if not self.is_fully_init:
-            self.add_contact_info(self.main_layout, "Daniel-Dfg", ["Lead developer", "Texts similarity computations", "UI design (functional)", "Documentation gathering and handling"],
+            self.add_contact_info(self.main_layout, "Daniel-Dfg", ["Texts similarity computations", "UI design (functional)", "Documentation gathering and handling"],
                                 Mail="mailto:danieldefoing@gmail.com",
                                 GitHub="https://github.com/Daniel-Dfg",
                                 Discord="https://discord.com/users/720963652286414909")
@@ -230,9 +232,9 @@ class GetInTouchWindow(SMiniWindow):
                     self.rolesWidget[i].setVisible(False)
             toggle_checkbox.setText("Hide roles")
             roles_widget.setVisible(True)
-            self.setFixedSize(580, 680)
+            self.setFixedSize(self.base_width, self.base_height + 100)
         else:
-            self.setFixedSize(580, 580)
+            self.setFixedSize(self.base_width, self.base_height)
             toggle_checkbox.setText("Show roles")
             roles_widget.setVisible(False)
 
