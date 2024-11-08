@@ -70,8 +70,6 @@ First, install and unzip [**our latest release**](link here). Then:
 
 
 
-If you currently don't have data to test PlagiaSight with, feel free to use texts from [our sample data](https://github.com/LUCKYINS/PlagiarismDetectionProject/tree/main/Resources/Sample%20Data).
-
 </ul>
 
 
