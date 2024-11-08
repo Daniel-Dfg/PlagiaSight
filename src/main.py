@@ -34,12 +34,13 @@ if __name__ == "__main__":
     if not qapp:
         qapp = QApplication(argv)
 
+    download_additional_resources()
     window = MainWindow()
     window.show()
     window.raise_()
     #print(f"Startup time: {time()-CURRENT_TIME}")
     #Bonjour
-    QTimer.singleShot(800, download_additional_resources)
+
     qapp.exec()
     temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
     for filename in os.listdir(temp_dir):
