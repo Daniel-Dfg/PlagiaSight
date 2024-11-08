@@ -238,7 +238,7 @@ class GetInTouchWindow(SMiniWindow):
 class GraphWindow(SMiniWindow):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(700, 500)
+        self.setFixedSize(int(self.width() * 1.6), int(self.height() * 1.25))
         self.is_dark_mode = False
 
         buttons_layout = QHBoxLayout()
