@@ -9,7 +9,7 @@ class SDropArea(QLabel):
     def __init__(self):
         super().__init__()
         self.setMinimumWidth(w)
-        self.setText(f"Drag & Drop files\n (.txt, .pdf), folders,\n{'\n'*2} or...\n")
+        self.setText(f"Drag & Drop files\n (.txt, .pdf), folders,\n\n\n or...\n")
         self.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet("""
             *{
