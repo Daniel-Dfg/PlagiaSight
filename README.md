@@ -27,7 +27,7 @@ Welcome ! Please follow these **installation instructions** :
 
 ## Requirements
     - `pip` (version 21 or later)
-    - `python 3.12` or later
+    - `python 3.7 - 3.12`
 
 First, install and unzip [**our latest release**](https://github.com/Daniel-Dfg/PlagiaSight/tags). Then:
 
@@ -48,6 +48,18 @@ First, install and unzip [**our latest release**](https://github.com/Daniel-Dfg/
 
 
     The next time you'll want to run PlagiaSight, just run `PlagiaSight_Mac_Linux.sh` (not necessarily in your terminal), and it should launch in seconds :)
+
+
+    If this doesn't work, you can also install and run the app manually :
+      - If there's a folder named `venv` in the release you unzipped, delete it.
+      - Then open the terminal at PlagiaSight's folder and the following, one line after another :
+          ```python
+              python3 -m venv .venv #recreate a 'clean' venv folder
+              source venv/bin/activate #activate the venv folder to install dependencies inside
+              pip install -r requirements.txt #reinstall dependencies from scratch
+              python3 src/main.py #run the app
+          ```
+  
 
 
 
