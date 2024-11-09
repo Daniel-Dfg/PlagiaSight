@@ -54,13 +54,13 @@ First, install and unzip [**our latest release**](https://github.com/Daniel-Dfg/
       - If there's a folder named `venv` in the release you unzipped, delete it.
       - Then open the terminal at PlagiaSight's folder and the following, one line after another :
     ```py
-      python3 -m venv .venv #recreate a 'clean' venv folder
-        source venv/bin/activate #activate the venv folder to install dependencies inside
-        pip install -r requirements.txt #reinstall dependencies from scratch
-        python3 src/main.py #run the app
+    python3 -m venv .venv #recreate a 'clean' venv folder
+    source venv/bin/activate #activate the venv folder to install dependencies inside
+    pip install -r requirements.txt #reinstall dependencies from scratch
+    python3 src/main.py #run the app
     ```
 
-      Making the installation process more user-friendly is our #1 priority right now, contibutions and feedback are warmly welcome.
+  Making the installation process more user-friendly is our #1 priority right now, contibutions and feedback are warmly welcome.
 
 
 
