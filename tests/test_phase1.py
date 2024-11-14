@@ -4,17 +4,16 @@ I needed to convert each token, words, etc to str since they were
 np.str type and I needed to compare strings (from numpy).
 """
 
-import pytest
 import unittest
-import nltk
-import chardet
-from src.text_analysis import Tokenizer, TokensStatsAndRearrangements, TokensComparisonAlgorithms
-from random import choice
 from os import path
 
+import chardet
+import nltk
 
-testfiles_path_basic = "Resources/Sample Data/BasicTexts/"
-testfiles_path_complex = "Resources/Sample Data/ComplexTexts/"  # TODO
+from src.Text_Analysis import Tokenizer, TokensStatsAndRearrangements, TokensComparisonAlgorithms
+
+testfiles_path_basic = "/home/mihai/Desktop/Coding/Python/PlagiaSightRefac/Resources/SampleData/BasicTexts"
+testfiles_path_complex = "/home/mihai/Desktop/Coding/Python/PlagiaSightRefac/Resources/SampleData/ComplexTexts"  # TODO
 
 
 class TestTextAnalysis(unittest.TestCase):
