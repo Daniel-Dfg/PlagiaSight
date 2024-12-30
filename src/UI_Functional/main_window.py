@@ -1,8 +1,10 @@
+import webbrowser
+
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import QStackedWidget, QVBoxLayout
+
 from .stacked_widget_elems import Step0_WelcomingMessage
 from .utilities import GetInTouchWindow, HelpWindow
-from PySide6.QtCore import Qt, QTimer
-import webbrowser
 from UI_Styling.smainwindow import SMainWindow
 from UI_Styling.userTools import UserTools
 

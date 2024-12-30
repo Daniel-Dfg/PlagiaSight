@@ -1,12 +1,15 @@
-"""
-    Coders: Daniel-Dfg and Luckyyyin
-"""
-import nltk
-from sys import argv
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import QTimer
-from UI_Functional.main_window import MainWindow
+# Creators:         Daniel-Dfg & Luckyyyin
+# Contributors:     MihaiStreames
+
 import os
+import nltk
+
+from sys import argv
+
+from PySide6.QtWidgets import QApplication
+
+from UI_Functional.main_window import MainWindow
+
 #from time import time
 #CURRENT_TIME = None
 def download_additional_resources():

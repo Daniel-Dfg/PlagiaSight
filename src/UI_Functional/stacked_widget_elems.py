@@ -1,16 +1,18 @@
+import os
+
 from typing_extensions import override
-from PySide6.QtWidgets import (QGridLayout, QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
-                             QListWidget, QHBoxLayout, QComboBox,
-                             QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
-from PySide6.QtGui import QIcon
+
 from PySide6.QtCore import Qt, QTimer, Signal, QEvent
-from text_analysis import UnprocessableTextContent
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import (QGridLayout, QWidget, QVBoxLayout, QLabel, QPushButton, QFileDialog,
+                               QListWidget, QComboBox,
+                               QButtonGroup, QProgressBar, QHBoxLayout, QListWidgetItem)
+
 from .comparison_results import OneFileComparison, CrossCompare
 from .utilities import GraphWindow, DropArea, simplify_path, ResultsInterpretationWindow
 from UI_Styling.filescontainer import FilesContainer
 from UI_Styling.sbuttons import SButtons
 from UI_Styling.sradiobuttons import SRadioButton
-import os
 
 #from time import time
 
