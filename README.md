@@ -20,68 +20,42 @@ Our tool aims to keep results clear and *interpretable* (so : the tool won't dra
 
 
 # 💡 Do you want...
-- ⬇️	<ins>**To GET STARTED using PlagiaSight ?**	</ins>
-<ul>
+## ⬇️	**To GET STARTED using PlagiaSight ?**
 
 Welcome ! Please follow these **installation instructions** :
 
-## Requirements
-    - `pip` (version 21 or later)
-    - `python 3.7 - 3.12`
+### **MacOS / Linux**
 
-First, install and unzip [**our latest release**](https://github.com/Daniel-Dfg/PlagiaSight/tags). Then:
+First, install and unzip [**our latest release**](https://github.com/Daniel-Dfg/PlagiaSight/releases).
 
-- **MacOS / Linux**
+Make sure that the file you just dowloaded, `PlagiaSight_MacOS_Linux`, is allowed to be executed as a program. If that's not the case, just right-click on the file and find the option to make the file executable.
 
-
-    In the folder you just unzipped, simply run `PlagiaSight_Mac_Linux` **in your terminal/CLI the first time**.
-
-
-    In other words, open your terminal/CLI and type the full file path :
-    ```py
-    #should resemble something like this
-    path/to/plagiasight_folder/PlagiaSight_Mac_Linux.sh
-    ```
-    Or just right click on the file and select the option to run it in your terminal. The first time, it can take up to 2-3 minutes to download everything and launch the app, depending of your internet connection.
-
-    If it fails, retry the process in in `sudo/superuser` mode (e.g type `sudo path/to/plagiasight_folder/PlagiaSight_Mac_Linux.sh`).
-
-
-    The next time you'll want to run PlagiaSight, just run `PlagiaSight_Mac_Linux.sh` (not necessarily in your terminal), and it should launch in seconds :)
-
-
-    If this doesn't work, you can also install and run the app manually :
-      - If there's a folder named `venv` in the release you unzipped, delete it.
-      - Then open the terminal at PlagiaSight's folder and the following, one line after another :
-    ```py
-    python3 -m venv .venv #recreate a 'clean' venv folder
-    source venv/bin/activate #activate the venv folder to install dependencies inside
-    pip install -r requirements.txt #reinstall dependencies from scratch
-    python3 src/main.py #run the app
-    ```
-
-  Making the installation process more user-friendly is our #1 priority right now, contibutions and feedback are warmly welcome.
+Startup may be a bit slow the first time due to dependency installation. Run the executable file in your terminal if you feel like there's an issue with PlagiaSight's launch.
+    
 
 
 
-- **Windows**
+### **Windows**
 
-    In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal the first time** (cmd/Powershell on Windows).
+The installation process on Windows is not automated yet, but we're actively working on it.
 
-
-    In other words, you open your cmd/Powershell and type the full path towards the path :
-
-    ```py
-    #should resemble something like this
-    path\to\plagiasight_folder\PlagiaSight_Windows.bat
-    ```
-    Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal". It can take up to 2-3 minutes for everything to be installed and for the app to start running the first time, depending on your internet connection.
+Firstly, **[PlagiaSight's last version for Windows](https://github.com/Daniel-Dfg/PlagiaSight/releases/tag/beta)**.
+In the folder you just unzipped, simply run `PlagiaSight_Windows.bat` **in your terminal the first time** (cmd/Powershell on Windows).
 
 
-    If it fails, please retry while being in administrator mode.
+In other words, you open your cmd/Powershell and type the full path towards the path :
+
+```py
+#should resemble something like this
+path\to\plagiasight_folder\PlagiaSight_Windows.bat
+```
+Or just right-click on `PlagiaSight_Windows.bat` and click on "run in terminal". It can take up to 2-3 minutes for everything to be installed and for the app to start running the first time, depending on your internet connection.
 
 
-    The next time you'll want to run PlagiaSight, just run `PlagiaSight_Windows.bat` (not necessarily in your terminal), and it should launch in seconds :)
+If it fails, please retry while being in administrator mode.
+
+
+The next time you'll want to run PlagiaSight, just run `PlagiaSight_Windows.bat` (not necessarily in your terminal), and it should launch in seconds :)
 
 
 IMPORTANT : after you unzipped and executed the release you donwloaded for the first time, a folder named `venv` will appear. If you wish to move PlagiaSight's application folder afterwards, you MUST delete the `venv` folder before launching the application again !
@@ -96,7 +70,7 @@ IMPORTANT : after you unzipped and executed the release you donwloaded for the f
 
 
 
-- 🤝 <ins>**To CONTRIBUTE to the developement of PlagiaSight ?**	</ins>
+## 🤝 <ins>**To CONTRIBUTE to the developement of PlagiaSight ?**	</ins>
 <ul>
 
 We're always glad to see new contributors ! Here's a roadmap to get you started :
