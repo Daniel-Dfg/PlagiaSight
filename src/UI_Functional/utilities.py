@@ -1,18 +1,21 @@
+from nltk.corpus.reader import toolbox
+from nltk.probability import SimpleGoodTuringProbDist
+from nltk.tokenize.api import overridden
+from typing_extensions import override
+from PySide6.QtWidgets import  QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFrame, QCheckBox
+from PySide6.QtCore import QSize, QTimer, Qt
+from PySide6.QtGui import  QColor, QFont, QIcon
+from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QValueAxis, QBarCategoryAxis
 import os
 import webbrowser
-
-from typing_extensions import override
-
-from PySide6.QtCore import QSize, QTimer, Qt
-from PySide6.QtGui import QColor, QFont, QIcon
-from PySide6.QtCharts import QChart, QChartView, QBarSeries, QBarSet, QValueAxis, QBarCategoryAxis
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFrame, QCheckBox
-
-from UI_Styling.sbuttons import SButtons
 from UI_Styling.sdroparea import SDropArea
+from UI_Styling.smainwindow import SMainWindow
 from UI_Styling.sminiwindow import SMiniWindow
+from UI_Styling.sbuttons import SButtons
+
 
 MAX_FILES_AMOUNT = 5 #TODO : find a solution to keep the same value in stacked_widget_elems (might be a bit early for a global constants file)
+
 
 class DropArea(SDropArea):
     def __init__(self, step1_widget, max_file_amount=5):
